@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            // ->registration()
             ->brandName('PT. Artha Jaya Mas')
             ->colors([
                 'primary' => Color::Cyan,
@@ -64,10 +65,10 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Produksi'),
 
                 NavigationGroup::make()
-                    ->label('Management'),
+                    ->label('Jasa & Layanan'),
 
                 NavigationGroup::make()
-                    ->label('Jasa & Layanan'),
+                    ->label('Management'),
             ]);
     }
 }
