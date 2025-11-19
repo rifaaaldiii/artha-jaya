@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\Produksis\Pages;
+namespace App\Filament\Resources\Teams\Pages;
 
-use App\Filament\Resources\Produksis\ProduksiResource;
+use App\Filament\Resources\Teams\TeamResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditProduksi extends EditRecord
+class EditTeam extends EditRecord
 {
-    protected static string $resource = ProduksiResource::class;
+    protected static string $resource = TeamResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -21,6 +21,4 @@ class EditProduksi extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-
-    
 }

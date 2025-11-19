@@ -22,6 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'createdAt',
+        'UpdateAt',
     ];
 
     /**
@@ -35,6 +37,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -44,6 +53,21 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'createdAt' => 'datetime',
+            'UpdateAt' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user): void {
+            if (blank($user->createdAt)) {
+                $user->createdAt = now();
+            }
+        });
+
+        static::updating(function (User $user): void {
+            $user->UpdateAt = now();
+        });
     }
 }

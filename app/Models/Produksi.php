@@ -5,19 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Produksi extends Model
+class produksi extends Model
 {
     protected $table = 'produksis';
-
-    protected $primaryKey = 'id';
 
     protected $fillable = [
         'no_produksi',
         'nama_produksi',
+        'nama_bahan',
         'jumlah',
-        'petukang_id',
         'status',
         'catatan',
+        'team_id',
         'createdAt',
         'updateAt',
     ];
@@ -30,17 +29,16 @@ class Produksi extends Model
     ];
 
     /**
-     * Get the petukang (user) assigned to the produksi.
+     * Get the team for this produksi.
      */
-    public function petukang(): BelongsTo
+    public function team(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'petukang_id');
+        return $this->belongsTo(team::class, 'team_id');
     }
 
     protected static function booted(): void
     {
-        static::creating(function (Produksi $produksi): void {
-            // Auto-generate running "no_produksi" if not provided
+        static::creating(function (produksi $produksi): void {
             if (blank($produksi->no_produksi)) {
                 $prefix = 'P-';
                 $padLength = 5;
@@ -60,15 +58,53 @@ class Produksi extends Model
                 $produksi->no_produksi = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
             }
 
-            // Set createdAt on first create if not already set
             if (blank($produksi->createdAt)) {
                 $produksi->createdAt = now();
             }
         });
 
-        static::updating(function (Produksi $produksi): void {
-            // Set updateAt every time the record is updated
+        static::updating(function (produksi $produksi): void {
             $produksi->updateAt = now();
+        });
+
+        static::created(function (produksi $produksi): void {
+            if ($produksi->team_id) {
+                team::where('id', $produksi->team_id)->update(['status' => 'busy']);
+            }
+        });
+
+        static::updated(function (produksi $produksi): void {
+            $originalTeamId = $produksi->getOriginal('team_id');
+            $newTeamId = $produksi->team_id;
+
+            if ($originalTeamId !== $newTeamId) {
+                if ($newTeamId) {
+                    team::where('id', $newTeamId)->update(['status' => 'busy']);
+                }
+
+                if ($originalTeamId) {
+                    $hasActiveProduksi = static::query()
+                        ->where('team_id', $originalTeamId)
+                        ->where('id', '!=', $produksi->id)
+                        ->exists();
+                    
+                    if (!$hasActiveProduksi) {
+                        team::where('id', $originalTeamId)->update(['status' => 'ready']);
+                    }
+                }
+            }
+        });
+
+        static::deleted(function (produksi $produksi): void {
+            if ($produksi->team_id) {
+                $hasActiveProduksi = static::query()
+                    ->where('team_id', $produksi->team_id)
+                    ->exists();
+                
+                if (!$hasActiveProduksi) {
+                    team::where('id', $produksi->team_id)->update(['status' => 'ready']);
+                }
+            }
         });
     }
 }

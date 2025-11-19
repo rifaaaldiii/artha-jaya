@@ -15,15 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('no_produksi');
             $table->string('nama_produksi');
+            $table->string('nama_bahan');
             $table->integer('jumlah');
-            $table->foreignId('petukang_id')
-                ->constrained('users')
-                ->references('id')
-                ->on('users')
-                ->onUpdate('cascade')
-                ->onDelete('restrict');
-                $table->enum('status', ['produksi baru', 'siap produksi', 'dalam pengerjaan', 'selesai dikerjakan', 'lolos qc', 'produksi siap diambil', 'selesai']);
-            $table->string('catatan');
+            $table->enum('status', ['produksi baru', 'siap produksi', 'dalam pengerjaan', 'selesai dikerjakan', 'lolos qc', 'produksi siap diambil', 'selesai']);
+            $table->text('catatan')->nullable();
+            $table->foreignId('team_id')->constrained('teams')->onDelete('restrict');
             $table->timestamp('createdAt')->nullable();
             $table->timestamp('updateAt')->nullable();
         });

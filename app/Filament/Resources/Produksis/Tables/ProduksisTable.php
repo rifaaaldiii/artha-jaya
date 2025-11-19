@@ -15,9 +15,28 @@ class ProduksisTable
     {
         return $table
             ->columns([
-                TextColumn::make("createdAt")->label('Tanggal')->sortable()->searchable(),
+                TextColumn::make("createdAt")
+                    ->label('Tanggal')
+                    ->sortable()
+                    ->searchable()
+                    ->date('d-m-Y'),
                 TextColumn::make("no_produksi")->label('No. Produksi')->sortable()->searchable(),
+                TextColumn::make('nama_produksi_nama_bahan')
+                    ->label('Nama Produksi')
+                    ->sortable()
+                    ->searchable(query: function ($query, string $search) {
+                        $query->where(function ($q) use ($search) {
+                            $q->where('nama_produksi', 'like', "%{$search}%")
+                              ->orWhere('nama_bahan', 'like', "%{$search}%")
+                              ->orWhereRaw("CONCAT(nama_produksi, '-' nama_bahan) like ?", ["%{$search}%"]);
+                        });
+                    })
+                    ->getStateUsing(fn ($record) => $record->nama_produksi . '-' . $record->nama_bahan),
                 TextColumn::make("jumlah")->label('Jumlah')->sortable()->searchable(),
+                TextColumn::make('team.nama')
+                    ->label('Team')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make("status")
                     ->label('Status')
                     ->sortable()

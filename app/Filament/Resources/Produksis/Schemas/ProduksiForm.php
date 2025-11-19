@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\Produksis\Schemas;
 
-use Filament\Schemas\Schema;
+use App\Models\team;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 
 class ProduksiForm
 {
@@ -58,22 +59,23 @@ class ProduksiForm
                             $component->state($prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT));
                         }
                     }),
-                TextInput::make("nama_produksi")
-                    ->label("Nama Barang")
+                Select::make("nama_produksi")->label("Jenis Produksi")->required()->options([
+                    "Step Nosing"=> "Step Nosing",
+                    "Plint"=> "Plint",
+                ]),
+                TextInput::make("nama_bahan")
+                    ->label("Nama Bahan")
                     ->required(),
                 TextInput::make("jumlah")
                     ->label("Jumlah")
                     ->numeric()
                     ->required(),
-                Select::make('petukang_id')
-                    ->label('Petukang')
-                    ->relationship(
-                        name: 'petukang',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: fn ($query) => $query->where('role', 'petukang'),
-                    )
+                Select::make('team_id')
+                    ->label('Team')
+                    ->relationship('team', 'nama', fn ($query) => $query->where('status', 'ready'))
                     ->searchable()
                     ->preload()
+                    ->getOptionLabelUsing(fn ($value): ?string => team::find($value)?->nama)
                     ->required(),
                 Textarea::make("catatan")
                     ->label("Catatan"),
