@@ -18,7 +18,10 @@ class PetugasResource extends Resource
 {
     protected static ?string $model = Petugas::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+    public static function getNavigationLabel(): string
+    {
+        return 'Petugas';
+    }
 
     public static function form(Schema $schema): Schema
     {

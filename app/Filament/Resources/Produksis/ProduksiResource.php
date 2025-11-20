@@ -7,20 +7,23 @@ use App\Filament\Resources\Produksis\Pages\EditProduksi;
 use App\Filament\Resources\Produksis\Pages\ListProduksis;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
-use App\Models\Produksi;
+use App\Models\produksi as Produksi;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class ProduksiResource extends Resource
 {
     protected static ?string $model = Produksi::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static ?string $title = 'Product Input';
+    public static function getNavigationLabel(): string
+    {
+        return 'Product Input';
+    }
     public static function form(Schema $schema): Schema
+    
+
     {
         return ProduksiForm::configure($schema);
     }
@@ -48,6 +51,6 @@ class ProduksiResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Produksi';
+        return 'Product';
     }
 }

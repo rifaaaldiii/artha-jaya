@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\JasaDanLayanans\Tables;
+namespace App\Filament\Resources\Jasas\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Table;
 
-class JasaDanLayanansTable
+class JasasTable
 {
     public static function configure(Table $table): Table
     {

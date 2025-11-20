@@ -18,7 +18,10 @@ class PetukangResource extends Resource
 {
     protected static ?string $model = Petukang::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
+    public static function getNavigationLabel(): string
+    {
+        return 'Petukang';
+    }
 
     public static function form(Schema $schema): Schema
     {

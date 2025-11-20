@@ -18,8 +18,45 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin Toko',
+            'email' => 'admintoko@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin_toko',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Admin Gudang',
+            'email' => 'admingudang@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin_gudang',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Kepala Teknisi Lapangan',
+            'email' => 'kepalateknisilapangan@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'kepala_teknisi_lapangan',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Kepala Teknisi Gudang',
+            'email' => 'kepalateknisigudang@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'kepala_teknisi_gudang',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Petugas',
+            'email' => 'petugas@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'petugas',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Petukang',
+            'email' => 'petukang@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'petukang',
         ]);
     }
 }

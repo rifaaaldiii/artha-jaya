@@ -70,26 +70,39 @@ class produksi extends Model
         static::created(function (produksi $produksi): void {
             if ($produksi->team_id) {
                 team::where('id', $produksi->team_id)->update(['status' => 'busy']);
+                petukang::where('team_id', $produksi->team_id)->update(['status' => 'busy']);
             }
         });
 
         static::updated(function (produksi $produksi): void {
             $originalTeamId = $produksi->getOriginal('team_id');
             $newTeamId = $produksi->team_id;
+            $originalStatus = $produksi->getOriginal('status');
+            $newStatus = $produksi->status;
 
+            // Validasi: Jika status berubah menjadi 'selesai', update team dan petukang menjadi 'ready'
+            if ($originalStatus !== 'selesai' && $newStatus === 'selesai' && $produksi->team_id) {
+                team::where('id', $produksi->team_id)->update(['status' => 'ready']);
+                petukang::where('team_id', $produksi->team_id)->update(['status' => 'ready']);
+            }
+
+            // Handle perubahan team_id
             if ($originalTeamId !== $newTeamId) {
                 if ($newTeamId) {
                     team::where('id', $newTeamId)->update(['status' => 'busy']);
+                    petukang::where('team_id', $newTeamId)->update(['status' => 'busy']);
                 }
 
                 if ($originalTeamId) {
                     $hasActiveProduksi = static::query()
                         ->where('team_id', $originalTeamId)
                         ->where('id', '!=', $produksi->id)
+                        ->where('status', '!=', 'selesai')
                         ->exists();
-                    
+
                     if (!$hasActiveProduksi) {
                         team::where('id', $originalTeamId)->update(['status' => 'ready']);
+                        petukang::where('team_id', $originalTeamId)->update(['status' => 'ready']);
                     }
                 }
             }
@@ -99,10 +112,12 @@ class produksi extends Model
             if ($produksi->team_id) {
                 $hasActiveProduksi = static::query()
                     ->where('team_id', $produksi->team_id)
+                    ->where('status', '!=', 'selesai')
                     ->exists();
-                
+
                 if (!$hasActiveProduksi) {
                     team::where('id', $produksi->team_id)->update(['status' => 'ready']);
+                    petukang::where('team_id', $produksi->team_id)->update(['status' => 'ready']);
                 }
             }
         });

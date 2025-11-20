@@ -18,7 +18,10 @@ class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+    public static function getNavigationLabel(): string
+    {
+        return 'Team';
+    }
 
     public static function form(Schema $schema): Schema
     {

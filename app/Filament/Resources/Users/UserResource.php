@@ -13,12 +13,20 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedUser;
+    public static function getNavigationLabel(): string
+    {
+        return 'Manage User';
+    }
+
+    protected static ?int $navigationSort = 1000;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
     public static function form(Schema $schema): Schema
     {
@@ -46,8 +54,15 @@ class UserResource extends Resource
         ];
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return $user->role === 'administrator';
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Management';
+        return 'System';
     }
 }

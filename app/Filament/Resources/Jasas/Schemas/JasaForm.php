@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\JasaDanLayanans\Schemas;
+namespace App\Filament\Resources\Jasas\Schemas;
 
 use Filament\Schemas\Schema;
 
-class JasaDanLayananForm
+class JasaForm
 {
     public static function configure(Schema $schema): Schema
     {
