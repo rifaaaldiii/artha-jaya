@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class ProduksiForm
 {
@@ -96,5 +97,12 @@ class ProduksiForm
                     ->hidden()
                     ->dehydrated(fn ($state) => filled($state)),
             ]);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 }

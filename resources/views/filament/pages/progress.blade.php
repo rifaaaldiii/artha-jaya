@@ -3,11 +3,150 @@
         .mb-6 { margin-bottom: 24px; }
         .max-w-md { max-width: 440px; }
         .block { display: block; }
-        .input-produk {
-            width: 100%; border-radius: 8px; border: 1px solid #d1d5db;
-            background: #fff; color: #111827; box-shadow: 0 1px 2px rgba(0,0,0,.02);
-            padding: 8px 12px; font-size: 15px;
+        .searchable-select {
+            position: relative;
+            width: 100%;
         }
+        .searchable-select-button {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            padding: 12px 14px;
+            font-size: 15px;
+            color: #0f172a;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .searchable-select-button:focus-visible {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+            border: 1px solid #38bdf8;
+        }
+        .searchable-select-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: left;
+        }
+        .searchable-select-placeholder {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .searchable-select-current {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .searchable-select-caret {
+            width: 18px;
+            height: 18px;
+            color: #94a3b8;
+            transition: transform 0.2s ease;
+        }
+        .searchable-select-panel {
+            position: absolute;
+            z-index: 30;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 15px 35px rgba(15,23,42,0.15);
+            overflow: hidden;
+        }
+        .searchable-select-search {
+            position: relative;
+            padding: 12px 12px 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+        }
+        .searchable-select-search svg {
+            position: absolute;
+            top: 50%;
+            left: 24px;
+            width: 18px;
+            height: 18px;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        .searchable-select-search input {
+            width: 100%;
+            border-radius: 999px;
+            border: 1px solid #cbd5f5;
+            padding: 9px 16px 9px 50px;
+            font-size: 14px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .searchable-select-search input:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.2);
+            color: #111827;
+        }
+        .searchable-select-list {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .searchable-select-option {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border: none;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+        .searchable-select-option:hover {
+            background: #ecfeff;
+        }
+        .searchable-select-option.is-active {
+            background: #e0f2fe;
+        }
+        .searchable-select-option span {
+            font-size: 14px;
+            color: #0f172a;
+        }
+        .searchable-select-badge {
+            font-size: 12px;
+            color: #0f172a;
+            background: #cffafe;
+            border-radius: 999px;
+            padding: 3px 10px;
+        }
+        .searchable-select-empty {
+            padding: 16px;
+            font-size: 14px;
+            color: #94a3b8;
+            text-align: center;
+        }
+        .role-action-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 6px;
+            font-size: 12px;
+            color: #f97316;
+            font-weight: 600;
+        }
+        .role-action-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #fb923c;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 #fb923c55;
+        }
+        [x-cloak] { display: none !important; }
         .progress-container { display: flex; gap: 32px; }
         .prog-sidebar { width: 260px; flex-shrink: 0; }
         .prog-steps { display: flex; flex-direction: column; gap: 8px;}
@@ -153,25 +292,215 @@
         @media (max-width: 600px) {
             .detail-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
+        /* Update status controls */
+        .update-status-card {
+            margin-top: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+            padding: 18px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .update-status-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .update-status-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #0f172a;
+        }
+        .update-status-subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #475569;
+        }
+        .update-status-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .update-status-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .update-status-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .update-status-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .update-status-select {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5f5;
+            background: #fff;
+            color: #111827;
+            font-size: 14px;
+            min-width: 230px;
+            box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
+        }
+        .update-status-select:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+        }
+        .update-status-helper {
+            font-size: 13px;
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .update-status-helper svg {
+            width: 16px;
+            height: 16px;
+        }
+        .update-status-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .update-status-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        @media (max-width: 640px) {
+            .update-status-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .update-status-select {
+                width: 100%;
+            }
+            .update-status-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 
     <!-- Pilih Produksi -->
 
+    @php
+        $produksiOptions = $this->getProduksiOptions();
+        $searchKeyword = $this->produksiSearch;
+        $currentSelectionLabel = $this->record
+            ? $this->record->no_produksi . ' | ' . $this->record->nama_produksi . ' - ' . $this->record->nama_bahan
+            : null;
+    @endphp
+
     <div class="mb-6">
         <div class="max-w-md">
-            <label for="selectedProduksiId" class="block" style="font-size:14px;font-weight:500;color:#374151;margin-bottom:9px; padding-right: 10px;">
-                Pilih Produksi
+            <label for="produksiSelector" class="block" style="font-size:14px;font-weight:500;color:#374151;margin-bottom:9px; padding-right: 10px;">
+                Cari & Pilih Produksi
             </label>
-            <select 
-                id="selectedProduksiId"
-                wire:model.live="selectedProduksiId" 
-                class="input-produk"
+            <div 
+                class="searchable-select"
+                x-data="{ open: false }"
+                x-on:click.away="open = false"
+                x-on:keydown.escape.window="open = false"
             >
-                <option value="">-- Pilih Produksi --</option>
-                @foreach($this->getProduksiOptions() as $id => $label)
-                    <option value="{{ $id }}">{{ $label }}</option>
-                @endforeach
-            </select>
+                <button
+                    id="produksiSelector"
+                    type="button"
+                    class="searchable-select-button"
+                    x-on:click="open = !open"
+                    aria-haspopup="listbox"
+                    :aria-expanded="open"
+                >
+                    <span class="searchable-select-label">
+                        <span class="searchable-select-placeholder">
+                            @if($searchKeyword)
+                                {{ count($produksiOptions) }} hasil untuk "{{ $searchKeyword }}"
+                            @else
+                                @if(count($produksiOptions))
+                                    Menampilkan {{ count($produksiOptions) }} produksi terbaru
+                                @else
+                                    Tidak ada hasil
+                                @endif
+                            @endif
+                        </span>
+                        <span class="searchable-select-current">
+                            {{ $currentSelectionLabel ?? 'Belum ada produksi dipilih' }}
+                        </span>
+                    </span>
+                    <svg class="searchable-select-caret" :style="{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 15 3.75-3.75L15.75 15" />
+                    </svg>
+                </button>
+
+                <div
+                    class="searchable-select-panel"
+                    x-show="open"
+                    x-transition.origin.top
+                    x-cloak
+                >
+                    <div class="searchable-select-search">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.25 5.25a7.5 7.5 0 0011.4 11.4z" />
+                        </svg>
+                        <input
+                            type="search"
+                            wire:model.live.debounce.400ms="produksiSearch"
+                            placeholder="Cari no produksi atau nama produksi..."
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="searchable-select-list" role="listbox">
+                        @if($this->record && $currentSelectionLabel && ! array_key_exists($this->record->id, $produksiOptions))
+                            <button
+                                type="button"
+                                class="searchable-select-option is-active"
+                                wire:click="$set('selectedProduksiId', {{ $this->record->id }})"
+                                x-on:click="open = false"
+                                role="option"
+                                aria-selected="true"
+                            >
+                                <span>{{ $currentSelectionLabel }} (Sedang dipilih)</span>
+                                <span class="searchable-select-badge">aktif</span>
+                            </button>
+                        @endif
+
+                        @forelse($produksiOptions as $id => $label)
+                            <button
+                                type="button"
+                                class="searchable-select-option {{ (string)$selectedProduksiId === (string)$id ? 'is-active' : '' }}"
+                                wire:click="$set('selectedProduksiId', {{ $id }})"
+                                x-on:click="open = false"
+                                role="option"
+                                aria-selected="{{ (string)$selectedProduksiId === (string)$id ? 'true' : 'false' }}"
+                            >
+                                <span>{{ $label }}</span>
+                                @if((string)$selectedProduksiId === (string)$id)
+                                    <span class="searchable-select-badge">dipilih</span>
+                                @endif
+                            </button>
+                        @empty
+                            <div class="searchable-select-empty">
+                                Tidak ada produksi yang cocok dengan pencarian.
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -186,70 +515,47 @@
         </div>
     @else
         @php
-            if(auth()->user() && auth()->user()->role === 'admin gudang') {
-                $statuses = [
-                    'siap produksi' => [
-                        'label' => 'Siap Produksi',
-                        'subtitle' => 'Siap untuk diproses',
-                        'step' => 1,
-                    ],
-                    'produksi siap diambil' => [
-                        'label' => 'Siap Diambil',
-                        'subtitle' => 'Siap untuk diambil',
-                        'step' => 2,
-                    ],
-                ];
-
-                $currentStatus = $this->record->status;
-                if ($currentStatus === 'siap produksi') {
-                    $currentStep = 1;
-                } elseif ($currentStatus === 'produksi siap diambil') {
-                    $currentStep = 2;
-                } else {
-                    $currentStep = 1;
-                    $currentStatus = 'siap produksi';
-                }
-            } else {
-                $statuses = [
-                    'produksi baru' => [
-                        'label' => 'Produksi Baru',
-                        'subtitle' => 'Pesanan baru masuk',
-                        'step' => 1,
-                    ],
-                    'siap produksi' => [
-                        'label' => 'Siap Produksi',
-                        'subtitle' => 'Siap untuk diproses',
-                        'step' => 2,
-                    ],
-                    'dalam pengerjaan' => [
-                        'label' => 'Dalam Pengerjaan',
-                        'subtitle' => 'Sedang dikerjakan',
-                        'step' => 3,
-                    ],
-                    'selesai dikerjakan' => [
-                        'label' => 'Selesai Dikerjakan',
-                        'subtitle' => 'Pengerjaan selesai',
-                        'step' => 4,
-                    ],
-                    'lolos qc' => [
-                        'label' => 'Lolos QC',
-                        'subtitle' => 'Quality control passed',
-                        'step' => 5,
-                    ],
-                    'produksi siap diambil' => [
-                        'label' => 'Siap Diambil',
-                        'subtitle' => 'Siap untuk diambil',
-                        'step' => 6,
-                    ],
-                    'selesai' => [
-                        'label' => 'Selesai',
-                        'subtitle' => 'Produksi selesai',
-                        'step' => 7,
-                    ],
-                ];
-                $currentStatus = $this->record->status;
-                $currentStep = $statuses[$currentStatus]['step'] ?? 1;
-            }
+            $statuses = [
+                'produksi baru' => [
+                    'label' => 'Produksi Baru',
+                    'subtitle' => 'Pesanan baru masuk',
+                    'step' => 1,
+                ],
+                'siap produksi' => [
+                    'label' => 'Siap Produksi',
+                    'subtitle' => 'Siap untuk diproses',
+                    'step' => 2,
+                ],
+                'dalam pengerjaan' => [
+                    'label' => 'Dalam Pengerjaan',
+                    'subtitle' => 'Sedang dikerjakan',
+                    'step' => 3,
+                ],
+                'selesai dikerjakan' => [
+                    'label' => 'Selesai Dikerjakan',
+                    'subtitle' => 'Pengerjaan selesai',
+                    'step' => 4,
+                ],
+                'lolos qc' => [
+                    'label' => 'Lolos QC',
+                    'subtitle' => 'Quality control passed',
+                    'step' => 5,
+                ],
+                'produksi siap diambil' => [
+                    'label' => 'Siap Diambil',
+                    'subtitle' => 'Siap untuk diambil',
+                    'step' => 6,
+                ],
+                'selesai' => [
+                    'label' => 'Selesai',
+                    'subtitle' => 'Produksi selesai',
+                    'step' => 7,
+                ],
+            ];
+            $currentStatus = $this->record->status;
+            $currentStep = $statuses[$currentStatus]['step'] ?? 1;
+            $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
+            $nextSequentialStatus = $this->nextSequentialStatus ?? null;
         @endphp
 
     <div class="progress-container">
@@ -308,6 +614,15 @@
                             <div class="prog-step-label
                                 @if($isCurrent) current @elseif($isCompleted || ($step === 7 && $selesaiStepIsCheck)) completed @else upcoming @endif">
                                 {{ $statusInfo['label'] }}
+                                @php
+                                    $showRoleIndicator = $nextSequentialStatus && $nextSequentialStatus === $statusKey && in_array($statusKey, $allowedStatuses, true);
+                                @endphp
+                                @if($showRoleIndicator)
+                                    <span class="role-action-indicator">
+                                        <span class="role-action-dot"></span>
+                                        <span>Bisa Anda lanjutkan</span>
+                                    </span>
+                                @endif
                             </div>
                             <div class="prog-step-subtitle">
                                 {{ $statusInfo['subtitle'] }}
@@ -391,6 +706,80 @@
                         </div>
                     </div>
                     @endif
+
+                    {{-- Tombol dan Dropdown untuk Update Status --}}
+                    @php
+                        $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
+                        $nextSequentialStatus = $this->nextSequentialStatus ?? null;
+                        $canProceedNext = $nextSequentialStatus && in_array($nextSequentialStatus, $allowedStatuses, true);
+                        $isUpdateDisabled = ! $canProceedNext || $this->updateStatusValue !== $nextSequentialStatus;
+                    @endphp
+
+                    @if($this->record->status !== 'selesai')
+                        <div class="update-status-card">
+                            <div class="update-status-header">
+                                <div>
+                                    <div class="update-status-title">Update Status Produksi</div>
+                                    <p class="update-status-subtitle">
+                                        Status hanya dapat bergerak ke langkah berikutnya untuk mencegah kesalahan input.
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if($canProceedNext)
+                                <div class="update-status-body">
+                                    <div class="update-status-field">
+                                        <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
+                                        <div class="update-status-actions">
+                                            <select id="updateStatusValue"
+                                                    class="update-status-select"
+                                                    wire:model.defer="updateStatusValue"
+                                                    wire:loading.attr="disabled"
+                                            >
+                                                <option value="">Konfirmasi status berikutnya</option>
+                                                <option value="{{ $nextSequentialStatus }}">
+                                                    {{ $statuses[$nextSequentialStatus]['label'] }}
+                                                </option>
+                                            </select>
+
+                                            <x-filament::button
+                                                color="success"
+                                                icon="heroicon-m-check-badge"
+                                                wire:click="updateStatus"
+                                                wire:loading.attr="disabled"
+                                                wire:target="updateStatus"
+                                                :disabled="$isUpdateDisabled"
+                                            >
+                                                Simpan Status
+                                            </x-filament::button>
+                                        </div>
+                                    </div>
+                                    <div class="update-status-meta">
+                                        <span class="update-status-helper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                            </svg>
+                                            Status diperbarui secara berurutan untuk menjaga histori produksi.
+                                        </span>
+
+                                        <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
+                                            <x-filament::loading-indicator class="w-4 h-4" />
+                                            Memperbarui status...
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="update-status-body">
+                                    <div class="update-status-field">
+                                        <div class="update-status-helper" style="font-size:14px;">
+                                            Role Anda belum memiliki izin untuk melanjutkan ke status berikutnya. Silakan hubungi role terkait agar proses tetap berurutan.
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                    {{-- End: Tombol Update --}}
                 </div>
             </div>
         </div>
@@ -403,3 +792,17 @@
         </div>
     @endif
 </x-filament-panels::page>
+
+@push('scripts')
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.onError(statusCode => {
+                if (statusCode === 419) {
+                    window.location.reload();
+
+                    return false;
+                }
+            });
+        });
+    </script>
+@endpush
