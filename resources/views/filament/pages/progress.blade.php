@@ -5,7 +5,6 @@
         .block { display: block; }
         .searchable-select {
             position: relative;
-            width: 100%;
         }
         .searchable-select-button {
             width: 100%;
@@ -400,6 +399,7 @@
 
     @php
         $produksiOptions = $this->getProduksiOptions();
+        $produksiOptionsWithStatus = $this->getProduksiOptionsWithStatus();
         $searchKeyword = $this->produksiSearch;
         $currentSelectionLabel = $this->record
             ? $this->record->no_produksi . ' | ' . $this->record->nama_produksi . ' - ' . $this->record->nama_bahan
@@ -428,10 +428,10 @@
                     <span class="searchable-select-label">
                         <span class="searchable-select-placeholder">
                             @if($searchKeyword)
-                                {{ count($produksiOptions) }} hasil untuk "{{ $searchKeyword }}"
+                                {{ count($produksiOptionsWithStatus) }} hasil untuk "{{ $searchKeyword }}"
                             @else
-                                @if(count($produksiOptions))
-                                    Menampilkan {{ count($produksiOptions) }} produksi terbaru
+                                @if(count($produksiOptionsWithStatus))
+                                    Menampilkan {{ count($produksiOptionsWithStatus) }} produksi terbaru
                                 @else
                                     Tidak ada hasil
                                 @endif
@@ -465,7 +465,13 @@
                     </div>
 
                     <div class="searchable-select-list" role="listbox">
-                        @if($this->record && $currentSelectionLabel && ! array_key_exists($this->record->id, $produksiOptions))
+                        @php
+                            $produksiOptionsIds = array_column($produksiOptionsWithStatus, 'id');
+                        @endphp
+                        @if($this->record && $currentSelectionLabel && ! in_array($this->record->id, $produksiOptionsIds))
+                            @php
+                                $currentCanUpdate = $this->canUpdateProduksiStatus($this->record->id);
+                            @endphp
                             <button
                                 type="button"
                                 class="searchable-select-option is-active"
@@ -475,11 +481,23 @@
                                 aria-selected="true"
                             >
                                 <span>{{ $currentSelectionLabel }} (Sedang dipilih)</span>
-                                <span class="searchable-select-badge">aktif</span>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    @if($currentCanUpdate)
+                                        <span class="searchable-select-badge" style="background: #d1fae5; color: #166534; font-weight: 600;">
+                                            Bisa diupdate
+                                        </span>
+                                    @endif
+                                    <span class="searchable-select-badge">aktif</span>
+                                </div>
                             </button>
                         @endif
 
-                        @forelse($produksiOptions as $id => $label)
+                        @forelse($produksiOptionsWithStatus as $produksi)
+                            @php
+                                $id = $produksi['id'];
+                                $label = $produksi['label'];
+                                $canUpdate = $produksi['can_update'];
+                            @endphp
                             <button
                                 type="button"
                                 class="searchable-select-option {{ (string)$selectedProduksiId === (string)$id ? 'is-active' : '' }}"
@@ -489,9 +507,16 @@
                                 aria-selected="{{ (string)$selectedProduksiId === (string)$id ? 'true' : 'false' }}"
                             >
                                 <span>{{ $label }}</span>
-                                @if((string)$selectedProduksiId === (string)$id)
-                                    <span class="searchable-select-badge">dipilih</span>
-                                @endif
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    @if($canUpdate)
+                                        <span class="searchable-select-badge" style="background: #d1fae5; color: #166534; font-weight: 600;">
+                                            Lakukan Update
+                                        </span>
+                                    @endif
+                                    {{--  @if((string)$selectedProduksiId === (string)$id) --}
+                                    {{--      <span class="searchable-select-badge">dipilih</span> --}}
+                                    {{--  @endif --}}
+                                </div>
                             </button>
                         @empty
                             <div class="searchable-select-empty">

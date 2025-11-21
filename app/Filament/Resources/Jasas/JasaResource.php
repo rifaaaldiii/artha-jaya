@@ -11,8 +11,8 @@ use App\Models\jasa;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class JasaResource extends Resource
 {
@@ -53,5 +53,12 @@ class JasaResource extends Resource
     public static function getNavigationGroup(): ?string
     {
         return 'Jasa & Layanan';
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
     }
 }

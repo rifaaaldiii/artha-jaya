@@ -113,6 +113,62 @@ class Progress extends Page
             ->toArray();
     }
 
+    public function getProduksiOptionsWithStatus(): array
+    {
+        $allowedStatuses = $this->getAllowedStatusesForRole();
+        
+        return produksi::query()
+            ->when($this->produksiSearch, function ($query, $search) {
+                $searchTerm = '%'.trim($search).'%';
+
+                $query->where(function ($subQuery) use ($searchTerm) {
+                    $subQuery->where('no_produksi', 'like', $searchTerm)
+                        ->orWhere('nama_produksi', 'like', $searchTerm)
+                        ->orWhere('nama_bahan', 'like', $searchTerm);
+                });
+            })
+            ->orderBy('createdAt', 'desc')
+            ->limit(50)
+            ->get()
+            ->map(function ($produksi) use ($allowedStatuses) {
+                $currentStatus = $produksi->status;
+                $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
+                $nextStatus = ($currentIndex !== false && isset(self::STATUS_FLOW[$currentIndex + 1])) 
+                    ? self::STATUS_FLOW[$currentIndex + 1] 
+                    : null;
+                
+                $canUpdate = $nextStatus && in_array($nextStatus, $allowedStatuses, true) && $produksi->status !== 'selesai';
+                
+                return [
+                    'id' => $produksi->id,
+                    'label' => $produksi->no_produksi . ' | ' . $produksi->nama_produksi . ' - ' . $produksi->nama_bahan,
+                    'status' => $produksi->status,
+                    'can_update' => $canUpdate,
+                ];
+            })
+            ->toArray();
+    }
+
+    public function canUpdateProduksiStatus($produksiId): bool
+    {
+        $produksi = produksi::find($produksiId);
+        if (!$produksi || $produksi->status === 'selesai') {
+            return false;
+        }
+
+        $allowedStatuses = $this->getAllowedStatusesForRole();
+        $currentStatus = $produksi->status;
+        $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
+        
+        if ($currentIndex === false) {
+            return false;
+        }
+
+        $nextStatus = self::STATUS_FLOW[$currentIndex + 1] ?? null;
+        
+        return $nextStatus && in_array($nextStatus, $allowedStatuses, true);
+    }
+
     public function updateStatus(): void
     {
         if (! $this->record) {

@@ -11,8 +11,8 @@ use App\Models\Petugas;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class PetugasResource extends Resource
 {
@@ -52,5 +52,12 @@ class PetugasResource extends Resource
     public static function getNavigationGroup(): ?string
     {
         return 'Management';
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 }

@@ -8,6 +8,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ProduksiForm
 {
@@ -86,13 +87,18 @@ class ProduksiForm
                     ->required(),
                 TextInput::make("createdAt")
                     ->default(fn ($record = null) =>
-                        $record?->createdAt?->toDateTimeString() ?? now()->toDateTimeString()
+                        $record?->createdAt
+                            // Set timezone ke Asia/Bangkok (WIB/Waktu Indonesia Barat juga GMT+7)
+                            ? Carbon::parse($record->createdAt)->setTimezone('Asia/Bangkok')->toDateTimeString()
+                            : Carbon::now('Asia/Bangkok')->toDateTimeString()
                     )
                     ->hidden()
                     ->dehydrated(fn ($state) => filled($state)),
                 TextInput::make("updateAt")
                     ->default(fn ($record = null) =>
-                        $record?->updateAt?->toDateTimeString() ?? null
+                        $record?->updateAt
+                            ? Carbon::parse($record->updateAt)->setTimezone('Asia/Bangkok')->toDateTimeString()
+                            : null
                     )
                     ->hidden()
                     ->dehydrated(fn ($state) => filled($state)),

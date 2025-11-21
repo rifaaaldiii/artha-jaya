@@ -58,7 +58,7 @@ class UserResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator'], true);
     }
 
     public static function getNavigationGroup(): ?string

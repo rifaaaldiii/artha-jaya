@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\jasa;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 
 class ProgressJasa extends Page
 {
@@ -79,5 +80,12 @@ class ProgressJasa extends Page
                 ];
             })
             ->toArray();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
     }
 }
