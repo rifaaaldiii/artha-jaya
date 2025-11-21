@@ -1,4 +1,4 @@
-<x-filament-panels::page wire:poll.1s="refresh">
+<x-filament-panels::page wire:poll.3s="refresh">
     <style>
         .mb-6 { margin-bottom: 24px; }
         .max-w-md { max-width: 440px; }
@@ -513,9 +513,6 @@
                                             Lakukan Update
                                         </span>
                                     @endif
-                                    {{--  @if((string)$selectedProduksiId === (string)$id) --}
-                                    {{--      <span class="searchable-select-badge">dipilih</span> --}}
-                                    {{--  @endif --}}
                                 </div>
                             </button>
                         @empty
@@ -710,12 +707,12 @@
                         @endif
                         <li class="detail-list-item">
                             <span class="detail-item-label">Tanggal Dibuat</span>
-                            <span class="detail-item-value">{{ $this->record->createdAt ? $this->record->createdAt->format('d F Y, H:i') : '-' }}</span>
+                            <span class="detail-item-value">{{ $this->record->createdAt ? $this->record->createdAt->format('d F Y, H:i') : '-' }} WIB</span>
                         </li>
                         @if($this->record->updateAt)
                         <li class="detail-list-item">
                             <span class="detail-item-label">Terakhir Diupdate</span>
-                            <span class="detail-item-value">{{ $this->record->updateAt->format('d F Y, H:i') }}</span>
+                            <span class="detail-item-value">{{ $this->record->updateAt->format('d F Y, H:i')}} WIB</span>
                         </li>
                         @endif
                         <li class="detail-list-item">
@@ -818,16 +815,21 @@
     @endif
 </x-filament-panels::page>
 
-@push('scripts')
-    <script>
-        document.addEventListener('livewire:init', () => {
-            Livewire.onError(statusCode => {
-                if (statusCode === 419) {
-                    window.location.reload();
+@script
+    const registerLivewireErrorHandler = () => {
+        if (! window.Livewire) {
+            return;
+        }
 
-                    return false;
-                }
-            });
+        Livewire.onError((statusCode) => {
+            if (statusCode === 419) {
+                window.location.reload();
+
+                return false;
+            }
         });
-    </script>
-@endpush
+    };
+
+    document.addEventListener('livewire:initialized', registerLivewireErrorHandler);
+    document.addEventListener('livewire:init', registerLivewireErrorHandler);
+@endscript

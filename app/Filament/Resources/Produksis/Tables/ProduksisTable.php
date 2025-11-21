@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\Produksis\Tables;
 
 use App\Filament\Pages\Progress;
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
+use App\Filament\Resources\Produksis\ProduksiResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class ProduksisTable
 {
@@ -59,12 +60,15 @@ class ProduksisTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => ProduksiResource::userHasAdminPrivileges()),
+                DeleteAction::make()
+                    ->visible(fn () => ProduksiResource::userHasAdminPrivileges()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => ProduksiResource::userHasAdminPrivileges()),
                 ]),
             ]);
     }

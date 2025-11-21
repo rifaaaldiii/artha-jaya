@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('nama');
             $table->string('kontak');
             $table->text('alamat')->nullable();
-            $table->foreignId('team_id')->nullable()->constrained('teams')->onDelete('set null');
             $table->timestamp('createdAt')->nullable();
             $table->timestamp('UpdateAt')->nullable();
         });

@@ -8,10 +8,11 @@ use App\Filament\Resources\Produksis\Pages\ListProduksis;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
 use App\Models\produksi as Produksi;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ProduksiResource extends Resource
 {
@@ -52,5 +53,38 @@ class ProduksiResource extends Resource
     public static function getNavigationGroup(): ?string
     {
         return 'Product';
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::userHasAdminPrivileges();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::userHasAdminPrivileges();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return static::userHasAdminPrivileges();
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return static::userHasAdminPrivileges();
+    }
+
+    public static function userHasAdminPrivileges(): bool
+    {
+        $role = Auth::user()?->role;
+
+        if (! $role) {
+            return false;
+        }
+
+        $normalizedRole = str_replace(' ', '_', strtolower($role));
+
+        return in_array($normalizedRole, ['administrator', 'admin_toko'], true);
     }
 }

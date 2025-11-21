@@ -10,9 +10,11 @@ class jasa extends Model
     protected $table = 'jasas';
 
     protected $fillable = [
+        'no_jasa',
         'no_ref',
         'jenis_layanan',
         'jadwal',
+        'jadwal_petugas',
         'catatan',
         'petugas_id',
         'pelanggan_id',
@@ -25,6 +27,7 @@ class jasa extends Model
 
     protected $casts = [
         'jadwal' => 'datetime',
+        'jadwal_petugas' => 'datetime',
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
     ];

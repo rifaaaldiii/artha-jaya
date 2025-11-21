@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Team;
+use App\Models\Petukang;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,8 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // User seeding
         User::factory()->create([
             'name' => 'Admin Toko',
             'email' => 'admintoko@artha-jaya.com',
@@ -58,5 +59,29 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role' => 'petukang',
         ]);
+
+        // Team seeding
+        $teams = [
+            ['nama' => 'Team A', 'status' => 'ready'],
+            ['nama' => 'Team B', 'status' => 'ready'],
+            ['nama' => 'Team C', 'status' => 'ready'],
+            ['nama' => 'Team D', 'status' => 'ready'],
+        ];
+
+        foreach ($teams as $teamData) {
+            Team::factory()->create($teamData);
+        }
+
+        // Petukang seeding
+        $petukangs = [
+            ['nama' => 'Petukang 1', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
+            ['nama' => 'Petukang 2', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 2],
+            ['nama' => 'Petukang 3', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
+            ['nama' => 'Petukang 4', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 2],
+        ];
+
+        foreach ($petukangs as $petukangData) {
+            Petukang::factory()->create($petukangData);
+        }
     }
 }

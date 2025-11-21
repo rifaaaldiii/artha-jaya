@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('jasas', function (Blueprint $table) {
             $table->id();
+            $table->string('no_jasa');
             $table->string('no_ref');
             $table->string('jenis_layanan');
             $table->dateTime('jadwal')->nullable();

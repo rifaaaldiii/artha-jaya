@@ -13,7 +13,6 @@ class pelanggan extends Model
         'nama',
         'kontak',
         'alamat',
-        'team_id',
         'createdAt',
         'UpdateAt',
     ];
