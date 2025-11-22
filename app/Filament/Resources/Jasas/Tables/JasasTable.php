@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Jasas\Tables;
 
+use App\Filament\Pages\ProgressJasa;
+use App\Filament\Resources\Jasas\JasaResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
 
 class JasasTable
@@ -13,6 +16,7 @@ class JasasTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordUrl(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id)
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('no_jasa')
                     ->label('No. Jasa')
@@ -29,6 +33,13 @@ class JasasTable
                 \Filament\Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->color(fn ($state) => match (strtolower($state)) {
+                        'jasa baru' => 'danger',
+                        'terjadwal' => 'info',
+                        'selesai dikerjakan' => 'warning',
+                        'selesai' => 'success',
+                        default => 'secondary',
+                    })
                     ->sortable()
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('jadwal')
@@ -40,12 +51,17 @@ class JasasTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->url(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id),
+                EditAction::make()
+                    ->authorize(fn ($record) => JasaResource::canEdit($record)),
+                DeleteAction::make()
+                    ->authorize(fn ($record) => JasaResource::canDelete($record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->authorize(JasaResource::canDeleteAny()),
                 ]),
             ]);
     }

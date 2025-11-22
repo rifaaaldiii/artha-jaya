@@ -3,12 +3,17 @@
 namespace App\Filament\Pages;
 
 use App\Models\produksi;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 
-class Progress extends Page
+class Progress extends Page implements HasForms
 {
+    use InteractsWithForms;
+
     protected const STATUS_FLOW = [
         'produksi baru',
         'siap produksi',
@@ -35,6 +40,7 @@ class Progress extends Page
 
     public ?string $produksiSearch = '';
 
+
     public static function getNavigationGroup(): ?string
     {
         return 'Product';
@@ -49,8 +55,6 @@ class Progress extends Page
             $this->record = null;
         }
     }
-
-    // Enable polling for real-time updates (every 3 seconds)
     protected function getPollingInterval(): ?string
     {
         return '3s';
@@ -66,20 +70,79 @@ class Progress extends Page
 
     public function mount(): void
     {
-        // Check if selectedProduksiId is provided from query string
         $selectedProduksiId = request()->query('selectedProduksiId');
         
         if ($selectedProduksiId) {
             $this->selectedProduksiId = (int) $selectedProduksiId;
             $this->loadRecord();
         } else {
-            // Load the first produksi if none selected
             $firstProduksi = produksi::orderBy('createdAt', 'desc')->first();
             if ($firstProduksi) {
                 $this->selectedProduksiId = $firstProduksi->id;
                 $this->loadRecord();
             }
         }
+
+        $this->produksiForm->fill([
+            'selectedProduksiId' => $this->selectedProduksiId,
+        ]);
+    }
+
+    public array $data = [];
+
+    protected function getForms(): array
+    {
+        return [
+            'produksiForm',
+        ];
+    }
+
+    public function produksiForm($form)
+    {
+        return $form
+            ->schema([
+                Select::make('selectedProduksiId')
+                    ->label('Cari & Pilih Produksi')
+                    ->options(function () {
+                        return produksi::query()
+                            ->orderBy('createdAt', 'desc')
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(function ($produksi) {
+                                return [
+                                    $produksi->id => $produksi->no_produksi . ' | ' . $produksi->nama_produksi . ' - ' . $produksi->nama_bahan
+                                ];
+                            })
+                            ->toArray();
+                    })
+                    ->searchable()
+                    ->getSearchResultsUsing(function (string $search) {
+                        return produksi::query()
+                            ->where(function ($query) use ($search) {
+                                $searchTerm = '%' . trim($search) . '%';
+                                $query->where('no_produksi', 'like', $searchTerm)
+                                    ->orWhere('nama_produksi', 'like', $searchTerm)
+                                    ->orWhere('nama_bahan', 'like', $searchTerm);
+                            })
+                            ->orderBy('createdAt', 'desc')
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(function ($produksi) {
+                                return [
+                                    $produksi->id => $produksi->no_produksi . ' | ' . $produksi->nama_produksi . ' - ' . $produksi->nama_bahan
+                                ];
+                            })
+                            ->toArray();
+                    })
+                    ->preload()
+                    ->getOptionLabelUsing(fn ($value): ?string => produksi::find($value)?->no_produksi . ' | ' . produksi::find($value)?->nama_produksi . ' - ' . produksi::find($value)?->nama_bahan)
+                    ->live()
+                    ->afterStateUpdated(function ($state) {
+                        $this->selectedProduksiId = $state;
+                        $this->loadRecord();
+                    }),
+            ])
+            ->statePath('data');
     }
 
     public function updatedSelectedProduksiId(): void
@@ -276,5 +339,12 @@ class Progress extends Page
         }
 
         return self::STATUS_FLOW[$currentIndex + 1] ?? null;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user();
+
+        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_gudang', 'petukang', 'admin_gudang'], true);
     }
 }

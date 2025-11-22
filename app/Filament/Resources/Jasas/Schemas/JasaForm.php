@@ -71,16 +71,41 @@ class JasaForm
             
             Select::make('pelanggan_id')
                 ->label('Pilih Pelanggan')
-                ->relationship('pelanggan', 'nama')
+                ->options(function () {
+                    return pelanggan::query()
+                        ->orderBy('nama')
+                        ->get()
+                        ->mapWithKeys(function ($pelanggan) {
+                            return [$pelanggan->id => $pelanggan->nama . ' | ' . $pelanggan->alamat];
+                        })
+                        ->toArray();
+                })
                 ->searchable()
+                ->getSearchResultsUsing(function (string $search) {
+                    return pelanggan::query()
+                        ->where(function ($query) use ($search) {
+                            $searchTerm = '%' . trim($search) . '%';
+                            $query->where('nama', 'like', $searchTerm)
+                                ->orWhere('alamat', 'like', $searchTerm)
+                                ->orWhere('kontak', 'like', $searchTerm);
+                        })
+                        ->orderBy('nama')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(function ($pelanggan) {
+                            return [$pelanggan->id => $pelanggan->nama . ' | ' . $pelanggan->alamat];
+                        })
+                        ->toArray();
+                })
+                ->getOptionLabelUsing(fn ($value): ?string => 
+                    ($data = pelanggan::find($value)) ? ($data->nama . ' | ' . $data->alamat) : null
+                )
                 ->preload()
-                ->getOptionLabelUsing(fn ($value): ?string => pelanggan::find($value)?->nama)
                 ->required(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
                 ->visible(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
                 ->dehydrated(true)
                 ->reactive()
                 ->afterStateUpdated(function ($state, callable $set, $get, $record) {
-                    // Saat pelanggan dipilih saat edit, load data pelanggan
                     if ($record && $state) {
                         $pelanggan = pelanggan::find($state);
                         if ($pelanggan) {

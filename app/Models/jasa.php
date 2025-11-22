@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class jasa extends Model
 {
@@ -33,11 +34,19 @@ class jasa extends Model
     ];
 
     /**
-     * Get the petugas for this jasa.
+     * Get the petugas for this jasa (legacy single petugas relation).
      */
     public function petugas(): BelongsTo
     {
         return $this->belongsTo(petugas::class, 'petugas_id');
+    }
+
+    /**
+     * Get all petugas for this jasa (many-to-many relation).
+     */
+    public function petugasMany(): BelongsToMany
+    {
+        return $this->belongsToMany(petugas::class, 'jasa_petugas', 'jasa_id', 'petugas_id');
     }
 
     /**
@@ -58,6 +67,63 @@ class jasa extends Model
 
         static::updating(function (jasa $jasa): void {
             $jasa->updateAt = now();
+        });
+
+        static::updated(function (jasa $jasa): void {
+            $originalStatus = $jasa->getOriginal('status');
+            $newStatus = $jasa->status;
+
+            // Jika status berubah menjadi 'selesai', update semua petugas terkait menjadi 'ready'
+            if ($originalStatus !== 'selesai' && $newStatus === 'selesai') {
+                $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+                
+                if (!empty($petugasIds)) {
+                    foreach ($petugasIds as $petugasId) {
+                        // Cek apakah petugas masih memiliki jasa aktif selain yang ini
+                        $hasActiveJasa = static::query()
+                            ->whereHas('petugasMany', function ($query) use ($petugasId) {
+                                $query->where('petugas_id', $petugasId);
+                            })
+                            ->where('id', '!=', $jasa->id)
+                            ->where('status', '!=', 'selesai')
+                            ->exists();
+
+                        if (!$hasActiveJasa) {
+                            petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                        }
+                    }
+                }
+            }
+
+            // Jika status berubah menjadi 'terjadwal', update petugas menjadi 'busy'
+            if ($originalStatus !== 'terjadwal' && $newStatus === 'terjadwal') {
+                $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+                
+                if (!empty($petugasIds)) {
+                    petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
+                }
+            }
+        });
+
+        static::deleted(function (jasa $jasa): void {
+            // Saat jasa dihapus, update semua petugas terkait menjadi 'ready'
+            $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+            
+            if (!empty($petugasIds)) {
+                foreach ($petugasIds as $petugasId) {
+                    // Cek apakah petugas masih memiliki jasa aktif selain yang dihapus
+                    $hasActiveJasa = static::query()
+                        ->whereHas('petugasMany', function ($query) use ($petugasId) {
+                            $query->where('petugas_id', $petugasId);
+                        })
+                        ->where('status', '!=', 'selesai')
+                        ->exists();
+
+                    if (!$hasActiveJasa) {
+                        petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                    }
+                }
+            }
         });
     }
 }

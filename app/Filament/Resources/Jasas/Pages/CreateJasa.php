@@ -6,10 +6,17 @@ use App\Filament\Resources\Jasas\JasaResource;
 use App\Models\pelanggan;
 use App\Models\jasa;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
 
 class CreateJasa extends CreateRecord
 {
     protected static string $resource = JasaResource::class;
+
+    public static function canAccess(array $parameters = []): bool
+    {
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
+    }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {

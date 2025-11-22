@@ -6,10 +6,17 @@ use App\Filament\Resources\Jasas\JasaResource;
 use App\Models\pelanggan;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditJasa extends EditRecord
 {
     protected static string $resource = JasaResource::class;
+
+    public static function canAccess(array $parameters = []): bool
+    {
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
+    }
 
     protected function getHeaderActions(): array
     {

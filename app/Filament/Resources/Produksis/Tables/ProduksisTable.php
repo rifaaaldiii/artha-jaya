@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -60,15 +61,17 @@ class ProduksisTable
                 //
             ])
             ->recordActions([
+                ViewAction::make()
+                    ->url(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id),
                 EditAction::make()
-                    ->visible(fn () => ProduksiResource::userHasAdminPrivileges()),
+                    ->authorize(fn ($record) => ProduksiResource::canEdit($record)),
                 DeleteAction::make()
-                    ->visible(fn () => ProduksiResource::userHasAdminPrivileges()),
+                    ->authorize(fn ($record) => ProduksiResource::canDelete($record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => ProduksiResource::userHasAdminPrivileges()),
+                        ->authorize(ProduksiResource::canDeleteAny()),
                 ]),
             ]);
     }

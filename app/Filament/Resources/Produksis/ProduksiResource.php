@@ -57,34 +57,32 @@ class ProduksiResource extends Resource
 
     public static function canCreate(): bool
     {
-        return static::userHasAdminPrivileges();
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return static::userHasAdminPrivileges();
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::userHasAdminPrivileges();
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 
     public static function canDeleteAny(): bool
     {
-        return static::userHasAdminPrivileges();
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 
-    public static function userHasAdminPrivileges(): bool
+    public static function shouldRegisterNavigation(): bool
     {
-        $role = Auth::user()?->role;
+        $user = Auth::user();
 
-        if (! $role) {
-            return false;
-        }
-
-        $normalizedRole = str_replace(' ', '_', strtolower($role));
-
-        return in_array($normalizedRole, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_gudang', 'petukang', 'admin_gudang'], true);
     }
 }

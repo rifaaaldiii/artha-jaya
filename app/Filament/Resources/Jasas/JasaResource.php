@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class JasaResource extends Resource
@@ -60,5 +61,29 @@ class JasaResource extends Resource
         $user = Auth::user();
 
         return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        $user = Auth::user();
+        return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
 }

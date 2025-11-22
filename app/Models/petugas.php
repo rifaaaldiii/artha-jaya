@@ -24,11 +24,19 @@ class petugas extends Model
     ];
 
     /**
-     * Get all jasas for this petugas.
+     * Get all jasas for this petugas (legacy single relation).
      */
     public function jasas()
     {
         return $this->hasMany(jasa::class, 'petugas_id');
+    }
+
+    /**
+     * Get all jasas for this petugas (many-to-many relation).
+     */
+    public function jasasMany()
+    {
+        return $this->belongsToMany(jasa::class, 'jasa_petugas', 'petugas_id', 'jasa_id');
     }
 
     protected static function booted(): void
