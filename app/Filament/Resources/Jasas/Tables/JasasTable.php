@@ -17,6 +17,7 @@ class JasasTable
     {
         return $table
             ->recordUrl(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id)
+            ->poll('3s')
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('no_jasa')
                     ->label('No. Jasa')
