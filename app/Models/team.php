@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static \Database\Factories\TeamFactory factory($count = null, $state = [])
+ */
 class team extends Model
 {
+    /** @use HasFactory<\Database\Factories\TeamFactory> */
+    use HasFactory;
     protected $table = 'teams';
 
     protected $fillable = [

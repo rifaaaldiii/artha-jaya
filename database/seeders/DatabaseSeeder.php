@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\Team;
-use App\Models\Petukang;
+use App\Models\team;
+use App\Models\petukang;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -69,7 +69,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($teams as $teamData) {
-            Team::factory()->create($teamData);
+            team::factory()->create($teamData);
         }
 
         // Petukang seeding
@@ -81,7 +81,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($petukangs as $petukangData) {
-            Petukang::factory()->create($petukangData);
+            petukang::factory()->create($petukangData);
         }
     }
 }

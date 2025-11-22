@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static \Database\Factories\PetukangFactory factory($count = null, $state = [])
+ */
 class petukang extends Model
 {
+    /** @use HasFactory<\Database\Factories\PetukangFactory> */
+    use HasFactory;
     protected $table = 'petukangs';
 
     protected $fillable = [
