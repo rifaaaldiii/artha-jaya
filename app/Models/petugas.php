@@ -3,9 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+/**
+ * @method static \Database\Factories\PetugasFactory factory($count = null, $state = [])
+ */
 class petugas extends Model
 {
+    /** @use HasFactory<\Database\Factories\PetugasFactory> */
+    use HasFactory;
     protected $table = 'petugas';
 
     protected $fillable = [

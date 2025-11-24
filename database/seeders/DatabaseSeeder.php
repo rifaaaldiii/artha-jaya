@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\team;
 use App\Models\petukang;
+use App\Models\petugas;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -88,6 +89,17 @@ class DatabaseSeeder extends Seeder
 
         foreach ($petukangs as $petukangData) {
             petukang::factory()->create($petukangData);
+        }
+
+        $petugas = [
+            ['nama' => 'Petugas 1', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Petugas 2', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Petugas 3', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Petugas 4', 'status' => 'ready', 'kontak' => '082123609953'],
+        ];
+
+        foreach ($petugas as $petugasData) {
+            petugas::factory()->create($petugasData);
         }
     }
 }

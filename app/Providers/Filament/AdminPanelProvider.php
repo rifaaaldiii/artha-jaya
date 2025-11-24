@@ -8,7 +8,9 @@ use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
-use App\Filament\Widgets\ProductionCart;
+use App\Filament\Widgets\ProductOverview;
+use App\Filament\Widgets\RecentProduksiWidget;
+use App\Filament\Widgets\RecentJasaWidget;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use Filament\Navigation\NavigationGroup;
@@ -46,7 +48,6 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
-                ProductionCart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
