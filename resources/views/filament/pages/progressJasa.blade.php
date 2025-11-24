@@ -166,6 +166,96 @@
         @media (max-width: 600px) {
             .detail-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
+        /* Force black color for form labels in terjadwal form regardless of theme - High specificity */
+        .terjadwal-form-wrapper label,
+        .terjadwal-form-wrapper .fi-field-label,
+        .terjadwal-form-wrapper .fi-input-wrp-label,
+        .terjadwal-form-wrapper label.fi-label,
+        .terjadwal-form-wrapper [class*="fi-label"],
+        .terjadwal-form-wrapper label[for*="jadwalPetugas"],
+        .terjadwal-form-wrapper label[for*="petugasIds"],
+        .terjadwal-form-wrapper .fi-field-wrapper label,
+        .terjadwal-form-wrapper .fi-input-wrp label,
+        .terjadwal-form-container label,
+        .terjadwal-form-container .fi-field-label,
+        .terjadwal-form-container .fi-input-wrp-label,
+        .terjadwal-form-container label.fi-label,
+        .terjadwal-form-container [class*="fi-label"],
+        .terjadwal-form-container label[for*="jadwalPetugas"],
+        .terjadwal-form-container label[for*="petugasIds"],
+        .terjadwal-form-container .fi-field-wrapper label,
+        .terjadwal-form-container .fi-input-wrp label,
+        .terjadwal-form-wrapper [class*="schema-field"] label,
+        .terjadwal-form-container [class*="schema-field"] label,
+        .terjadwal-form-wrapper [class*="schema-component"] label,
+        .terjadwal-form-container [class*="schema-component"] label,
+        .terjadwal-form-wrapper .fi-field * label,
+        .terjadwal-form-wrapper .fi-input * label,
+        .terjadwal-form-wrapper [class*="field"] label,
+        .terjadwal-form-container .fi-field * label,
+        .terjadwal-form-container .fi-input * label,
+        .terjadwal-form-container [class*="field"] label {
+            color: #000000 !important;
+        }
+        /* Dark mode override with maximum specificity - ensure labels stay black even in dark mode */
+        html.dark .terjadwal-form-wrapper label,
+        html.dark .terjadwal-form-wrapper .fi-field-label,
+        html.dark .terjadwal-form-wrapper .fi-input-wrp-label,
+        html.dark .terjadwal-form-wrapper label.fi-label,
+        html.dark .terjadwal-form-wrapper [class*="fi-label"],
+        html.dark .terjadwal-form-wrapper label[for*="jadwalPetugas"],
+        html.dark .terjadwal-form-wrapper label[for*="petugasIds"],
+        html.dark .terjadwal-form-wrapper .fi-field-wrapper label,
+        html.dark .terjadwal-form-wrapper .fi-input-wrp label,
+        html.dark .terjadwal-form-container label,
+        html.dark .terjadwal-form-container .fi-field-label,
+        html.dark .terjadwal-form-container .fi-input-wrp-label,
+        html.dark .terjadwal-form-container label.fi-label,
+        html.dark .terjadwal-form-container [class*="fi-label"],
+        html.dark .terjadwal-form-container label[for*="jadwalPetugas"],
+        html.dark .terjadwal-form-container label[for*="petugasIds"],
+        html.dark .terjadwal-form-container .fi-field-wrapper label,
+        html.dark .terjadwal-form-container .fi-input-wrp label,
+        html.dark .terjadwal-form-wrapper [class*="schema-field"] label,
+        html.dark .terjadwal-form-container [class*="schema-field"] label,
+        html.dark .terjadwal-form-wrapper [class*="schema-component"] label,
+        html.dark .terjadwal-form-container [class*="schema-component"] label,
+        html.dark .terjadwal-form-wrapper .fi-field * label,
+        html.dark .terjadwal-form-wrapper .fi-input * label,
+        html.dark .terjadwal-form-wrapper [class*="field"] label,
+        html.dark .terjadwal-form-container .fi-field * label,
+        html.dark .terjadwal-form-container .fi-input * label,
+        html.dark .terjadwal-form-container [class*="field"] label,
+        [data-theme="dark"] .terjadwal-form-wrapper label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-field-label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-input-wrp-label,
+        [data-theme="dark"] .terjadwal-form-wrapper label.fi-label,
+        [data-theme="dark"] .terjadwal-form-wrapper [class*="fi-label"],
+        [data-theme="dark"] .terjadwal-form-wrapper label[for*="jadwalPetugas"],
+        [data-theme="dark"] .terjadwal-form-wrapper label[for*="petugasIds"],
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-field-wrapper label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-input-wrp label,
+        [data-theme="dark"] .terjadwal-form-container label,
+        [data-theme="dark"] .terjadwal-form-container .fi-field-label,
+        [data-theme="dark"] .terjadwal-form-container .fi-input-wrp-label,
+        [data-theme="dark"] .terjadwal-form-container label.fi-label,
+        [data-theme="dark"] .terjadwal-form-container [class*="fi-label"],
+        [data-theme="dark"] .terjadwal-form-container label[for*="jadwalPetugas"],
+        [data-theme="dark"] .terjadwal-form-container label[for*="petugasIds"],
+        [data-theme="dark"] .terjadwal-form-container .fi-field-wrapper label,
+        [data-theme="dark"] .terjadwal-form-container .fi-input-wrp label,
+        [data-theme="dark"] .terjadwal-form-wrapper [class*="schema-field"] label,
+        [data-theme="dark"] .terjadwal-form-container [class*="schema-field"] label,
+        [data-theme="dark"] .terjadwal-form-wrapper [class*="schema-component"] label,
+        [data-theme="dark"] .terjadwal-form-container [class*="schema-component"] label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-field * label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-input * label,
+        [data-theme="dark"] .terjadwal-form-wrapper [class*="field"] label,
+        [data-theme="dark"] .terjadwal-form-container .fi-field * label,
+        [data-theme="dark"] .terjadwal-form-container .fi-input * label,
+        [data-theme="dark"] .terjadwal-form-container [class*="field"] label {
+            color: #000000 !important;
+        }
         /* Update status controls */
         .update-status-card {
             margin-top: 18px;
@@ -507,12 +597,14 @@
                                         $isKepalaTeknisiLapangan = in_array($normalizedUserRole, ['kepala_teknisi_lapangan', 'admin_toko','administrator'], true);
                                     @endphp
                                     @if($nextSequentialStatus === 'terjadwal' && $isKepalaTeknisiLapangan)
-                                        <div class="update-status-field">
+                                        <div class="update-status-field terjadwal-form-wrapper">
                                             <label class="update-status-label">Langkah Berikutnya: Terjadwal</label>
                                             <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
                                                 Silakan isi jadwal petugas dan pilih petugas yang akan menangani jasa ini.
                                             </p>
-                                            {{ $this->terjadwalForm }}
+                                            <div class="terjadwal-form-container">
+                                                {{ $this->terjadwalForm }}
+                                            </div>
                                             <div style="margin-top: 16px;">
                                                 <x-filament::button
                                                     color="success"
@@ -591,9 +683,8 @@
             <span>Refresh Every 3 Seconds</span>
         </div>
     @endif
-</x-filament-panels::page>
 
-@script
+    @script
     const registerLivewireErrorHandler = () => {
         if (! window.Livewire) {
             return;
@@ -610,4 +701,149 @@
 
     document.addEventListener('livewire:initialized', registerLivewireErrorHandler);
     document.addEventListener('livewire:init', registerLivewireErrorHandler);
-@endscript
+
+    // Force black color for labels in terjadwal form
+    const forceBlackLabels = () => {
+        const wrappers = document.querySelectorAll('.terjadwal-form-wrapper, .terjadwal-form-container');
+        wrappers.forEach(wrapper => {
+            // Get all labels within wrapper
+            const allLabels = wrapper.querySelectorAll('label, [class*="label"], [class*="Label"]');
+            allLabels.forEach(label => {
+                const labelText = (label.textContent || label.innerText || '').trim();
+                // Check if this is one of our target labels
+                if (labelText.includes('Jadwal Petugas') || labelText.includes('Pilih Petugas')) {
+                    label.style.color = '#000000';
+                    label.style.setProperty('color', '#000000', 'important');
+                    // Force on all child elements too
+                    const children = label.querySelectorAll('*');
+                    children.forEach(child => {
+                        child.style.setProperty('color', '#000000', 'important');
+                    });
+                }
+            });
+        });
+    };
+
+    // Run immediately and set up observers
+    const initLabelFix = () => {
+        forceBlackLabels();
+        // Retry a few times to catch dynamic content
+        setTimeout(forceBlackLabels, 100);
+        setTimeout(forceBlackLabels, 300);
+        setTimeout(forceBlackLabels, 500);
+    };
+
+    // Use MutationObserver to watch for DOM changes
+    const observer = new MutationObserver(() => {
+        forceBlackLabels();
+    });
+
+    // Start observing when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initLabelFix();
+            const wrappers = document.querySelectorAll('.terjadwal-form-wrapper, .terjadwal-form-container');
+            wrappers.forEach(wrapper => {
+                observer.observe(wrapper, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class', 'style']
+                });
+            });
+        });
+    } else {
+        initLabelFix();
+        const wrappers = document.querySelectorAll('.terjadwal-form-wrapper, .terjadwal-form-container');
+        wrappers.forEach(wrapper => {
+            observer.observe(wrapper, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+        });
+    }
+
+    // Also run on Livewire events
+    document.addEventListener('livewire:initialized', initLabelFix);
+    if (window.Livewire) {
+        Livewire.hook('morph.updated', () => {
+            setTimeout(forceBlackLabels, 50);
+            setTimeout(forceBlackLabels, 200);
+        });
+    }
+    @endscript
+
+    <style>
+        /* Additional aggressive CSS to force black labels - loaded after all other styles */
+        /* Universal selector for all labels in terjadwal form */
+        .terjadwal-form-wrapper *,
+        .terjadwal-form-container * {
+            --label-color: #000000 !important;
+        }
+        
+        .terjadwal-form-wrapper label,
+        .terjadwal-form-wrapper .fi-field-label,
+        .terjadwal-form-wrapper .fi-input-wrp-label,
+        .terjadwal-form-wrapper [class*="fi-label"],
+        .terjadwal-form-wrapper [class*="label"],
+        .terjadwal-form-container label,
+        .terjadwal-form-container .fi-field-label,
+        .terjadwal-form-container .fi-input-wrp-label,
+        .terjadwal-form-container [class*="fi-label"],
+        .terjadwal-form-container [class*="label"],
+        .terjadwal-form-wrapper .fi-field-wrapper label,
+        .terjadwal-form-wrapper .fi-input-wrp label,
+        .terjadwal-form-wrapper .fi-field-wrapper *,
+        .terjadwal-form-wrapper .fi-input-wrp *,
+        .terjadwal-form-container .fi-field-wrapper label,
+        .terjadwal-form-container .fi-input-wrp label,
+        .terjadwal-form-container .fi-field-wrapper *,
+        .terjadwal-form-container .fi-input-wrp * {
+            color: #000000 !important;
+            color: rgb(0, 0, 0) !important;
+        }
+
+        /* Dark mode overrides with maximum specificity */
+        html.dark .terjadwal-form-wrapper label,
+        html.dark .terjadwal-form-wrapper .fi-field-label,
+        html.dark .terjadwal-form-wrapper .fi-input-wrp-label,
+        html.dark .terjadwal-form-wrapper [class*="fi-label"],
+        html.dark .terjadwal-form-wrapper [class*="label"],
+        html.dark .terjadwal-form-container label,
+        html.dark .terjadwal-form-container .fi-field-label,
+        html.dark .terjadwal-form-container .fi-input-wrp-label,
+        html.dark .terjadwal-form-container [class*="fi-label"],
+        html.dark .terjadwal-form-container [class*="label"],
+        html.dark .terjadwal-form-wrapper .fi-field-wrapper label,
+        html.dark .terjadwal-form-wrapper .fi-input-wrp label,
+        html.dark .terjadwal-form-wrapper .fi-field-wrapper *,
+        html.dark .terjadwal-form-wrapper .fi-input-wrp *,
+        html.dark .terjadwal-form-container .fi-field-wrapper label,
+        html.dark .terjadwal-form-container .fi-input-wrp label,
+        html.dark .terjadwal-form-container .fi-field-wrapper *,
+        html.dark .terjadwal-form-container .fi-input-wrp *,
+        [data-theme="dark"] .terjadwal-form-wrapper label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-field-label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-input-wrp-label,
+        [data-theme="dark"] .terjadwal-form-wrapper [class*="fi-label"],
+        [data-theme="dark"] .terjadwal-form-wrapper [class*="label"],
+        [data-theme="dark"] .terjadwal-form-container label,
+        [data-theme="dark"] .terjadwal-form-container .fi-field-label,
+        [data-theme="dark"] .terjadwal-form-container .fi-input-wrp-label,
+        [data-theme="dark"] .terjadwal-form-container [class*="fi-label"],
+        [data-theme="dark"] .terjadwal-form-container [class*="label"],
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-field-wrapper label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-input-wrp label,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-field-wrapper *,
+        [data-theme="dark"] .terjadwal-form-wrapper .fi-input-wrp *,
+        [data-theme="dark"] .terjadwal-form-container .fi-field-wrapper label,
+        [data-theme="dark"] .terjadwal-form-container .fi-input-wrp label,
+        [data-theme="dark"] .terjadwal-form-container .fi-field-wrapper *,
+        [data-theme="dark"] .terjadwal-form-container .fi-input-wrp * {
+            color: #000000 !important;
+            color: rgb(0, 0, 0) !important;
+        }
+    </style>
+</x-filament-panels::page>

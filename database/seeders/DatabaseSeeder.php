@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admintoko@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'admin_toko',
+            'username' => 'admintoko'
         ]);
 
         User::factory()->create([
@@ -30,6 +31,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admingudang@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'admin_gudang',
+            'username' => 'admingudang'
         ]);
 
         User::factory()->create([
@@ -37,6 +39,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'kepalateknisilapangan@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'kepala_teknisi_lapangan',
+            'username' => 'kepalateknisilapangan'
         ]);
 
         User::factory()->create([
@@ -44,6 +47,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'kepalateknisigudang@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'kepala_teknisi_gudang',
+            'username' => 'kepalateknisigudang'
         ]);
 
         User::factory()->create([
@@ -51,6 +55,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'petugas@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'petugas',
+            'username' => 'petugas'
         ]);
 
         User::factory()->create([
@@ -58,6 +63,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'petukang@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'petukang',
+            'username' => 'petukang'
         ]);
 
         // Team seeding

@@ -15,6 +15,10 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make("name")->label("Nama")->required(),
+                TextInput::make("username")
+                    ->label("Username")
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make("email")
                     ->label("Email")
                     ->required()

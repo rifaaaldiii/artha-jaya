@@ -9,6 +9,8 @@ use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use App\Filament\Widgets\ProductionCart;
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\Register;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
@@ -29,8 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
-            ->registration()
+            ->login(Login::class)
+            ->registration(Register::class)
             ->brandName('System Artha Jaya')
             ->colors([
                 'primary' => Color::Cyan,
