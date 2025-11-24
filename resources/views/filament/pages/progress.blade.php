@@ -1,5 +1,61 @@
 <x-filament-panels::page wire:poll.3s="refresh">
     <style>
+        :root {
+            --aj-surface: #ffffff;
+            --aj-card-bg: #ffffff;
+            --aj-card-border: #e5e7eb;
+            --aj-card-divider: #f3f4f6;
+            --aj-text: #111827;
+            --aj-muted: #6b7280;
+            --aj-step-completed: #14b8a6;
+            --aj-step-current: #0e7490;
+            --aj-step-current-ring: #99f6e4;
+            --aj-step-upcoming-bg: #d1d5db;
+            --aj-step-upcoming-text: #6b7280;
+            --aj-step-connector: #d1d5db;
+            --aj-soft-bg: #f8fafc;
+            --aj-status-card-bg: linear-gradient(135deg, #f0fdfa, #ecfeff);
+            --aj-status-card-border: #e2e8f0;
+            --aj-status-title: #0f172a;
+            --aj-status-subtitle: #475569;
+            --aj-select-border: #cbd5f5;
+            --aj-select-bg: #ffffff;
+            --aj-select-text: #111827;
+            --aj-note: #dc2626;
+            --aj-role-indicator: #f97316;
+            --aj-role-indicator-dot: #fb923c;
+            --aj-realtime-text: #6b7280;
+        }
+
+        .dark,
+        [data-theme="dark"],
+        .filament-theme-dark {
+            --aj-surface: #0f172a;
+            --aj-card-bg: #0b1120;
+            --aj-card-border: #1f2937;
+            --aj-card-divider: #1e293b;
+            --aj-text: #f8fafc;
+            --aj-muted: #94a3b8;
+            --aj-step-completed: #2dd4bf;
+            --aj-step-current: #22d3ee;
+            --aj-step-current-ring: rgba(34, 211, 238, 0.35);
+            --aj-step-upcoming-bg: #1f2937;
+            --aj-step-upcoming-text: #94a3b8;
+            --aj-step-connector: #1f2937;
+            --aj-soft-bg: #0f172a;
+            --aj-status-card-bg: linear-gradient(135deg, #0f172a, #0b1120);
+            --aj-status-card-border: #1e293b;
+            --aj-status-title: #e2e8f0;
+            --aj-status-subtitle: #94a3b8;
+            --aj-select-border: #334155;
+            --aj-select-bg: #0f172a;
+            --aj-select-text: #f8fafc;
+            --aj-note: #f87171;
+            --aj-role-indicator: #fdba74;
+            --aj-role-indicator-dot: #fb923c;
+            --aj-realtime-text: #cbd5f5;
+        }
+
         .mb-6 { margin-bottom: 24px; }
         .max-w-md { max-width: 440px; }
         .block { display: block; }
@@ -9,16 +65,16 @@
             gap: 6px;
             margin-left: 6px;
             font-size: 12px;
-            color: #f97316;
+            color: var(--aj-role-indicator);
             font-weight: 600;
         }
         .role-action-dot {
             width: 9px;
             height: 9px;
             border-radius: 50%;
-            background: #fb923c;
+            background: var(--aj-role-indicator-dot);
             animation: pulse 2s infinite;
-            box-shadow: 0 0 0 0 #fb923c55;
+            box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.35);
         }
         [x-cloak] { display: none !important; }
         .progress-container { display: flex; gap: 32px; }
@@ -30,50 +86,56 @@
             width: 35px; height: 35px; border-radius: 50%; display: flex;
             align-items: center; justify-content: center;
         }
-        .prog-step-circle { background: #14b8a6; }
+        .prog-step-circle { background: var(--aj-step-completed); }
         .prog-step-circle svg { width: 24px; height: 24px; color: #fff; }
         .prog-step-circle-current {
-            background: #0694a2; box-shadow: 0 0 0 4px #99f6e4; color: #fff; font-weight: bold;
+            background: var(--aj-step-current);
+            box-shadow: 0 0 0 4px var(--aj-step-current-ring);
+            color: #fff;
+            font-weight: bold;
         }
         .prog-step-circle-upcoming {
-            background: #d1d5db; color: #6b7280; font-weight: bold;
+            background: var(--aj-step-upcoming-bg);
+            color: var(--aj-step-upcoming-text);
+            font-weight: bold;
         }
         .prog-connector {
             width: 3px; height: 64px; margin-top: 10px;
-            background: #d1d5db;
+            background: var(--aj-step-connector);
         }
-        .prog-connector.completed { background: #14b8a6; }
+        .prog-connector.completed { background: var(--aj-step-completed); }
         .prog-step-label {
             font-weight: bold; font-size: 16px;
+            color: var(--aj-text);
         }
-        .prog-step-label.current { color: #0694a2; }
-        .prog-step-label.completed { color: #14b8a6; }
-        .prog-step-label.upcoming { color: #6b7280; }
+        .prog-step-label.current { color: var(--aj-step-current); }
+        .prog-step-label.completed { color: var(--aj-step-completed); }
+        .prog-step-label.upcoming { color: var(--aj-step-upcoming-text); }
         .prog-step-subtitle {
             font-size: 14px;
-            color: #6b7280;
+            color: var(--aj-muted);
             margin-top: 4px;
         }
 
         .detail-card {
-            background: #fff;
+            background: var(--aj-card-bg);
             border-radius: 12px;
             padding: 0;
             overflow: hidden;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--aj-card-border);
         }
         .detail-header {
             background: transparent;
-            color: #22223b;
+            color: var(--aj-text);
             padding: 22px 24px 12px 24px;
             display: flex;
             align-items: center;
             gap: 18px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--aj-card-divider);
         }
         .detail-header-icon {
             width: 44px; height: 44px;
-            background: #f1f5f9;
+            background: var(--aj-soft-bg);
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
         }
@@ -105,18 +167,18 @@
             padding: 8px 0;
             border-bottom: 1px solid #f3f4f6;
             font-size: 15.2px;
-            color: #262626;
+            color: var(--aj-text);
         }
         .detail-list-item:last-child { border-bottom: none; }
         .detail-item-label {
-            color: #6b7280;
+            color: var(--aj-muted);
             font-size: 14px;
             font-weight: 500;
             margin-right: 18px;
             flex-shrink: 0;
         }
         .detail-item-value {
-            color: #22223b;
+            color: var(--aj-text);
             font-size: 15.6px;
             font-weight: 600;
             text-align: right;
@@ -132,14 +194,14 @@
         .status-purple { background: #f3e8ff; color: #5b21b6;}
         .status-bg-default { background: #bbf7d0; color: #166534;}
         .detail-note {
-            color: #dc2626;
+            color: var(--aj-note);
             font-size: 13.2px;
             font-style: italic;
             word-break: break-word;
             margin-top: 1px;
         }
         .realtime-info {
-            display: flex; align-items: center; gap: 8px; font-size: 14px; color: #6b7280; margin-top: 16px;
+            display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--aj-realtime-text); margin-top: 16px;
         }
         .pulse-dot {
             width: 9px; height: 9px; background: #22c55e; border-radius: 50%;
@@ -169,9 +231,9 @@
         /* Update status controls */
         .update-status-card {
             margin-top: 18px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--aj-status-card-border);
             border-radius: 14px;
-            background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+            background: var(--aj-status-card-bg);
             padding: 18px 20px 20px 20px;
             display: flex;
             flex-direction: column;
@@ -186,12 +248,12 @@
         .update-status-title {
             font-weight: 600;
             font-size: 16px;
-            color: #0f172a;
+            color: var(--aj-status-title);
         }
         .update-status-subtitle {
             margin-top: 4px;
             font-size: 13px;
-            color: #475569;
+            color: var(--aj-status-subtitle);
         }
         .update-status-body {
             display: flex;
@@ -206,7 +268,7 @@
         .update-status-label {
             font-size: 13px;
             font-weight: 600;
-            color: #0f172a;
+            color: var(--aj-status-title);
         }
         .update-status-actions {
             display: flex;
@@ -217,9 +279,9 @@
         .update-status-select {
             padding: 10px 12px;
             border-radius: 10px;
-            border: 1px solid #cbd5f5;
-            background: #fff;
-            color: #111827;
+            border: 1px solid var(--aj-select-border);
+            background: var(--aj-select-bg);
+            color: var(--aj-select-text);
             font-size: 14px;
             min-width: 230px;
             box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
@@ -231,7 +293,7 @@
         }
         .update-status-helper {
             font-size: 13px;
-            color: #0f172a;
+            color: var(--aj-status-title);
             display: inline-flex;
             align-items: center;
             gap: 6px;

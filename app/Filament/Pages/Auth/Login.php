@@ -4,6 +4,8 @@ namespace App\Filament\Pages\Auth;
 
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
@@ -19,13 +21,25 @@ class Login extends BaseLogin
 
     protected function getCredentialsFromFormData(array $data): array
     {
-        // Determine if the input is email or username
         $fieldType = filter_var($data['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        
+
         return [
             $fieldType => $data['email'],
             'password' => $data['password'],
         ];
     }
-}
 
+    protected function throwFailureValidationException(): never
+    {
+        Notification::make()
+            ->title('Login gagal')
+            ->body('Periksa kembali username/email dan kata sandi Anda.')
+            ->danger()
+            ->persistent()
+            ->send();
+
+        throw ValidationException::withMessages([
+            'data.email' => 'Kredensial tidak cocok atau akun belum memiliki akses.',
+        ]);
+    }
+}
