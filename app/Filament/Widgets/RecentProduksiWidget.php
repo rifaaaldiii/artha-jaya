@@ -40,9 +40,10 @@ class RecentProduksiWidget extends BaseWidget
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
-                \Filament\Tables\Columns\TextColumn::make('nama_produksi')
-                    ->label('Jenis Produksi')
-                    ->searchable()
+                \Filament\Tables\Columns\TextColumn::make('nama_produksi_bahan')
+                    ->label('Jenis')
+                    ->getStateUsing(fn ($record) => "{$record->nama_produksi} - {$record->nama_bahan}")
+                    ->searchable(['nama_produksi', 'nama_bahan'])
                     ->badge()
                     ->color('info'),
                 \Filament\Tables\Columns\TextColumn::make('status')
@@ -58,10 +59,6 @@ class RecentProduksiWidget extends BaseWidget
                     ->label('Team')
                     ->badge()
                     ->color('primary'),
-                \Filament\Tables\Columns\TextColumn::make('createdAt')
-                    ->label('Dibuat')
-                    ->dateTime('d M Y')
-                    ->sortable(),
             ])
             ->defaultSort('createdAt', 'desc')
             ->paginated(true);

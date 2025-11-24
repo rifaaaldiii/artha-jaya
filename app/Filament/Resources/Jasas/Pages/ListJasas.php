@@ -4,10 +4,9 @@ namespace App\Filament\Resources\Jasas\Pages;
 
 use App\Filament\Resources\Jasas\JasaResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
-use Illuminate\Support\Facades\Auth;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListJasas extends ListRecords
+class ListJasas extends ManageRecords
 {
     protected static string $resource = JasaResource::class;
 
@@ -15,7 +14,8 @@ class ListJasas extends ListRecords
     {
         return [
             CreateAction::make()
-                ->authorize(JasaResource::canCreate()),
+                ->authorize(JasaResource::canCreate())
+                ->mutateFormDataUsing(fn (array $data): array => JasaResource::mutateFormDataBeforeCreate($data)),
         ];
     }
 }

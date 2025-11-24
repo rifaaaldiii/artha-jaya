@@ -70,8 +70,7 @@ class JasaForm
                     ->orderBy('nama')
                     ->pluck('nama', 'nama')
                     ->toArray()
-                )
-                ->helperText('Kelola pilihan pada menu Management › Jenis Jasa'),
+                ),
 
             TextInput::make("no_ref")
                 ->label("No. Ref")

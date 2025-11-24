@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Petukangs\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class PetukangsTable
 {
@@ -22,7 +22,7 @@ class PetukangsTable
                     ->label('Team')
                     ->sortable()
                     ->searchable(),
-                    IconColumn::make("status")
+                IconColumn::make("status")
                     ->label('Status')
                     ->boolean()
                     ->trueIcon('heroicon-m-check-badge')
@@ -37,11 +37,11 @@ class PetukangsTable
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

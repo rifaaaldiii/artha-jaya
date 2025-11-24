@@ -61,7 +61,7 @@ class ProduksisTable
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id),
                 EditAction::make()
@@ -69,7 +69,7 @@ class ProduksisTable
                 DeleteAction::make()
                     ->authorize(fn ($record) => ProduksiResource::canDelete($record)),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->authorize(ProduksiResource::canDeleteAny()),

@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Produksis;
 
-use App\Filament\Resources\Produksis\Pages\CreateProduksi;
-use App\Filament\Resources\Produksis\Pages\EditProduksi;
 use App\Filament\Resources\Produksis\Pages\ListProduksis;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
@@ -45,8 +43,6 @@ class ProduksiResource extends Resource
     {
         return [
             'index' => ListProduksis::route('/'),
-            'create' => CreateProduksi::route('/create'),
-            'edit' => EditProduksi::route('/{record}/edit'),
         ];
     }
 

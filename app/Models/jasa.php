@@ -60,6 +60,25 @@ class jasa extends Model
     protected static function booted(): void
     {
         static::creating(function (jasa $jasa): void {
+            if (blank($jasa->no_jasa)) {
+                $prefix = 'J-';
+                $padLength = 5;
+
+                $lastNo = static::query()
+                    ->where('no_jasa', 'like', $prefix . '%')
+                    ->orderByDesc('id')
+                    ->value('no_jasa');
+
+                if ($lastNo) {
+                    $num = (int) substr($lastNo, strlen($prefix));
+                    $nextNum = $num + 1;
+                } else {
+                    $nextNum = 1;
+                }
+
+                $jasa->no_jasa = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+            }
+
             if (blank($jasa->createdAt)) {
                 $jasa->createdAt = now();
             }

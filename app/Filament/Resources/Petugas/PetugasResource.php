@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Petugas;
 
-use App\Filament\Resources\Petugas\Pages\CreatePetugas;
-use App\Filament\Resources\Petugas\Pages\EditPetugas;
 use App\Filament\Resources\Petugas\Pages\ListPetugas;
 use App\Filament\Resources\Petugas\Schemas\PetugasForm;
 use App\Filament\Resources\Petugas\Tables\PetugasTable;
@@ -44,8 +42,6 @@ class PetugasResource extends Resource
     {
         return [
             'index' => ListPetugas::route('/'),
-            'create' => CreatePetugas::route('/create'),
-            'edit' => EditPetugas::route('/{record}/edit'),
         ];
     }
 

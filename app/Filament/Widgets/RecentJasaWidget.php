@@ -37,7 +37,7 @@ class RecentJasaWidget extends BaseWidget
                     ->sortable()
                     ->weight('medium'),
                 \Filament\Tables\Columns\TextColumn::make('jenis_layanan')
-                    ->label('Jenis Layanan')
+                    ->label('Jenis')
                     ->searchable()
                     ->badge()
                     ->color('info'),
@@ -53,10 +53,6 @@ class RecentJasaWidget extends BaseWidget
                 \Filament\Tables\Columns\TextColumn::make('pelanggan.nama')
                     ->label('Pelanggan')
                     ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('jadwal')
-                    ->label('Jadwal')
-                    ->dateTime('d M Y')
-                    ->sortable(),
             ])
             ->defaultSort('createdAt', 'desc')
             ->paginated(true);

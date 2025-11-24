@@ -5,9 +5,9 @@ namespace App\Filament\Resources\Jasas\Tables;
 use App\Filament\Pages\ProgressJasa;
 use App\Filament\Resources\Jasas\JasaResource;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
 
@@ -51,7 +51,7 @@ class JasasTable
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id),
                 EditAction::make()
@@ -59,7 +59,7 @@ class JasasTable
                 DeleteAction::make()
                     ->authorize(fn ($record) => JasaResource::canDelete($record)),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->authorize(JasaResource::canDeleteAny()),

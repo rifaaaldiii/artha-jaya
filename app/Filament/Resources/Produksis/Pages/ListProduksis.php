@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Produksis\Pages;
 
 use App\Filament\Resources\Produksis\ProduksiResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListProduksis extends ListRecords
+class ListProduksis extends ManageRecords
 {
     protected static string $resource = ProduksiResource::class;
 

@@ -392,7 +392,7 @@
         </div>
 
         <!-- Right Side: Simplified Details -->
-        <div style="flex:1;">
+        <div style="flex:1;" >
             <div class="detail-card">
                 <div class="detail-header">
                     <div style="flex:2;">
@@ -588,7 +588,7 @@
     </div>
 
         <!-- Real-time indicator -->
-        <div class="realtime-info">
+        <div class="realtime-info" >
             <div class="pulse-dot"></div>
             <span>Refresh Every 3 Seconds</span>
         </div>

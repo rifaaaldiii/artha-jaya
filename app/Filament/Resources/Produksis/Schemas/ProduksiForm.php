@@ -71,15 +71,16 @@ class ProduksiForm
                         ->orderBy('nama')
                         ->pluck('nama', 'nama')
                         ->toArray()
-                    )
-                    ->helperText('Kelola pilihan pada menu Management › Jenis Produksi'),
-                TextInput::make("nama_bahan")
+                    ),
+
+                    TextInput::make("nama_bahan")
                     ->label("Nama Bahan")
                     ->required(),
                 TextInput::make("jumlah")
                     ->label("Jumlah")
                     ->numeric()
                     ->required(),
+
                 Select::make('team_id')
                     ->label('Team')
                     ->relationship('team', 'nama', fn ($query) => $query->where('status', 'ready'))
@@ -87,12 +88,15 @@ class ProduksiForm
                     ->preload()
                     ->getOptionLabelUsing(fn ($value): ?string => team::find($value)?->nama)
                     ->required(),
+
                 Textarea::make("catatan")
                     ->label("Catatan"),
+
                 TextInput::make("status")
                     ->default("produksi baru")
                     ->hidden()
                     ->required(),
+
                 TextInput::make("createdAt")
                     ->default(fn ($record = null) =>
                         $record?->createdAt
@@ -102,6 +106,7 @@ class ProduksiForm
                     )
                     ->hidden()
                     ->dehydrated(fn ($state) => filled($state)),
+
                 TextInput::make("updateAt")
                     ->default(fn ($record = null) =>
                         $record?->updateAt
@@ -110,6 +115,7 @@ class ProduksiForm
                     )
                     ->hidden()
                     ->dehydrated(fn ($state) => filled($state)),
+                    
             ]);
     }
 

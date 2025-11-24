@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Petukangs;
 
-use App\Filament\Resources\Petukangs\Pages\CreatePetukang;
-use App\Filament\Resources\Petukangs\Pages\EditPetukang;
 use App\Filament\Resources\Petukangs\Pages\ListPetukangs;
 use App\Filament\Resources\Petukangs\Schemas\PetukangForm;
 use App\Filament\Resources\Petukangs\Tables\PetukangsTable;
@@ -44,8 +42,6 @@ class PetukangResource extends Resource
     {
         return [
             'index' => ListPetukangs::route('/'),
-            'create' => CreatePetukang::route('/create'),
-            'edit' => EditPetukang::route('/{record}/edit'),
         ];
     }
 
