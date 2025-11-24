@@ -23,6 +23,16 @@ class JenisProduksiResource extends Resource
 
     protected static ?int $navigationSort = 51;
 
+    public static function getLabel(): ?string
+    {
+        return 'Jenis';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Jenis Produksi';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return JenisProduksiForm::configure($schema);

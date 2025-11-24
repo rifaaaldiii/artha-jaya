@@ -23,6 +23,16 @@ class JenisJasaResource extends Resource
 
     protected static ?int $navigationSort = 50;
 
+    public static function getLabel(): ?string
+    {
+        return 'Jenis';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Jenis Jasa';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return JenisJasaForm::configure($schema);

@@ -25,6 +25,16 @@ class JasaResource extends Resource
         return 'Jasa & Layanan Input';
     }
 
+    public static function getLabel(): ?string
+    {
+        return 'Jasa & Layanan';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Jasa & Layanan';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return JasaForm::configure($schema);

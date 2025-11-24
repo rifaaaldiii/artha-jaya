@@ -20,6 +20,15 @@ class ProduksiResource extends Resource
     {
         return 'Product Input';
     }
+    public static function getLabel(): ?string
+    {
+        return 'Produksi';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Produksi';
+    }
     public static function form(Schema $schema): Schema
     
 

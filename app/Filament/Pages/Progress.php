@@ -46,7 +46,6 @@ class Progress extends Page implements HasForms
         return 'Product';
     }
 
-
     protected function loadRecord(): void
     {
         if ($this->selectedProduksiId) {

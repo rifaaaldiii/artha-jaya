@@ -20,6 +20,15 @@ class TeamResource extends Resource
     {
         return 'Team';
     }
+    public static function getLabel(): ?string
+    {
+        return 'Team';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Team';
+    }
 
     public static function form(Schema $schema): Schema
     {

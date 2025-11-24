@@ -20,6 +20,15 @@ class PetugasResource extends Resource
     {
         return 'Petugas';
     }
+    public static function getLabel(): ?string
+    {
+        return 'Petugas';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Petugas';
+    }
 
     public static function form(Schema $schema): Schema
     {

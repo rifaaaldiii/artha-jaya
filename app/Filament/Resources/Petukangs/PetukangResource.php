@@ -20,6 +20,15 @@ class PetukangResource extends Resource
     {
         return 'Petukang';
     }
+    public static function getLabel(): ?string
+    {
+        return 'Petukang';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Tabel Petukang';
+    }
 
     public static function form(Schema $schema): Schema
     {
