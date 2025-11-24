@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Produksis\Schemas;
 
+use App\Models\JenisProduksi;
 use App\Models\team;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -61,10 +62,17 @@ class ProduksiForm
                             $component->state($prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT));
                         }
                     }),
-                Select::make("nama_produksi")->label("Jenis Produksi")->required()->options([
-                    "Step Nosing"=> "Step Nosing",
-                    "Plint"=> "Plint",
-                ]),
+                Select::make("nama_produksi")
+                    ->label("Jenis Produksi")
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->options(fn () => JenisProduksi::query()
+                        ->orderBy('nama')
+                        ->pluck('nama', 'nama')
+                        ->toArray()
+                    )
+                    ->helperText('Kelola pilihan pada menu Management › Jenis Produksi'),
                 TextInput::make("nama_bahan")
                     ->label("Nama Bahan")
                     ->required(),

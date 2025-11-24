@@ -9,6 +9,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Toggle;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
+use App\Models\JenisJasa;
 use App\Models\pelanggan;
 
 class JasaForm
@@ -60,10 +61,17 @@ class JasaForm
                         $component->state($prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT));
                     }
                 }),
-            Select::make("jenis_layanan")->label("Jenis Jasa & Layanan")->required()->options([
-                "Pasang Pipa"=> "Pasang Pipa",
-                "Pengecatan"=> "Pengecatan",
-            ]),
+            Select::make("jenis_layanan")
+                ->label("Jenis Jasa & Layanan")
+                ->required()
+                ->searchable()
+                ->preload()
+                ->options(fn () => JenisJasa::query()
+                    ->orderBy('nama')
+                    ->pluck('nama', 'nama')
+                    ->toArray()
+                )
+                ->helperText('Kelola pilihan pada menu Management › Jenis Jasa'),
 
             TextInput::make("no_ref")
                 ->label("No. Ref")

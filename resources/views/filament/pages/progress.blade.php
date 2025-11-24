@@ -494,7 +494,7 @@
                                 <div>
                                     <div class="update-status-title">Update Status Produksi</div>
                                     <p class="update-status-subtitle">
-                                        Status hanya dapat bergerak ke langkah berikutnya untuk mencegah kesalahan input.
+                                        Status hanya dapat bergerak ke langkah berikutnya.
                                     </p>
                                 </div>
                             </div>
