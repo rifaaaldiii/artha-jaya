@@ -127,7 +127,7 @@ class JasaForm
                 ->label('Nama Pelanggan')
                 ->required()
                 ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
-                ->dehydrated(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
+                ->dehydrated(true)
                 ->default(fn ($record) => $record?->pelanggan?->nama)
                 ->afterStateHydrated(function ($component, $state, $record, $get) {
                     if (blank($state)) {
@@ -163,7 +163,7 @@ class JasaForm
                 ->label('Kontak')
                 ->required()
                 ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
-                ->dehydrated(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
+                ->dehydrated(true)
                 ->default(fn ($record) => $record?->pelanggan?->kontak)
                 ->afterStateHydrated(function ($component, $state, $record, $get) {
                     if (blank($state)) {
@@ -199,7 +199,7 @@ class JasaForm
                 ->label('Alamat')
                 ->required()
                 ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
-                ->dehydrated(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
+                ->dehydrated(true)
                 ->default(fn ($record) => $record?->pelanggan?->alamat)
                 ->afterStateHydrated(function ($component, $state, $record, $get) {
                     if (blank($state)) {

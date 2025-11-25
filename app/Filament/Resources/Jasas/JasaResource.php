@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Jasas;
 
 use App\Filament\Resources\Jasas\Pages\ListJasas;
+use App\Filament\Resources\Jasas\Pages\CreateJasa;
+use App\Filament\Resources\Jasas\Pages\EditJasa;
 use App\Filament\Resources\Jasas\Schemas\JasaForm;
 use App\Filament\Resources\Jasas\Tables\JasasTable;
 use App\Models\Jasa;
@@ -56,6 +58,8 @@ class JasaResource extends Resource
     {
         return [
             'index' => ListJasas::route('/'),
+            'create' => CreateJasa::route('/create'),
+            'edit' => EditJasa::route('/{record}/edit'),
         ];
     }
 
