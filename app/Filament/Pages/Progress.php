@@ -287,7 +287,7 @@ class Progress extends Page implements HasForms
         $this->record->refresh();
 
         Notification::make()
-            ->title('Status diperbarui')
+            ->title('Success')
             ->success()
             ->body('Status produksi berhasil diperbarui menjadi '.ucwords($this->updateStatusValue).'.')
             ->send();

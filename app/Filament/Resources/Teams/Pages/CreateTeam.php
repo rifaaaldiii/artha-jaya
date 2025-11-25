@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Filament\Resources\Teams\Pages;
-
-use App\Filament\Resources\Teams\TeamResource;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\Teams\TeamResource;
 
 class CreateTeam extends CreateRecord
 {

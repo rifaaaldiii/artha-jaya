@@ -359,7 +359,7 @@ class ProgressJasa extends Page implements HasForms
                 $this->loadRecord();
 
                 Notification::make()
-                    ->title('Status diperbarui')
+                    ->title('Success')
                     ->success()
                     ->body('Status jasa berhasil diperbarui menjadi Terjadwal. Petugas yang dipilih telah dijadwalkan.')
                     ->send();
@@ -381,7 +381,7 @@ class ProgressJasa extends Page implements HasForms
         $this->record->refresh();
 
         Notification::make()
-            ->title('Status diperbarui')
+            ->title('Success')
             ->success()
             ->body('Status jasa berhasil diperbarui menjadi '.ucwords($this->updateStatusValue).'.')
             ->send();

@@ -607,7 +607,7 @@
                                 <div class="update-status-body">
                                     <div class="update-status-field">
                                         <div class="update-status-helper" style="font-size:14px;">
-                                            Role Anda belum memiliki izin untuk melanjutkan ke status berikutnya. Silakan hubungi role terkait agar proses tetap berurutan.
+                                            Role Anda belum memiliki izin untuk melanjutkan ke status berikutnya. Silakan hubungi role terkait agar proses tetap berjalan.
                                         </div>
                                     </div>
                                 </div>
