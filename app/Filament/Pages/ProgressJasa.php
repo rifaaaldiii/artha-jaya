@@ -39,7 +39,6 @@ class ProgressJasa extends Page implements HasForms
 
     public ?string $jasaSearch = '';
 
-    // Properties untuk form update status terjadwal
     public ?string $jadwalPetugas = null;
     
     public array $petugasIds = [];
@@ -54,7 +53,6 @@ class ProgressJasa extends Page implements HasForms
         if ($this->selectedJasaId) {
             $this->record = jasa::with(['petugas', 'petugasMany', 'pelanggan'])->find($this->selectedJasaId);
             
-            // Load petugas yang sudah dipilih untuk form terjadwal
             if ($this->record) {
                 $this->petugasIds = $this->record->petugasMany()->pluck('petugas_id')->toArray();
                 if ($this->record->jadwal_petugas) {
@@ -99,7 +97,6 @@ class ProgressJasa extends Page implements HasForms
             'selectedJasaId' => $this->selectedJasaId,
         ]);
 
-        // Inisialisasi form terjadwal jika record ada
         if ($this->record) {
             $this->terjadwalForm->fill([
                 'jadwalPetugas' => $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s'),
@@ -183,7 +180,6 @@ class ProgressJasa extends Page implements HasForms
                     ->multiple()
                     ->required()
                     ->options(function () {
-                        // Include petugas yang sudah dipilih meskipun statusnya busy
                         $currentPetugasIds = $this->record?->petugasMany()->pluck('petugas_id')->toArray() ?? [];
                         
                         return petugas::query()
@@ -216,7 +212,6 @@ class ProgressJasa extends Page implements HasForms
     {
         $this->loadRecord();
         
-        // Load form terjadwal setelah record di-load
         if ($this->record) {
             $this->terjadwalForm->fill([
                 'jadwalPetugas' => $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s'),
@@ -304,13 +299,10 @@ class ProgressJasa extends Page implements HasForms
             return;
         }
 
-        // Jika update ke 'terjadwal', validasi form terjadwal
         if ($this->updateStatusValue === 'terjadwal') {
             $normalizedRole = Auth::user()?->role ? str_replace(' ', '_', strtolower(Auth::user()->role)) : null;
             
-            // Hanya kepala_teknisi_lapangan yang bisa update ke terjadwal
-            if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'admin_toko','administrator'], true)) {
-                // Get data dari form terjadwal
+            if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'administrator'], true)) {
                 try {
                     $terjadwalData = $this->terjadwalForm->getState();
                 } catch (\Exception $e) {
@@ -320,11 +312,9 @@ class ProgressJasa extends Page implements HasForms
                 $jadwalPetugasForm = $terjadwalData['jadwalPetugas'] ?? null;
                 $petugasIdsForm = $terjadwalData['petugasIds'] ?? [];
 
-                // Gunakan data dari form jika ada, jika tidak gunakan property
                 $jadwalPetugas = $jadwalPetugasForm ?: $this->jadwalPetugas;
                 $petugasIds = !empty($petugasIdsForm) ? $petugasIdsForm : $this->petugasIds;
 
-                // Validasi jadwal_petugas dan petugas_ids dari form terjadwal
                 if (empty($petugasIds) || !$jadwalPetugas) {
                     Notification::make()
                         ->title('Form terjadwal belum lengkap')
@@ -334,28 +324,22 @@ class ProgressJasa extends Page implements HasForms
                     return;
                 }
 
-                // Get old petugas IDs untuk update status mereka nanti
                 $oldPetugasIds = $this->record->petugasMany()->pluck('petugas_id')->toArray();
 
-                // Update jadwal_petugas dan sync petugas
                 $this->record->jadwal_petugas = \Carbon\Carbon::parse($jadwalPetugas);
                 $this->record->status = $this->updateStatusValue;
                 $this->record->save();
 
-                // Sync petugas many-to-many (akan otomatis handle detach yang lama)
                 $this->record->petugasMany()->sync($petugasIds);
 
-                // Update status petugas baru menjadi busy
                 if (!empty($petugasIds)) {
                     petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
                 }
 
-                // Update status petugas lama menjadi ready jika tidak ada jasa aktif lagi
                 if (!empty($oldPetugasIds)) {
                     $petugasToReset = array_diff($oldPetugasIds, $petugasIds);
                     if (!empty($petugasToReset)) {
                         foreach ($petugasToReset as $petugasId) {
-                            // Cek apakah petugas masih memiliki jasa aktif
                             $hasActiveJasa = jasa::query()
                                 ->whereHas('petugasMany', function ($query) use ($petugasId) {
                                     $query->where('petugas_id', $petugasId);
@@ -372,7 +356,7 @@ class ProgressJasa extends Page implements HasForms
                 }
 
                 $this->record->refresh();
-                $this->loadRecord(); // Reload untuk refresh relations
+                $this->loadRecord();
 
                 Notification::make()
                     ->title('Status diperbarui')
@@ -380,7 +364,7 @@ class ProgressJasa extends Page implements HasForms
                     ->body('Status jasa berhasil diperbarui menjadi Terjadwal. Petugas yang dipilih telah dijadwalkan.')
                     ->send();
 
-                // Reset form terjadwal dan update status value
+                
                 $this->jadwalPetugas = null;
                 $this->petugasIds = [];
                 $this->updateStatusValue = null;
@@ -392,7 +376,6 @@ class ProgressJasa extends Page implements HasForms
             }
         }
 
-        // Update status normal untuk status selain 'terjadwal'
         $this->record->status = $this->updateStatusValue;
         $this->record->save();
         $this->record->refresh();
@@ -413,12 +396,12 @@ class ProgressJasa extends Page implements HasForms
         $allStatuses = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            // 'admin_toko' => ['jasa baru', 'selesai'],
+            'admin_toko' => ['jasa baru', 'selesai'],
             'kepala_teknisi_lapangan' => ['terjadwal'],
             'petugas' => ['selesai dikerjakan'],
         ];
 
-        if (in_array($normalizedRole, ['administrator', 'admin_toko'], true)) {
+        if (in_array($normalizedRole, ['administrator'], true)) {
             return $allStatuses;
         }
 
@@ -456,4 +439,57 @@ class ProgressJasa extends Page implements HasForms
 
         return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return null;
+        }
+
+        $role = $user->role ?? null;
+        $normalizedRole = $role ? str_replace(' ', '_', strtolower($role)) : null;
+        $statusFlow = self::STATUS_FLOW;
+
+        $roleStatusMap = [
+            'admin_toko' => ['jasa baru', 'selesai'],
+            'kepala_teknisi_lapangan' => ['terjadwal'],
+            'petugas' => ['selesai dikerjakan'],
+        ];
+
+        if (in_array($normalizedRole, ['administrator'], true)) {
+            $allowedStatuses = $statusFlow;
+        } elseif ($normalizedRole && array_key_exists($normalizedRole, $roleStatusMap)) {
+            $allowedStatuses = $roleStatusMap[$normalizedRole];
+        } else {
+            $allowedStatuses = [];
+        }
+
+        if (empty($allowedStatuses)) {
+            return null;
+        }
+
+        $count = jasa::query()
+            ->where('status', '!=', 'selesai')
+            ->get()
+            ->filter(function ($jasa) use ($statusFlow, $allowedStatuses) {
+                $currentStatus = $jasa->status;
+                $currentIndex = array_search($currentStatus, $statusFlow, true);
+                if ($currentIndex === false) {
+                    return false;
+                }
+
+                $nextStatus = $statusFlow[$currentIndex + 1] ?? null;
+                return $nextStatus && in_array($nextStatus, $allowedStatuses, true);
+            })
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
 }

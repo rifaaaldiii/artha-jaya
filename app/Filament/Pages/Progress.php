@@ -59,7 +59,6 @@ class Progress extends Page implements HasForms
         return '3s';
     }
 
-    // Refresh record when polling
     public function refresh(): void
     {
         if ($this->record) {
@@ -303,12 +302,13 @@ class Progress extends Page implements HasForms
         $allStatuses = self::STATUS_FLOW;
 
         $roleStatusMap = [
+            'admin_toko' => ['produksi baru', 'selesai'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
             'kepala_teknisi_gudang' => ['dalam pengerjaan', 'lolos qc'],
             'petukang' => ['selesai dikerjakan'],
         ];
 
-        if (in_array($normalizedRole, ['administrator', 'admin_toko'], true)) {
+        if (in_array($normalizedRole, ['administrator'], true)) {
             return $allStatuses;
         }
 
@@ -345,5 +345,58 @@ class Progress extends Page implements HasForms
         $user = Auth::user();
 
         return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_gudang', 'petukang', 'admin_gudang'], true);
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return null;
+        }
+
+        $role = $user->role ?? null;
+        $normalizedRole = $role ? str_replace(' ', '_', strtolower($role)) : null;
+        $statusFlow = self::STATUS_FLOW;
+
+        $roleStatusMap = [
+            'admin_toko' => ['produksi baru', 'selesai'],
+            'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
+            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'lolos qc'],
+            'petukang' => ['selesai dikerjakan'],
+        ];
+
+        if (in_array($normalizedRole, ['administrator'], true)) {
+            $allowedStatuses = $statusFlow;
+        } elseif ($normalizedRole && array_key_exists($normalizedRole, $roleStatusMap)) {
+            $allowedStatuses = $roleStatusMap[$normalizedRole];
+        } else {
+            $allowedStatuses = [];
+        }
+
+        if (empty($allowedStatuses)) {
+            return null;
+        }
+
+        $count = produksi::query()
+            ->where('status', '!=', 'selesai')
+            ->get()
+            ->filter(function ($produksi) use ($statusFlow, $allowedStatuses) {
+                $currentStatus = $produksi->status;
+                $currentIndex = array_search($currentStatus, $statusFlow, true);
+                if ($currentIndex === false) {
+                    return false;
+                }
+
+                $nextStatus = $statusFlow[$currentIndex + 1] ?? null;
+                return $nextStatus && in_array($nextStatus, $allowedStatuses, true);
+            })
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
     }
 }

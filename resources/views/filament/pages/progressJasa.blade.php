@@ -481,12 +481,19 @@
                             <span class="detail-item-label">Jenis Layanan</span>
                             <span class="detail-item-value">{{ $this->record->jenis_layanan }}</span>
                         </li>
-                        @if($this->record->jadwal)
+                        {{-- Pilih salah satu dari jadwal: Prioritaskan jadwal_petugas jika ada, jika tidak jadwal --}}
                         <li class="detail-list-item">
                             <span class="detail-item-label">Jadwal</span>
-                            <span class="detail-item-value">{{ $this->record->jadwal->format('d F Y, H:i') }} WIB</span>
+                            <span class="detail-item-value">
+                                @if($this->record->jadwal_petugas)
+                                    {{ $this->record->jadwal_petugas->format('d F Y, H:i') }} WIB
+                                @elseif($this->record->jadwal)
+                                    {{ $this->record->jadwal->format('d F Y, H:i') }} WIB
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </li>
-                        @endif
                         @if($this->record->petugasMany && $this->record->petugasMany->count() > 0)
                         <li class="detail-list-item">
                             <span class="detail-item-label">Petugas</span>
@@ -498,12 +505,6 @@
                         <li class="detail-list-item">
                             <span class="detail-item-label">Petugas</span>
                             <span class="detail-item-value">{{ $this->record->petugas->nama }}</span>
-                        </li>
-                        @endif
-                        @if($this->record->jadwal_petugas)
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Jadwal Petugas</span>
-                            <span class="detail-item-value">{{ $this->record->jadwal_petugas->format('d F Y, H:i') }} WIB</span>
                         </li>
                         @endif
                         @if($this->record->pelanggan)
