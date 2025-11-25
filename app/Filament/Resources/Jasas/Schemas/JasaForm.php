@@ -10,7 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
 use App\Models\JenisJasa;
-use App\Models\pelanggan;
+use App\Models\Pelanggan;
 
 class JasaForm
 {
@@ -79,7 +79,7 @@ class JasaForm
             Select::make('pelanggan_id')
                 ->label('Pilih Pelanggan')
                 ->options(function () {
-                    return pelanggan::query()
+                    return Pelanggan::query()
                         ->orderBy('nama')
                         ->get()
                         ->mapWithKeys(function ($pelanggan) {
@@ -89,7 +89,7 @@ class JasaForm
                 })
                 ->searchable()
                 ->getSearchResultsUsing(function (string $search) {
-                    return pelanggan::query()
+                    return Pelanggan::query()
                         ->where(function ($query) use ($search) {
                             $searchTerm = '%' . trim($search) . '%';
                             $query->where('nama', 'like', $searchTerm)
@@ -105,7 +105,7 @@ class JasaForm
                         ->toArray();
                 })
                 ->getOptionLabelUsing(fn ($value): ?string => 
-                    ($data = pelanggan::find($value)) ? ($data->nama . ' | ' . $data->alamat) : null
+                    ($data = Pelanggan::find($value)) ? ($data->nama . ' | ' . $data->alamat) : null
                 )
                 ->preload()
                 ->required(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
@@ -114,7 +114,7 @@ class JasaForm
                 ->reactive()
                 ->afterStateUpdated(function ($state, callable $set, $get, $record) {
                     if ($record && $state) {
-                        $pelanggan = pelanggan::find($state);
+                        $pelanggan = Pelanggan::find($state);
                         if ($pelanggan) {
                             $set('edit_pelanggan_nama', $pelanggan->nama);
                             $set('edit_pelanggan_kontak', $pelanggan->kontak);
@@ -133,7 +133,7 @@ class JasaForm
                     if (blank($state)) {
                         $pelangganId = $get('pelanggan_id') ?? $record?->pelanggan_id;
                         if ($pelangganId) {
-                            $pelanggan = pelanggan::find($pelangganId);
+                            $pelanggan = Pelanggan::find($pelangganId);
                             if ($pelanggan) {
                                 $component->state($pelanggan->nama);
                             }
@@ -145,7 +145,7 @@ class JasaForm
                         return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
                             if ($record && $value) {
                                 $pelangganId = $get('pelanggan_id') ?? $record->pelanggan_id;
-                                $exists = pelanggan::where('nama', $value)
+                                $exists = Pelanggan::where('nama', $value)
                                     ->where('kontak', $get('edit_pelanggan_kontak'))
                                     ->where('alamat', $get('edit_pelanggan_alamat'))
                                     ->where('id', '!=', $pelangganId)
@@ -169,7 +169,7 @@ class JasaForm
                     if (blank($state)) {
                         $pelangganId = $get('pelanggan_id') ?? $record?->pelanggan_id;
                         if ($pelangganId) {
-                            $pelanggan = pelanggan::find($pelangganId);
+                            $pelanggan = Pelanggan::find($pelangganId);
                             if ($pelanggan) {
                                 $component->state($pelanggan->kontak);
                             }
@@ -181,7 +181,7 @@ class JasaForm
                         return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
                             if ($record && $value) {
                                 $pelangganId = $get('pelanggan_id') ?? $record->pelanggan_id;
-                                $exists = pelanggan::where('nama', $get('edit_pelanggan_nama'))
+                                $exists = Pelanggan::where('nama', $get('edit_pelanggan_nama'))
                                     ->where('kontak', $value)
                                     ->where('alamat', $get('edit_pelanggan_alamat'))
                                     ->where('id', '!=', $pelangganId)
@@ -205,7 +205,7 @@ class JasaForm
                     if (blank($state)) {
                         $pelangganId = $get('pelanggan_id') ?? $record?->pelanggan_id;
                         if ($pelangganId) {
-                            $pelanggan = pelanggan::find($pelangganId);
+                            $pelanggan = Pelanggan::find($pelangganId);
                             if ($pelanggan) {
                                 $component->state($pelanggan->alamat);
                             }
@@ -217,7 +217,7 @@ class JasaForm
                         return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
                             if ($record && $value) {
                                 $pelangganId = $get('pelanggan_id') ?? $record->pelanggan_id;
-                                $exists = pelanggan::where('nama', $get('edit_pelanggan_nama'))
+                                $exists = Pelanggan::where('nama', $get('edit_pelanggan_nama'))
                                     ->where('kontak', $get('edit_pelanggan_kontak'))
                                     ->where('alamat', $value)
                                     ->where('id', '!=', $pelangganId)
@@ -240,7 +240,7 @@ class JasaForm
                     function ($get) {
                         return function (string $attribute, $value, \Closure $fail) use ($get) {
                             if ($get('create_new_pelanggan') && $value) {
-                                $exists = pelanggan::where('nama', $value)
+                                $exists = Pelanggan::where('nama', $value)
                                     ->where('kontak', $get('new_pelanggan_kontak'))
                                     ->where('alamat', $get('new_pelanggan_alamat'))
                                     ->exists();
@@ -262,7 +262,7 @@ class JasaForm
                     function ($get) {
                         return function (string $attribute, $value, \Closure $fail) use ($get) {
                             if ($get('create_new_pelanggan') && $value) {
-                                $exists = pelanggan::where('nama', $get('new_pelanggan_nama'))
+                                $exists = Pelanggan::where('nama', $get('new_pelanggan_nama'))
                                     ->where('kontak', $value)
                                     ->where('alamat', $get('new_pelanggan_alamat'))
                                     ->exists();
@@ -284,7 +284,7 @@ class JasaForm
                     function ($get) {
                         return function (string $attribute, $value, \Closure $fail) use ($get) {
                             if ($get('create_new_pelanggan') && $value) {
-                                $exists = pelanggan::where('nama', $get('new_pelanggan_nama'))
+                                $exists = Pelanggan::where('nama', $get('new_pelanggan_nama'))
                                     ->where('kontak', $get('new_pelanggan_kontak'))
                                     ->where('alamat', $value)
                                     ->exists();

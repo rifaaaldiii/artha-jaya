@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Jasas\Pages;
 
 use App\Filament\Resources\Jasas\JasaResource;
-use App\Models\pelanggan;
+use App\Models\Pelanggan;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
@@ -29,10 +29,10 @@ class EditJasa extends EditRecord
     {
         // Simpan perubahan pelanggan jika ada
         if (!empty($data['pelanggan_id']) && isset($data['edit_pelanggan_nama'])) {
-            $pelanggan = pelanggan::find($data['pelanggan_id']);
+            $pelanggan = Pelanggan::find($data['pelanggan_id']);
             if ($pelanggan) {
                 // Validasi: cek apakah ada pelanggan lain dengan data yang sama
-                $existingPelanggan = pelanggan::where('nama', $data['edit_pelanggan_nama'])
+                $existingPelanggan = Pelanggan::where('nama', $data['edit_pelanggan_nama'])
                     ->where('kontak', $data['edit_pelanggan_kontak'])
                     ->where('alamat', $data['edit_pelanggan_alamat'])
                     ->where('id', '!=', $data['pelanggan_id'])

@@ -5,8 +5,8 @@ namespace App\Filament\Resources\Jasas;
 use App\Filament\Resources\Jasas\Pages\ListJasas;
 use App\Filament\Resources\Jasas\Schemas\JasaForm;
 use App\Filament\Resources\Jasas\Tables\JasasTable;
-use App\Models\jasa;
-use App\Models\pelanggan;
+use App\Models\Jasa;
+use App\Models\Pelanggan;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 
 class JasaResource extends Resource
 {
-    protected static ?string $model = jasa::class;
+    protected static ?string $model = Jasa::class;
     protected static ?string $title = 'Jasa Input';
 
     public static function getNavigationLabel(): string
@@ -101,7 +101,7 @@ class JasaResource extends Resource
             $prefix = 'J-';
             $padLength = 5;
 
-            $lastNo = jasa::query()
+            $lastNo = Jasa::query()
                 ->where('no_jasa', 'like', $prefix . '%')
                 ->orderByDesc('id')
                 ->value('no_jasa');
@@ -118,7 +118,7 @@ class JasaResource extends Resource
         }
 
         if (!empty($data['create_new_pelanggan'])) {
-            $existingPelanggan = pelanggan::where('nama', $data['new_pelanggan_nama'] ?? null)
+            $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'] ?? null)
                 ->where('kontak', $data['new_pelanggan_kontak'] ?? null)
                 ->where('alamat', $data['new_pelanggan_alamat'] ?? null)
                 ->first();
@@ -129,7 +129,7 @@ class JasaResource extends Resource
                 ]);
             }
 
-            $pelanggan = pelanggan::create([
+            $pelanggan = Pelanggan::create([
                 'nama' => $data['new_pelanggan_nama'],
                 'kontak' => $data['new_pelanggan_kontak'],
                 'alamat' => $data['new_pelanggan_alamat'],

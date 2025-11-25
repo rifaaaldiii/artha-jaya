@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Jasas\Pages;
 
 use App\Filament\Resources\Jasas\JasaResource;
-use App\Models\pelanggan;
-use App\Models\jasa;
+use App\Models\Pelanggan;
+use App\Models\Jasa;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,7 +24,7 @@ class CreateJasa extends CreateRecord
         if (empty($data['no_jasa'])) {
             $prefix = 'J-';
             $padLength = 5;
-            $lastNo = jasa::query()
+            $lastNo = Jasa::query()
                 ->where('no_jasa', 'like', $prefix . '%')
                 ->orderByDesc('id')
                 ->value('no_jasa');
@@ -47,7 +47,7 @@ class CreateJasa extends CreateRecord
         // Jika user memilih untuk membuat pelanggan baru
         if (!empty($data['create_new_pelanggan']) && $data['create_new_pelanggan']) {
             // Validasi: cek apakah pelanggan dengan data yang sama sudah ada
-            $existingPelanggan = pelanggan::where('nama', $data['new_pelanggan_nama'])
+            $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'])
                 ->where('kontak', $data['new_pelanggan_kontak'])
                 ->where('alamat', $data['new_pelanggan_alamat'])
                 ->first();
@@ -60,7 +60,7 @@ class CreateJasa extends CreateRecord
             }
             
             // Buat pelanggan baru
-            $pelanggan = pelanggan::create([
+            $pelanggan = Pelanggan::create([
                 'nama' => $data['new_pelanggan_nama'],
                 'kontak' => $data['new_pelanggan_kontak'],
                 'alamat' => $data['new_pelanggan_alamat'],
