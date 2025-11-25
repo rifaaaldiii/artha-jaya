@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\team;
-use App\Models\petukang;
-use App\Models\petugas;
+use App\Models\Team;
+use App\Models\Petukang;
+use App\Models\Petugas;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -89,7 +89,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($teams as $teamData) {
-            team::factory()->create($teamData);
+            Team::factory()->create($teamData);
         }
 
         // Petukang seeding
@@ -107,7 +107,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($petukangs as $petukangData) {
-            petukang::factory()->create($petukangData);
+            Petukang::factory()->create($petukangData);
         }
 
         $petugas = [
@@ -124,7 +124,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($petugas as $petugasData) {
-            petugas::factory()->create($petugasData);
+            Petugas::factory()->create($petugasData);
         }
     }
 }

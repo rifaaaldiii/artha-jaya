@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\jasa;
-use App\Models\produksi;
-use App\Models\team;
+use App\Models\Jasa;
+use App\Models\Produksi;
+use App\Models\Team;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
@@ -13,18 +13,18 @@ class ProductOverview extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $totalProduksi = produksi::count();
-        $activeProduksi = produksi::where('status', '!=', 'selesai')->count();
-        $completedProduksi = produksi::where('status', 'selesai')->count();
+        $totalProduksi = Produksi::count();
+        $activeProduksi = Produksi::where('status', '!=', 'selesai')->count();
+        $completedProduksi = Produksi::where('status', 'selesai')->count();
 
-        $totalJasa = jasa::count();
-        $scheduledJasa = jasa::where('status', '!=', 'selesai')->count();
-        $completedJasa = jasa::where('status', 'selesai')->count();
+        $totalJasa = Jasa::count();
+        $scheduledJasa = Jasa::where('status', '!=', 'selesai')->count();
+        $completedJasa = Jasa::where('status', 'selesai')->count();
 
         // Perbaikan untuk team
-        $totalTeam = team::count();
-        $activeTeam = team::where('status', 'ready')->count();
-        $inactiveTeam = team::where('status', '!=', 'ready')->count();
+        $totalTeam = Team::count();
+        $activeTeam = Team::where('status', 'ready')->count();
+        $inactiveTeam = Team::where('status', '!=', 'ready')->count();
 
         return [
             Stat::make('Produksi', number_format($totalProduksi, 0, ',', '.'))
@@ -51,13 +51,13 @@ class ProductOverview extends StatsOverviewWidget
     protected function buildMonthlyChart(string $model): array
     {
         if ($model === 'produksi') {
-            $class = produksi::class;
+            $class = Produksi::class;
             $column = 'createdAt';
         } elseif ($model === 'jasa') {
-            $class = jasa::class;
+            $class = Jasa::class;
             $column = 'createdAt';
         } elseif ($model === 'team') {
-            $class = team::class;
+            $class = Team::class;
             $column = 'createdAt';
         } else {
             return [];

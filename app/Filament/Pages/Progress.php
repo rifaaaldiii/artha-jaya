@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\produksi;
+use App\Models\Produksi;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -34,7 +34,7 @@ class Progress extends Page implements HasForms
 
     public ?int $selectedProduksiId = null;
     
-    public ?produksi $record = null;
+    public ?Produksi $record = null;
 
     public ?string $updateStatusValue = null;
 
@@ -49,7 +49,7 @@ class Progress extends Page implements HasForms
     protected function loadRecord(): void
     {
         if ($this->selectedProduksiId) {
-            $this->record = produksi::with('team')->find($this->selectedProduksiId);
+            $this->record = Produksi::with('team')->find($this->selectedProduksiId);
         } else {
             $this->record = null;
         }
@@ -74,7 +74,7 @@ class Progress extends Page implements HasForms
             $this->selectedProduksiId = (int) $selectedProduksiId;
             $this->loadRecord();
         } else {
-            $firstProduksi = produksi::orderBy('createdAt', 'desc')->first();
+            $firstProduksi = Produksi::orderBy('createdAt', 'desc')->first();
             if ($firstProduksi) {
                 $this->selectedProduksiId = $firstProduksi->id;
                 $this->loadRecord();
@@ -102,7 +102,7 @@ class Progress extends Page implements HasForms
                 Select::make('selectedProduksiId')
                     ->label('Cari & Pilih Produksi')
                     ->options(function () {
-                        return produksi::query()
+                        return Produksi::query()
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
@@ -115,7 +115,7 @@ class Progress extends Page implements HasForms
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
-                        return produksi::query()
+                        return Produksi::query()
                             ->where(function ($query) use ($search) {
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_produksi', 'like', $searchTerm)
@@ -133,7 +133,7 @@ class Progress extends Page implements HasForms
                             ->toArray();
                     })
                     ->preload()
-                    ->getOptionLabelUsing(fn ($value): ?string => produksi::find($value)?->no_produksi . ' | ' . produksi::find($value)?->nama_produksi . ' - ' . produksi::find($value)?->nama_bahan)
+                    ->getOptionLabelUsing(fn ($value): ?string => Produksi::find($value)?->no_produksi . ' | ' . Produksi::find($value)?->nama_produksi . ' - ' . Produksi::find($value)?->nama_bahan)
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->selectedProduksiId = $state;
@@ -150,7 +150,7 @@ class Progress extends Page implements HasForms
 
     public function getProduksiOptions(): array
     {
-        return produksi::query()
+        return Produksi::query()
             ->when($this->produksiSearch, function ($query, $search) {
                 $searchTerm = '%'.trim($search).'%';
 
@@ -178,7 +178,7 @@ class Progress extends Page implements HasForms
     {
         $allowedStatuses = $this->getAllowedStatusesForRole();
         
-        return produksi::query()
+        return Produksi::query()
             ->when($this->produksiSearch, function ($query, $search) {
                 $searchTerm = '%'.trim($search).'%';
 
@@ -212,7 +212,7 @@ class Progress extends Page implements HasForms
 
     public function canUpdateProduksiStatus($produksiId): bool
     {
-        $produksi = produksi::find($produksiId);
+        $produksi = Produksi::find($produksiId);
         if (!$produksi || $produksi->status === 'selesai') {
             return false;
         }
@@ -377,7 +377,7 @@ class Progress extends Page implements HasForms
             return null;
         }
 
-        $count = produksi::query()
+        $count = Produksi::query()
             ->where('status', '!=', 'selesai')
             ->get()
             ->filter(function ($produksi) use ($statusFlow, $allowedStatuses) {

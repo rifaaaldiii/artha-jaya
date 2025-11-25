@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\produksi;
+use App\Models\Produksi;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,7 +30,7 @@ class RecentProduksiWidget extends BaseWidget
     {
         return $table
             ->query(
-                produksi::query()
+                Produksi::query()
                     ->with('team')
                     ->latest('createdAt')
             )

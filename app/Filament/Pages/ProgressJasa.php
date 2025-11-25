@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\jasa;
-use App\Models\petugas;
+use App\Models\Jasa;
+use App\Models\Petugas;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -33,7 +33,7 @@ class ProgressJasa extends Page implements HasForms
 
     public ?int $selectedJasaId = null;
     
-    public ?jasa $record = null;
+    public ?Jasa $record = null;
 
     public ?string $updateStatusValue = null;
 
@@ -51,7 +51,7 @@ class ProgressJasa extends Page implements HasForms
     protected function loadRecord(): void
     {
         if ($this->selectedJasaId) {
-            $this->record = jasa::with(['petugas', 'petugasMany', 'pelanggan'])->find($this->selectedJasaId);
+            $this->record = Jasa::with(['petugas', 'petugasMany', 'pelanggan'])->find($this->selectedJasaId);
             
             if ($this->record) {
                 $this->petugasIds = $this->record->petugasMany()->pluck('petugas_id')->toArray();
@@ -86,7 +86,7 @@ class ProgressJasa extends Page implements HasForms
             $this->selectedJasaId = (int) $selectedJasaId;
             $this->loadRecord();
         } else {
-            $firstJasa = jasa::orderBy('createdAt', 'desc')->first();
+            $firstJasa = Jasa::orderBy('createdAt', 'desc')->first();
             if ($firstJasa) {
                 $this->selectedJasaId = $firstJasa->id;
                 $this->loadRecord();
@@ -122,7 +122,7 @@ class ProgressJasa extends Page implements HasForms
                 Select::make('selectedJasaId')
                     ->label('Cari & Pilih Jasa')
                     ->options(function () {
-                        return jasa::query()
+                        return Jasa::query()
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
@@ -135,7 +135,7 @@ class ProgressJasa extends Page implements HasForms
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
-                        return jasa::query()
+                        return Jasa::query()
                             ->where(function ($query) use ($search) {
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_jasa', 'like', $searchTerm)
@@ -153,7 +153,7 @@ class ProgressJasa extends Page implements HasForms
                             ->toArray();
                     })
                     ->preload()
-                    ->getOptionLabelUsing(fn ($value): ?string => jasa::find($value)?->no_jasa . ' | ' . jasa::find($value)?->no_ref . ' - ' . jasa::find($value)?->jenis_layanan)
+                    ->getOptionLabelUsing(fn ($value): ?string => Jasa::find($value)?->no_jasa . ' | ' . Jasa::find($value)?->no_ref . ' - ' . Jasa::find($value)?->jenis_layanan)
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->selectedJasaId = $state;
@@ -182,7 +182,7 @@ class ProgressJasa extends Page implements HasForms
                     ->options(function () {
                         $currentPetugasIds = $this->record?->petugasMany()->pluck('petugas_id')->toArray() ?? [];
                         
-                        return petugas::query()
+                        return Petugas::query()
                             ->where(function ($query) use ($currentPetugasIds) {
                                 $query->where('status', 'ready');
                                 if (!empty($currentPetugasIds)) {
@@ -222,7 +222,7 @@ class ProgressJasa extends Page implements HasForms
 
     public function canUpdateJasaStatus($jasaId): bool
     {
-        $jasa = jasa::find($jasaId);
+        $jasa = Jasa::find($jasaId);
         if (!$jasa || $jasa->status === 'selesai') {
             return false;
         }
@@ -333,14 +333,14 @@ class ProgressJasa extends Page implements HasForms
                 $this->record->petugasMany()->sync($petugasIds);
 
                 if (!empty($petugasIds)) {
-                    petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
+                    Petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
                 }
 
                 if (!empty($oldPetugasIds)) {
                     $petugasToReset = array_diff($oldPetugasIds, $petugasIds);
                     if (!empty($petugasToReset)) {
                         foreach ($petugasToReset as $petugasId) {
-                            $hasActiveJasa = jasa::query()
+                            $hasActiveJasa = Jasa::query()
                                 ->whereHas('petugasMany', function ($query) use ($petugasId) {
                                     $query->where('petugas_id', $petugasId);
                                 })
@@ -349,7 +349,7 @@ class ProgressJasa extends Page implements HasForms
                                 ->exists();
 
                             if (!$hasActiveJasa) {
-                                petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                                Petugas::where('id', $petugasId)->update(['status' => 'ready']);
                             }
                         }
                     }
@@ -469,7 +469,7 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
-        $count = jasa::query()
+        $count = Jasa::query()
             ->where('status', '!=', 'selesai')
             ->get()
             ->filter(function ($jasa) use ($statusFlow, $allowedStatuses) {

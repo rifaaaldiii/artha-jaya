@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\jasa;
+use App\Models\Jasa;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +26,7 @@ class RecentJasaWidget extends BaseWidget
     {
         return $table
             ->query(
-                jasa::query()
+                Jasa::query()
                     ->with(['pelanggan', 'petugas'])
                     ->latest('createdAt')
             )
