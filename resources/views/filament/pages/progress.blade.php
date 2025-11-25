@@ -1,3 +1,7 @@
+@push('head')
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+@endpush
+
 <x-filament-panels::page wire:poll.3s="refresh">
     <style>
         :root {
@@ -629,6 +633,19 @@
 </x-filament-panels::page>
 
 @script
+    // Set favicon
+    (function() {
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/x-icon';
+        link.href = '{{ asset("favicon.ico") }}';
+        const existingLink = document.querySelector('link[rel="icon"]');
+        if (existingLink) {
+            existingLink.remove();
+        }
+        document.head.appendChild(link);
+    })();
+
     const registerLivewireErrorHandler = () => {
         if (! window.Livewire) {
             return;
