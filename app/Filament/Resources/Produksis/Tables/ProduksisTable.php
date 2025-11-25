@@ -65,14 +65,20 @@ class ProduksisTable
                 ViewAction::make()
                     ->url(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id),
                 EditAction::make()
-                    ->authorize(fn ($record) => ProduksiResource::canEdit($record)),
+                    ->authorize(fn ($record) => ProduksiResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => ProduksiResource::canDelete($record)),
+                    ->authorize(fn ($record) => ProduksiResource::canDelete($record) && strtolower($record->status) !== 'selesai'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->authorize(ProduksiResource::canDeleteAny()),
+                        ->authorize(ProduksiResource::canDeleteAny())
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->filter(fn ($record) => strtolower($record->status) !== 'selesai')
+                                ->each(fn ($record) => $record->delete());
+                        }),
                 ]),
             ]);
     }

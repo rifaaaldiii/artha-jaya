@@ -55,14 +55,20 @@ class JasasTable
                 ViewAction::make()
                     ->url(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id),
                 EditAction::make()
-                    ->authorize(fn ($record) => JasaResource::canEdit($record)),
+                    ->authorize(fn ($record) => JasaResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => JasaResource::canDelete($record)),
+                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) !== 'selesai'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->authorize(JasaResource::canDeleteAny()),
+                        ->authorize(JasaResource::canDeleteAny())
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->filter(fn ($record) => strtolower($record->status) !== 'selesai')
+                                ->each(fn ($record) => $record->delete());
+                        }),
                 ]),
             ]);
     }
