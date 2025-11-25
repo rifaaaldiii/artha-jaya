@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            // ->registration(Register::class)
+            ->registration(Register::class)
             ->brandName('System Artha Jaya')
             ->colors([
                 'primary' => Color::Cyan,
