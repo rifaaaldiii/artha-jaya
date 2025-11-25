@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Produksis\Schemas;
 
 use App\Models\JenisProduksi;
-use App\Models\team;
+use App\Models\Team;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -86,7 +86,7 @@ class ProduksiForm
                     ->relationship('team', 'nama', fn ($query) => $query->where('status', 'ready'))
                     ->searchable()
                     ->preload()
-                    ->getOptionLabelUsing(fn ($value): ?string => team::find($value)?->nama)
+                    ->getOptionLabelUsing(fn ($value): ?string => Team::find($value)?->nama)
                     ->required(),
 
                 Textarea::make("catatan")

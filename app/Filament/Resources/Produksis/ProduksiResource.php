@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Produksis;
 use App\Filament\Resources\Produksis\Pages\ListProduksis;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
-use App\Models\produksi as Produksi;
+use App\Models\Produksi as Produksi;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
