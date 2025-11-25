@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static \Database\Factories\PetukangFactory factory($count = null, $state = [])
  */
-class petukang extends Model
+class Petukang extends Model
 {
     /** @use HasFactory<\Database\Factories\PetukangFactory> */
     use HasFactory;
@@ -36,18 +36,18 @@ class petukang extends Model
      */
     public function team(): BelongsTo
     {
-        return $this->belongsTo(team::class, 'team_id');
+        return $this->belongsTo(Team::class, 'team_id');
     }
 
     protected static function booted(): void
     {
-        static::creating(function (petukang $petukang): void {
+        static::creating(function (Petukang $petukang): void {
             if (blank($petukang->createdAt)) {
                 $petukang->createdAt = now();
             }
         });
 
-        static::updating(function (petukang $petukang): void {
+        static::updating(function (Petukang $petukang): void {
             $petukang->updateAt = now();
         });
     }

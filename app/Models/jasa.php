@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class jasa extends Model
+class Jasa extends Model
 {
     protected $table = 'jasas';
 
@@ -38,7 +38,7 @@ class jasa extends Model
      */
     public function petugas(): BelongsTo
     {
-        return $this->belongsTo(petugas::class, 'petugas_id');
+        return $this->belongsTo(Petugas::class, 'petugas_id');
     }
 
     /**
@@ -46,7 +46,7 @@ class jasa extends Model
      */
     public function petugasMany(): BelongsToMany
     {
-        return $this->belongsToMany(petugas::class, 'jasa_petugas', 'jasa_id', 'petugas_id');
+        return $this->belongsToMany(Petugas::class, 'jasa_petugas', 'jasa_id', 'petugas_id');
     }
 
     /**
@@ -54,12 +54,12 @@ class jasa extends Model
      */
     public function pelanggan(): BelongsTo
     {
-        return $this->belongsTo(pelanggan::class, 'pelanggan_id');
+        return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
     protected static function booted(): void
     {
-        static::creating(function (jasa $jasa): void {
+        static::creating(function (Jasa $jasa): void {
             if (blank($jasa->no_jasa)) {
                 $prefix = 'J-';
                 $padLength = 5;
@@ -84,11 +84,11 @@ class jasa extends Model
             }
         });
 
-        static::updating(function (jasa $jasa): void {
+        static::updating(function (Jasa $jasa): void {
             $jasa->updateAt = now();
         });
 
-        static::updated(function (jasa $jasa): void {
+        static::updated(function (Jasa $jasa): void {
             $originalStatus = $jasa->getOriginal('status');
             $newStatus = $jasa->status;
 
@@ -108,7 +108,7 @@ class jasa extends Model
                             ->exists();
 
                         if (!$hasActiveJasa) {
-                            petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                            Petugas::where('id', $petugasId)->update(['status' => 'ready']);
                         }
                     }
                 }
@@ -119,12 +119,12 @@ class jasa extends Model
                 $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
                 
                 if (!empty($petugasIds)) {
-                    petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
+                    Petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
                 }
             }
         });
 
-        static::deleted(function (jasa $jasa): void {
+        static::deleted(function (Jasa $jasa): void {
             // Saat jasa dihapus, update semua petugas terkait menjadi 'ready'
             $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
             
@@ -139,7 +139,7 @@ class jasa extends Model
                         ->exists();
 
                     if (!$hasActiveJasa) {
-                        petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                        Petugas::where('id', $petugasId)->update(['status' => 'ready']);
                     }
                 }
             }

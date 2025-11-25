@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class pelanggan extends Model
+class Pelanggan extends Model
 {
     protected $table = 'pelanggans';
 
@@ -29,7 +29,7 @@ class pelanggan extends Model
      */
     public function team(): BelongsTo
     {
-        return $this->belongsTo(team::class, 'team_id');
+        return $this->belongsTo(Team::class, 'team_id');
     }
 
     /**
@@ -37,18 +37,18 @@ class pelanggan extends Model
      */
     public function jasas()
     {
-        return $this->hasMany(jasa::class, 'pelanggan_id');
+        return $this->hasMany(Jasa::class, 'pelanggan_id');
     }
 
     protected static function booted(): void
     {
-        static::creating(function (pelanggan $pelanggan): void {
+        static::creating(function (Pelanggan $pelanggan): void {
             if (blank($pelanggan->createdAt)) {
                 $pelanggan->createdAt = now();
             }
         });
 
-        static::updating(function (pelanggan $pelanggan): void {
+        static::updating(function (Pelanggan $pelanggan): void {
             $pelanggan->UpdateAt = now();
         });
     }

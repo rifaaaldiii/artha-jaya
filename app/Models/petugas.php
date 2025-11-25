@@ -8,12 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @method static \Database\Factories\PetugasFactory factory($count = null, $state = [])
  */
-class petugas extends Model
+class Petugas extends Model
 {
     /** @use HasFactory<\Database\Factories\PetugasFactory> */
     use HasFactory;
     protected $table = 'petugas';
-
     protected $fillable = [
         'nama',
         'status',
@@ -34,7 +33,7 @@ class petugas extends Model
      */
     public function jasas()
     {
-        return $this->hasMany(jasa::class, 'petugas_id');
+        return $this->hasMany(Jasa::class, 'petugas_id');
     }
 
     /**
@@ -42,18 +41,18 @@ class petugas extends Model
      */
     public function jasasMany()
     {
-        return $this->belongsToMany(jasa::class, 'jasa_petugas', 'petugas_id', 'jasa_id');
+        return $this->belongsToMany(Jasa::class, 'jasa_petugas', 'petugas_id', 'jasa_id');
     }
 
     protected static function booted(): void
     {
-        static::creating(function (petugas $petugas): void {
+        static::creating(function (Petugas $petugas): void {
             if (blank($petugas->createdAt)) {
                 $petugas->createdAt = now();
             }
         });
 
-        static::updating(function (petugas $petugas): void {
+        static::updating(function (Petugas $petugas): void {
             $petugas->updateAt = now();
         });
     }

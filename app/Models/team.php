@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @method static \Database\Factories\TeamFactory factory($count = null, $state = [])
  */
-class team extends Model
+class Team extends Model
 {
     /** @use HasFactory<\Database\Factories\TeamFactory> */
     use HasFactory;
@@ -33,7 +33,7 @@ class team extends Model
      */
     public function petukangs()
     {
-        return $this->hasMany(petukang::class, 'team_id');
+        return $this->hasMany(Petukang::class, 'team_id');
     }
 
     /**
@@ -41,7 +41,7 @@ class team extends Model
      */
     public function produksis()
     {
-        return $this->hasMany(produksi::class, 'team_id');
+        return $this->hasMany(Produksi::class, 'team_id');
     }
 
     /**
@@ -49,18 +49,18 @@ class team extends Model
      */
     public function pelanggans()
     {
-        return $this->hasMany(pelanggan::class, 'team_id');
+        return $this->hasMany(Pelanggan::class, 'team_id');
     }
 
     protected static function booted(): void
     {
-        static::creating(function (team $team): void {
+        static::creating(function (Team $team): void {
             if (blank($team->createdAt)) {
                 $team->createdAt = now();
             }
         });
 
-        static::updating(function (team $team): void {
+        static::updating(function (Team $team): void {
             $team->updatedAt = now();
         });
     }
