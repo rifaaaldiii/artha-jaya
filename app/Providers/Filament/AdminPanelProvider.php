@@ -31,10 +31,19 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->registration(Register::class)
+            // ->registration(Register::class)
             ->brandName('System Artha Jaya')
+            ->favicon(asset('favicon.png'))
+            ->brandLogo(asset('logo.png'))
+            ->brandLogoHeight('3rem')
+            ->font('poppins')
             ->colors([
-                'primary' => Color::Cyan,
+                'danger' => Color::Red,
+                'primary' => Color::Green,
+                'secondary' => Color::Gray,
+                'success' => Color::Green,
+                'warning' => Color::Yellow,
+                'info' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
