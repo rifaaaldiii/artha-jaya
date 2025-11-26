@@ -56,7 +56,7 @@ class Progress extends Page implements HasForms
     }
     protected function getPollingInterval(): ?string
     {
-        return '3s';
+        return '10s';
     }
 
     public function refresh(): void
