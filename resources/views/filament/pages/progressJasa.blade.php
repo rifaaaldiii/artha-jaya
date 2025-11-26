@@ -548,6 +548,30 @@
                         $canProceedNext = $nextSequentialStatus && in_array($nextSequentialStatus, $allowedStatuses, true);
                         // Tombol selalu enabled
                         $isUpdateDisabled = false;
+
+                        // Temukan role yang diizinkan untuk status berikutnya (informasi jika tidak boleh melangkah)
+                        $nextSequentialStatusRole = null;
+                        $nextSequentialStatusRoleDisplay = '-';
+                        if ($nextSequentialStatus) {
+                            $roleStatusMap = [
+                                'admin_toko' => ['produksi baru', 'selesai'],
+                                'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
+                                'kepala_teknisi_gudang' => ['dalam pengerjaan', 'lolos qc'],
+                                'kepala_teknisi_lapangan' => ['terjadwal', 'sedang berjalan'],
+                                'petugas' => ['selesai dikerjakan'],
+                            ];
+                            foreach ($roleStatusMap as $role => $statusesForRole) {
+                                if (in_array($nextSequentialStatus, $statusesForRole, true)) {
+                                    $nextSequentialStatusRole = $role;
+                                    break;
+                                }
+                            }
+                            // fallback jika tidak ditemukan, misal "administrator" dll
+                            if (!$nextSequentialStatusRole) {
+                                $nextSequentialStatusRole = 'administrator';
+                            }
+                            $nextSequentialStatusRoleDisplay = ucwords(str_replace('_', ' ', $nextSequentialStatusRole));
+                        }
                     @endphp
 
                     @if($this->record->status !== 'selesai')
@@ -635,11 +659,16 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="update-status-body">
-                                    <div class="update-status-field">
-                                        <div class="update-status-helper" style="font-size:14px;">
-                                            Role Anda belum memiliki izin untuk melanjutkan ke status berikutnya. Silakan hubungi role terkait agar proses tetap berjalan.
-                                        </div>
+                                <div class="update-status-no-permission" style="display: flex; align-items: center; gap: 14px; border-radius: 8px; padding: 15px 24px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 32 32" width="38" height="38" style="flex-shrink:0;" stroke="#F59E42">
+                                        <circle cx="16" cy="16" r="15" stroke="#d90606" stroke-width="2" fill="#FFF3DE"/>
+                                        <path stroke="#d90606" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 11v6m0 4h.01"/>
+                                    </svg>
+                                    <div style="font-size: 13px; color: #d90606; text-align:left;">
+                                        Saat ini Anda belum dapat melanjutkan ke status berikutnya.<br>
+                                        <span style="font-size:13.5px; color:#ff0800;">
+                                            Mohon tunggu hingga <b> <strong>{{ $nextSequentialStatusRoleDisplay }}</strong></b> menyelesaikan tugasnya terlebih dahulu.
+                                        </span>
                                     </div>
                                 </div>
                             @endif
