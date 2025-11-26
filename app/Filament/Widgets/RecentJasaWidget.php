@@ -6,6 +6,7 @@ use App\Models\Jasa;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 
 class RecentJasaWidget extends BaseWidget
 {
@@ -21,6 +22,12 @@ class RecentJasaWidget extends BaseWidget
     public static function getDefaultTableRecordsPerPage(): int
     {
         return 5;
+    }
+
+    #[On('aj-refresh-jasa')]
+    public function handleExternalRefresh(): void
+    {
+        $this->resetTable();
     }
     public function table(Table $table): Table
     {

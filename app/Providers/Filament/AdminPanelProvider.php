@@ -21,6 +21,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -56,6 +57,10 @@ class AdminPanelProvider extends PanelProvider
                 // FilamentInfoWidget::class,
                 \App\Filament\Widgets\CustomInfoWidget::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.hooks.polling-script')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -2,7 +2,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 @endpush
 
-<x-filament-panels::page wire:poll.10s="refresh">
+<x-filament-panels::page>
     <style>
         :root {
             --aj-surface: #ffffff;
@@ -551,7 +551,8 @@
                         $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
                         $nextSequentialStatus = $this->nextSequentialStatus ?? null;
                         $canProceedNext = $nextSequentialStatus && in_array($nextSequentialStatus, $allowedStatuses, true);
-                        $isUpdateDisabled = ! $canProceedNext || $this->updateStatusValue !== $nextSequentialStatus;
+                        // Always enable: no validation
+                        $isUpdateEnabled = true;
                     @endphp
 
                     @if($this->record->status !== 'selesai')
@@ -565,57 +566,47 @@
                                 </div>
                             </div>
 
-                            @if($canProceedNext)
-                                <div class="update-status-body">
-                                    <div class="update-status-field">
-                                        <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
-                                        <div class="update-status-actions">
-                                            <select id="updateStatusValue"
-                                                    class="update-status-select"
-                                                    wire:model.defer="updateStatusValue"
-                                                    wire:loading.attr="disabled"
-                                            >
-                                                <option value="">Konfirmasi status berikutnya</option>
-                                                <option value="{{ $nextSequentialStatus }}">
-                                                    {{ $statuses[$nextSequentialStatus]['label'] }}
-                                                </option>
-                                            </select>
-
-                                            <x-filament::button
-                                                color="success"
-                                                icon="heroicon-m-check-badge"
-                                                wire:click="updateStatus"
+                            <div class="update-status-body">
+                                <div class="update-status-field">
+                                    <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
+                                    <div class="update-status-actions">
+                                        <select id="updateStatusValue"
+                                                class="update-status-select"
+                                                wire:model.defer="updateStatusValue"
                                                 wire:loading.attr="disabled"
-                                                wire:target="updateStatus"
-                                                :disabled="$isUpdateDisabled"
-                                            >
-                                                Simpan Status
-                                            </x-filament::button>
-                                        </div>
-                                    </div>
-                                    <div class="update-status-meta">
-                                        <span class="update-status-helper">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                                            </svg>
-                                            Status diperbarui secara berurutan untuk menjaga histori produksi.
-                                        </span>
+                                        >
+                                            <option value="">Konfirmasi status berikutnya</option>
+                                            <option value="{{ $nextSequentialStatus }}">
+                                                {{ $statuses[$nextSequentialStatus]['label'] }}
+                                            </option>
+                                        </select>
 
-                                        <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
-                                            <x-filament::loading-indicator class="w-4 h-4" />
-                                            Memperbarui status...
-                                        </div>
+                                        <x-filament::button
+                                            color="success"
+                                            icon="heroicon-m-check-badge"
+                                            wire:click="updateStatus"
+                                            wire:loading.attr="disabled"
+                                            wire:target="updateStatus"
+                                            :disabled="false"
+                                        >
+                                            Simpan Status
+                                        </x-filament::button>
                                     </div>
                                 </div>
-                            @else
-                                <div class="update-status-body">
-                                    <div class="update-status-field">
-                                        <div class="update-status-helper" style="font-size:14px;">
-                                            Role Anda belum memiliki izin untuk melanjutkan ke status berikutnya. Silakan hubungi role terkait agar proses tetap berjalan.
-                                        </div>
+                                <div class="update-status-meta">
+                                    <span class="update-status-helper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                        </svg>
+                                        Status diperbarui secara berurutan untuk menjaga histori produksi.
+                                    </span>
+
+                                    <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
+                                        <x-filament::loading-indicator class="w-4 h-4" />
+                                        Memperbarui status...
                                     </div>
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     @endif
                     {{-- End: Tombol Update --}}
@@ -627,7 +618,7 @@
         <!-- Real-time indicator -->
         <div class="realtime-info">
             <div class="pulse-dot"></div>
-            <span>Refresh Every 3 Seconds</span>
+            <span>Online</span>
         </div>
     @endif
 </x-filament-panels::page>

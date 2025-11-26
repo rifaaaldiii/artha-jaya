@@ -8,6 +8,7 @@ use App\Models\Team;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
+use Livewire\Attributes\On;
 
 class ProductOverview extends StatsOverviewWidget
 {
@@ -43,6 +44,12 @@ class ProductOverview extends StatsOverviewWidget
                 ->chart($this->buildMonthlyChart('team'))
                 ->color('warning'),
         ];
+    }
+
+    #[On('aj-refresh-dashboard')]
+    public function handleExternalRefresh(): void
+    {
+        $this->dispatch('$refresh');
     }
 
     /**

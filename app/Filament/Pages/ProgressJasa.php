@@ -11,6 +11,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class ProgressJasa extends Page implements HasForms
 {
@@ -48,6 +49,13 @@ class ProgressJasa extends Page implements HasForms
         return 'Jasa & Layanan';
     }
 
+    #[On('aj-refresh-jasa')]
+    public function handleExternalRefresh(): void
+    {
+        $this->loadRecord();
+        $this->dispatch('$refresh');
+    }
+
     protected function loadRecord(): void
     {
         if ($this->selectedJasaId) {
@@ -64,11 +72,6 @@ class ProgressJasa extends Page implements HasForms
             $this->petugasIds = [];
             $this->jadwalPetugas = null;
         }
-    }
-
-    protected function getPollingInterval(): ?string
-    {
-        return '10s';
     }
 
     public function refresh(): void
@@ -269,11 +272,11 @@ class ProgressJasa extends Page implements HasForms
             }
         }
 
-        if ($this->updateStatusValue !== $nextStatus) {
+        if (empty($this->updateStatusValue)) {
             Notification::make()
-                ->title('Status harus berurutan')
-                ->warning()
-                ->body('Anda hanya dapat memperbarui status ke langkah berikutnya yaitu '.ucwords($nextStatus).'.')
+                ->title('Gagal Memperbarui Status')
+                ->danger()
+                ->body('Gagal memperbarui status jasa. Silakan pilih status terlebih dahulu.')
                 ->send();
             return;
         }

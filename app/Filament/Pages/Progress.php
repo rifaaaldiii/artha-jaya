@@ -9,6 +9,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class Progress extends Page implements HasForms
 {
@@ -46,6 +47,13 @@ class Progress extends Page implements HasForms
         return 'Product';
     }
 
+    #[On('aj-refresh-produksi')]
+    public function handleExternalRefresh(): void
+    {
+        $this->loadRecord();
+        $this->dispatch('$refresh');
+    }
+
     protected function loadRecord(): void
     {
         if ($this->selectedProduksiId) {
@@ -54,11 +62,6 @@ class Progress extends Page implements HasForms
             $this->record = null;
         }
     }
-    protected function getPollingInterval(): ?string
-    {
-        return '10s';
-    }
-
     public function refresh(): void
     {
         if ($this->record) {
@@ -252,11 +255,11 @@ class Progress extends Page implements HasForms
             return;
         }
 
-        if ($this->updateStatusValue !== $nextStatus) {
+        if (empty($this->updateStatusValue)) {
             Notification::make()
-                ->title('Status harus berurutan')
-                ->warning()
-                ->body('Anda hanya dapat memperbarui status ke langkah berikutnya yaitu '.ucwords($nextStatus).'.')
+                ->title('Gagal Memperbarui Status')
+                ->danger()
+                ->body('Gagal memperbarui status produksi. Silakan pilih status terlebih dahulu.')
                 ->send();
             return;
         }

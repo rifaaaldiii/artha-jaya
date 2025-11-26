@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Jasa;
+use App\Models\Produksi;
+use App\Models\Team;
+use App\Observers\JasaObserver;
+use App\Observers\ProduksiObserver;
+use App\Observers\TeamObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Jasa::observe(JasaObserver::class);
+        Produksi::observe(ProduksiObserver::class);
+        Team::observe(TeamObserver::class);
     }
 }

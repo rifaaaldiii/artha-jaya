@@ -2,7 +2,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 @endpush
 
-<x-filament-panels::page wire:poll.10s="refresh">
+<x-filament-panels::page>
     <style>
         :root {
             --aj-surface: #ffffff;
@@ -546,7 +546,8 @@
                         $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
                         $nextSequentialStatus = $this->nextSequentialStatus ?? null;
                         $canProceedNext = $nextSequentialStatus && in_array($nextSequentialStatus, $allowedStatuses, true);
-                        $isUpdateDisabled = ! $canProceedNext || $this->updateStatusValue !== $nextSequentialStatus;
+                        // Tombol selalu enabled
+                        $isUpdateDisabled = false;
                     @endphp
 
                     @if($this->record->status !== 'selesai')
@@ -584,6 +585,7 @@
                                                     wire:click="updateStatus"
                                                     wire:loading.attr="disabled"
                                                     wire:target="updateStatus"
+                                                    :disabled="false"
                                                 >
                                                     Simpan Status & Jadwalkan Petugas
                                                 </x-filament::button>
@@ -611,7 +613,7 @@
                                                     wire:click="updateStatus"
                                                     wire:loading.attr="disabled"
                                                     wire:target="updateStatus"
-                                                    :disabled="$isUpdateDisabled"
+                                                    :disabled="false"
                                                 >
                                                     Simpan Status
                                                 </x-filament::button>
@@ -652,7 +654,7 @@
         <!-- Real-time indicator -->
         <div class="realtime-info" >
             <div class="pulse-dot"></div>
-            <span>Refresh Every 3 Seconds</span>
+            <span>Online</span>
         </div>
     @endif
 
