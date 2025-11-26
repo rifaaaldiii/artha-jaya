@@ -17,7 +17,7 @@ class ProduksisTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->poll('3s')
+            ->poll('10s')
             ->recordUrl(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id)
             ->columns([
                 TextColumn::make("createdAt")
