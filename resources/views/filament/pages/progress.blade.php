@@ -2,7 +2,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 @endpush
 
-<x-filament-panels::page wire:poll.3s="refresh">
+<x-filament-panels::page wire:poll.10s="refresh">
     <style>
         :root {
             --aj-surface: #ffffff;
