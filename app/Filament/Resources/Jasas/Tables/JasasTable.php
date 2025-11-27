@@ -43,7 +43,11 @@ class JasasTable
                     ->sortable()
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('jadwal')
-                    ->label('Jadwal Pelanggan')
+                    ->label('Jadwal')
+                    ->getStateUsing(function ($record) {
+                        // return jadwal if exists, else jadwal_petugas
+                        return $record->jadwal ?? $record->jadwal_petugas;
+                    })
                     ->date('d-m-Y')
                     ->sortable()
             ])
