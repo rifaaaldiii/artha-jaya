@@ -22,6 +22,10 @@ class JasasTable
                     ->label('No. Jasa')
                     ->sortable()
                     ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('no_ref')
+                    ->label('No. Ref')
+                    ->sortable()
+                    ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('pelanggan.nama')
                     ->label('Pelanggan')
                     ->sortable()

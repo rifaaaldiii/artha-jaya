@@ -19,11 +19,7 @@ class ProduksisTable
         return $table
             ->recordUrl(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id)
             ->columns([
-                TextColumn::make("createdAt")
-                    ->label('Tanggal')
-                    ->sortable()
-                    ->searchable()
-                    ->date('d-m-Y'),
+                
                 TextColumn::make("no_produksi")->label('No. Produksi')->sortable()->searchable(),
                 TextColumn::make('nama_produksi_nama_bahan')
                     ->label('Nama Produksi')
@@ -56,6 +52,11 @@ class ProduksisTable
                         'selesai'                 => 'success',
                         default                   => 'secondary',
                     }),
+                TextColumn::make("createdAt")
+                    ->label('Jadwal')
+                    ->sortable()
+                    ->searchable()
+                    ->date('d-m-Y'),
             ])
             ->filters([
                 //
