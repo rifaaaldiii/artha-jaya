@@ -3,18 +3,17 @@
 namespace App\Filament\Pages;
 
 use App\Models\Produksi;
+use Filament\Pages\Page;
+use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
-use Filament\Pages\Page;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\On;
+use Filament\Forms\Concerns\InteractsWithForms;
 
 class Progress extends Page implements HasForms
 {
     use InteractsWithForms;
-
     protected const STATUS_FLOW = [
         'produksi baru',
         'siap produksi',

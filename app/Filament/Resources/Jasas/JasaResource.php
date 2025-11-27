@@ -2,25 +2,53 @@
 
 namespace App\Filament\Resources\Jasas;
 
-use App\Filament\Resources\Jasas\Pages\ListJasas;
-use App\Filament\Resources\Jasas\Pages\CreateJasa;
-use App\Filament\Resources\Jasas\Pages\EditJasa;
-use App\Filament\Resources\Jasas\Schemas\JasaForm;
-use App\Filament\Resources\Jasas\Tables\JasasTable;
+use BackedEnum;
 use App\Models\Jasa;
 use App\Models\Pelanggan;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\Action;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
+use App\Filament\Resources\Jasas\Pages\EditJasa;
+use App\Filament\Resources\Jasas\Pages\ListJasas;
+use App\Filament\Resources\Jasas\Pages\CreateJasa;
+use App\Filament\Resources\Jasas\Schemas\JasaForm;
+use App\Filament\Resources\Jasas\Tables\JasasTable;
 
 class JasaResource extends Resource
 {
     protected static ?string $model = Jasa::class;
     protected static ?string $title = 'Jasa Input';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'no_jasa',
+            'no_ref',
+            'jenis_layanan',
+            'status',
+            'catatan',
+            'pelanggan.nama',
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        // For Filament global search: display only string (NO HTML),
+        // so just a plain text short summary, not HTML elements
+        $pelangganNama = $record->pelanggan?->nama ?? '-';
+        $jenisLayanan = $record->jenis_layanan ?? '-';
+        $noJasa = $record->no_jasa ?? '-';
+        $noRef = $record->no_ref ?? '-';
+
+        // Display in one line, similar to: [Nama] | [No. Jasa] | [No. Ref] | [Layanan]
+        return "{$pelangganNama} | {$noJasa}" 
+            . (!empty($noRef) && $noRef !== '-' ? " | {$noRef}" : '') 
+            . (!empty($jenisLayanan) && $jenisLayanan !== '-' ? " | {$jenisLayanan}" : '');
+    }
 
     public static function getNavigationLabel(): string
     {
@@ -151,5 +179,18 @@ class JasaResource extends Resource
         );
 
         return $data;
+    }
+
+    public static function getGlobalSearchResultActions(Model $record): array
+    {
+        return [
+            Action::make('progress')
+                ->label('Progress Product')
+                ->icon('heroicon-o-arrow-path')
+                ->color('warning')
+                ->url(route('filament.admin.pages.progress-jasa', [
+                    'produksi' => $record->getKey(),
+                ]))
+        ];
     }
 }

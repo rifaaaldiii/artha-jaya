@@ -37,12 +37,12 @@ class ProductOverview extends StatsOverviewWidget
                 ->description("{$scheduledJasa} terjadwal • {$completedJasa} selesai")
                 ->descriptionIcon('heroicon-m-queue-list')
                 ->chart($this->buildMonthlyChart('jasa'))
-                ->color('info'),
+                ->color('success'),
             Stat::make('Team', number_format($totalTeam, 0, ',', '.'))
                 ->description("{$activeTeam} Ready • {$inactiveTeam} Busy")
                 ->descriptionIcon('heroicon-m-user-group')
                 ->chart($this->buildMonthlyChart('team'))
-                ->color('warning'),
+                ->color('success'),
         ];
     }
 

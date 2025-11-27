@@ -5,10 +5,10 @@ namespace App\Providers\Filament;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Pages\Dashboard;
-use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use App\Filament\Pages\Auth\Login;
+use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
+use Filament\Widgets\AccountWidget;
 use App\Filament\Pages\Auth\Register;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
@@ -21,7 +21,6 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -36,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('System Artha Jaya')
             ->favicon(asset('favicon.png'))
             ->brandLogo(asset('logo.png'))
-            ->brandLogoHeight('3rem')
+            ->brandLogoHeight('2.5rem')
             ->font('poppins')
             ->colors([
                 'danger' => Color::Red,
@@ -54,7 +53,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                // FilamentInfoWidget::class,
                 \App\Filament\Widgets\CustomInfoWidget::class,
             ])
             ->renderHook(

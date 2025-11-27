@@ -60,10 +60,10 @@
             transition: color .2s;
         }
         .custom-info-widget-link.produksi:hover {
-            color: #fb923c;
+            color: #ff0000;
         }
         .custom-info-widget-link.jasa:hover {
-            color: #60a5fa;
+            color: #ff0000;
         }
         .custom-info-widget-link svg {
             width: 16px;

@@ -11,12 +11,12 @@
             --aj-card-divider: #f3f4f6;
             --aj-text: #111827;
             --aj-muted: #6b7280;
-            --aj-step-completed: #14b8a6;
-            --aj-step-current: #0e7490;
-            --aj-step-current-ring: #99f6e4;
-            --aj-step-upcoming-bg: #d1d5db;
-            --aj-step-upcoming-text: #6b7280;
-            --aj-step-connector: #d1d5db;
+            --aj-step-completed: #22c55e;
+            --aj-step-current: #22c55e;
+            --aj-step-current-ring: rgba(51, 65, 85, 0.12);
+            --aj-step-upcoming-bg: #e5e7eb;
+            --aj-step-upcoming-text: #94a3b8;
+            --aj-step-connector: #e5e7eb;
             --aj-soft-bg: #f8fafc;
             --aj-status-card-bg: linear-gradient(135deg, #f0fdfa, #ecfeff);
             --aj-status-card-border: #e2e8f0;
@@ -40,12 +40,12 @@
             --aj-card-divider: #1e293b;
             --aj-text: #f8fafc;
             --aj-muted: #94a3b8;
-            --aj-step-completed: #2dd4bf;
-            --aj-step-current: #22d3ee;
-            --aj-step-current-ring: rgba(34, 211, 238, 0.35);
-            --aj-step-upcoming-bg: #1f2937;
+            --aj-step-completed: #22c55e;
+            --aj-step-current: #22c55e;
+            --aj-step-current-ring: rgba(51, 65, 85, 0.12);
+            --aj-step-upcoming-bg: #e5e7eb;
             --aj-step-upcoming-text: #94a3b8;
-            --aj-step-connector: #1f2937;
+            --aj-step-connector: #e5e7eb;
             --aj-soft-bg: #0f172a;
             --aj-status-card-bg: linear-gradient(135deg, #0f172a, #0b1120);
             --aj-status-card-border: #1e293b;
@@ -97,6 +97,12 @@
             box-shadow: 0 0 0 4px var(--aj-step-current-ring);
             color: #fff;
             font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+          0% { box-shadow: 0 0 0 0 #22c55e70;}
+          70% { box-shadow: 0 0 0 6px #22c55e10;}
+          100% { box-shadow: 0 0 0 0 #22c55e00;}
         }
         .prog-step-circle-upcoming {
             background: var(--aj-step-upcoming-bg);
