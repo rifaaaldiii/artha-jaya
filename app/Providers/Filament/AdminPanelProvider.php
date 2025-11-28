@@ -12,6 +12,7 @@ use Filament\Widgets\AccountWidget;
 use App\Filament\Pages\Auth\Register;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\SmartSessionHandler;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -69,6 +70,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                SmartSessionHandler::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
