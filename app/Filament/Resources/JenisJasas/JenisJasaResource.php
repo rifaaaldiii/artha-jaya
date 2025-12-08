@@ -19,9 +19,9 @@ class JenisJasaResource extends Resource
 
     protected static ?string $navigationLabel = 'Jenis Jasa';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Management';
+    protected static UnitEnum|string|null $navigationGroup = 'Jasa & Layanan';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 3;
 
     public static function getLabel(): ?string
     {

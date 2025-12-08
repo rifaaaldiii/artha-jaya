@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\Jasas\Tables;
 
-use App\Filament\Pages\ProgressJasa;
-use App\Filament\Resources\Jasas\JasaResource;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Table;
+use Filament\Actions\DeleteAction;
+use App\Filament\Pages\ProgressJasa;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\Jasas\JasaResource;
 
 class JasasTable
 {

@@ -56,7 +56,7 @@ class PetugasResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Management';
+        return 'Jasa & Layanan';
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -65,4 +65,6 @@ class PetugasResource extends Resource
 
         return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
+
+    protected static ?int $navigationSort = 4;
 }

@@ -40,13 +40,6 @@ class PetukangResource extends Resource
         return PetukangsTable::configure($table);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
@@ -56,7 +49,7 @@ class PetukangResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Management';
+        return 'Product';
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -65,4 +58,6 @@ class PetukangResource extends Resource
 
         return in_array($user->role, ['administrator', 'admin_toko'], true);
     }
+
+    protected static ?int $navigationSort = 5;
 }

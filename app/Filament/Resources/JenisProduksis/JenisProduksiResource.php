@@ -19,9 +19,9 @@ class JenisProduksiResource extends Resource
 
     protected static ?string $navigationLabel = 'Jenis Produksi';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Management';
+    protected static UnitEnum|string|null $navigationGroup = 'Product';
 
-    protected static ?int $navigationSort = 51;
+    protected static ?int $navigationSort = 3;
 
     public static function getLabel(): ?string
     {
