@@ -24,19 +24,25 @@ class ReportCenter extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-chart-bar';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationLabel = 'Report Produksi & Jasa';
+    protected static ?string $navigationLabel = 'Report';
 
     protected static string|\UnitEnum|null $navigationGroup = 'System';
 
-    protected static ?string $title = 'Report Center';
+    protected static ?string $title = 'Report';
 
     protected static ?int $navigationSort = 5;
 
     protected string $view = 'filament.pages.report-center';
 
     protected const MAX_PREVIEW_ROWS = 25;
+
+    /**
+     * Pagination settings
+     */
+    public int $perPage = 10;
+    public int $currentPage = 1;
 
     /**
      * Active filter state.
@@ -63,6 +69,11 @@ class ReportCenter extends Page implements HasForms
     public array $singleDownloadFormData = [
         'singleDataNumber' => null,
     ];
+
+    /**
+     * Loading state for download buttons
+     */
+    public array $downloadingNumbers = [];
 
     /**
      * Preview table rows rendered on the page.
@@ -146,7 +157,7 @@ class ReportCenter extends Page implements HasForms
     {
         return $form
             ->schema([
-                Section::make('Pengaturan Filter')
+                Section::make('Form Filter')
                     ->columns([
                         'default' => 1,
                         'sm' => 2,
@@ -160,19 +171,24 @@ class ReportCenter extends Page implements HasForms
                                 'produksi' => 'Produksi',
                             ])
                             ->default('jasa')
-                            ->reactive()
+                            ->live()
+                            ->afterStateUpdated(fn () => $this->applyFilters())
                             ->required(),
                         DatePicker::make('start_date')
                             ->label('Tanggal Mulai')
                             ->native(false)
                             ->displayFormat('d M Y')
                             ->maxDate(fn (callable $get) => $get('end_date'))
+                            ->live(onBlur: false)
+                            ->afterStateUpdated(fn () => $this->applyFilters())
                             ->closeOnDateSelection(),
                         DatePicker::make('end_date')
                             ->label('Tanggal Selesai')
                             ->native(false)
                             ->displayFormat('d M Y')
                             ->minDate(fn (callable $get) => $get('start_date'))
+                            ->live(onBlur: false)
+                            ->afterStateUpdated(fn () => $this->applyFilters())
                             ->closeOnDateSelection(),
                     ]),
             ])
@@ -205,6 +221,7 @@ class ReportCenter extends Page implements HasForms
     public function applyFilters(): void
     {
         $this->filters = array_merge($this->filters, $this->filterForm->getState());
+        $this->currentPage = 1; // Reset to first page when filters change
 
         if (! $this->isDateRangeValid()) {
             return;
@@ -212,17 +229,62 @@ class ReportCenter extends Page implements HasForms
 
         $records = $this->buildBaseQuery()
             ->whereRaw('LOWER(status) = ?', ['selesai']) // Only show completed items
-            ->orderByDesc('createdAt')
+            ->orderBy('id', 'asc')
             ->get();
 
         $this->resultCount = $records->count();
         $this->summary = $this->buildSummary($records);
         $this->statusBreakdown = $this->buildStatusBreakdown($records);
+        
+        // Apply pagination
+        $this->updatePreviewRows($records);
+    }
+
+    protected function updatePreviewRows($records): void
+    {
+        $offset = ($this->currentPage - 1) * $this->perPage;
         $this->previewRows = $records
-            ->take(self::MAX_PREVIEW_ROWS)
+            ->slice($offset, $this->perPage)
             ->map(fn ($record) => $this->transformRecord($record))
             ->values()
             ->toArray();
+    }
+
+    public function goToPage(int $page): void
+    {
+        $this->currentPage = $page;
+        $this->filters = array_merge($this->filters, $this->filterForm->getState());
+        
+        if (! $this->isDateRangeValid()) {
+            return;
+        }
+
+        $records = $this->buildBaseQuery()
+            ->whereRaw('LOWER(status) = ?', ['selesai'])
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $this->updatePreviewRows($records);
+    }
+
+    public function previousPage(): void
+    {
+        if ($this->currentPage > 1) {
+            $this->goToPage($this->currentPage - 1);
+        }
+    }
+
+    public function nextPage(): void
+    {
+        $totalPages = $this->getTotalPages();
+        if ($this->currentPage < $totalPages) {
+            $this->goToPage($this->currentPage + 1);
+        }
+    }
+
+    protected function getTotalPages(): int
+    {
+        return max(1, (int) ceil($this->resultCount / $this->perPage));
     }
 
     public function resetFilters(): void
@@ -244,7 +306,7 @@ class ReportCenter extends Page implements HasForms
         // Only get completed items for date range download
         $records = $this->buildBaseQuery()
             ->whereRaw('LOWER(status) = ?', ['selesai'])
-            ->orderBy('createdAt')
+            ->orderBy('id', 'asc')
             ->get();
 
         if ($records->isEmpty()) {
@@ -298,6 +360,13 @@ class ReportCenter extends Page implements HasForms
         $formState = $this->singleDownloadForm->getState();
         $singleDataNumber = $formState['singleDataNumber'] ?? null;
         
+        return $this->downloadPdfSingleByNumber($singleDataNumber);
+    }
+
+    public function downloadPdfSingleByNumber(?string $singleDataNumber = null)
+    {
+        $this->filters = array_merge($this->filters, $this->filterForm->getState());
+        
         $filters = $this->filters;
         $reportType = $filters['report_type'] ?? 'jasa';
 
@@ -310,6 +379,9 @@ class ReportCenter extends Page implements HasForms
 
             return null;
         }
+
+        // Set loading state for this specific number
+        $this->downloadingNumbers[$singleDataNumber] = true;
 
         // Find the record by number
         if ($reportType === 'produksi') {
@@ -328,6 +400,10 @@ class ReportCenter extends Page implements HasForms
         }
 
         if (!$record) {
+            // Clear loading state
+            unset($this->downloadingNumbers[$singleDataNumber]);
+            $this->dispatch('$refresh');
+            
             Notification::make()
                 ->title('Data tidak ditemukan')
                 ->body(sprintf('Tidak ada data dengan nomor %s.', $singleDataNumber))
@@ -339,6 +415,10 @@ class ReportCenter extends Page implements HasForms
 
         // Validate status must be "selesai"
         if (strcasecmp($record->status ?? '', 'selesai') !== 0) {
+            // Clear loading state
+            unset($this->downloadingNumbers[$singleDataNumber]);
+            $this->dispatch('$refresh');
+            
             Notification::make()
                 ->title('Data belum selesai')
                 ->body(sprintf('Data dengan nomor %s belum selesai. Hanya data dengan status "Selesai" yang dapat diunduh.', $singleDataNumber))
@@ -354,7 +434,7 @@ class ReportCenter extends Page implements HasForms
             ? 'reports.pdf.produksi'
             : 'reports.pdf.jasa';
 
-        $records = collect([$record]);
+        $records = EloquentCollection::make([$record]);
 
         $payload = [
             'rows' => $rows,
@@ -375,6 +455,9 @@ class ReportCenter extends Page implements HasForms
             $singleDataNumber,
             Carbon::now()->format('Ymd_His')
         );
+
+        // Clear loading state before returning response
+        unset($this->downloadingNumbers[$singleDataNumber]);
 
         return response()->streamDownload(
             static fn () => print($pdf->output()),
@@ -415,6 +498,7 @@ class ReportCenter extends Page implements HasForms
 
         if ($reportType === 'produksi') {
             return [
+                'id' => $record->id,
                 'number' => $record->no_produksi,
                 'name' => $record->nama_produksi,
                 'material' => $record->nama_bahan,
@@ -434,6 +518,7 @@ class ReportCenter extends Page implements HasForms
         $scheduledAt = $record->jadwal ?? $record->jadwal_petugas;
 
         return [
+            'id' => $record->id,
             'number' => $record->no_jasa,
             'reference' => $record->no_ref,
             'service' => $record->jenis_layanan,
