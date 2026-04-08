@@ -2,323 +2,356 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
+    <title>Invoice - {{ $row['number'] }}</title>
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-        }
         @page {
             size: A5 landscape;
-            margin: 1cm 1cm 1cm 1cm;
+            margin: 15mm;
         }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Inter', 'DejaVu Sans', Arial, sans-serif;
-            font-size: 8px;
-            color: #111827;
-            background: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9px;
+            color: #000;
             line-height: 1.3;
         }
-        .invoice-container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
+        
         /* Header */
-        .invoice-header {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
             padding-bottom: 8px;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 2px solid #000;
+            margin-bottom: 12px;
         }
-        .company-info {
-            flex: 1;
+        
+        .company-info h1 {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
         }
-        .company-logo {
-            height: 40px;
-            width: 40px;
-            object-fit: contain;
-            margin-right: 8px;
-        }
-        .company-details h1 {
-            font-size: 13px;
-            font-weight: 700;
-            color: #111827;
-            margin: 0 0 1px 0;
-            letter-spacing: -0.025em;
-        }
-        .company-details p {
-            margin: 0.5px 0;
-            color: #6b7280;
+        
+        .company-details {
             font-size: 7.5px;
+            color: #333;
+            line-height: 1.5;
         }
+        
         .invoice-title {
             text-align: right;
         }
+        
         .invoice-title h2 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #059669;
-            margin: 0 0 2px 0;
-            letter-spacing: -0.025em;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
         }
-        .invoice-number {
+        
+        .invoice-meta {
             font-size: 8px;
-            color: #6b7280;
-            margin: 1px 0;
+            line-height: 1.6;
         }
-        .invoice-date {
-            font-size: 7.5px;
-            color: #6b7280;
+        
+        .invoice-meta strong {
+            font-weight: bold;
         }
-        /* Client Info */
-        .client-info {
+        
+        /* Info Section */
+        .info-section {
+            margin-bottom: 12px;
             display: flex;
-            gap: 12px;
-            margin-bottom: 10px;
+        }
+        
+        .info-box {
             padding: 8px;
-            background: #f9fafb;
-            border-radius: 4px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            margin-bottom: 8px;
         }
-        .client-details {
-            flex: 1;
+        
+        .info-box:last-child {
+            margin-bottom: 0;
         }
-        .client-details h3 {
-            font-size: 8.5px;
-            font-weight: 600;
-            color: #374151;
-            margin: 0 0 4px 0;
+        
+        .info-box h3 {
+            font-size: 8px;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ddd;
         }
-        .client-details p {
-            margin: 1px 0;
-            color: #4b5563;
-            font-size: 7.5px;
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            font-size: 8px;
         }
-        .client-details .label {
-            font-weight: 500;
-            color: #6b7280;
+        
+        .info-label {
+            color: #555;
         }
+        
+        .info-value {
+            font-weight: bold;
+        }
+        
         /* Items Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
-            font-size: 7.5px;
+            margin-bottom: 10px;
+            font-size: 8px;
         }
+        
+        .items-table thead {
+            background: #000;
+            color: #fff;
+        }
+        
         .items-table th {
-            background: #f3f4f6;
-            color: #374151;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 5px 6px;
+            padding: 6px 5px;
             text-align: left;
-            border-bottom: 1px solid #d1d5db;
+            font-weight: bold;
+            text-transform: uppercase;
             font-size: 7px;
+            letter-spacing: 0.3px;
+            border: 1px solid #000;
         }
-        .items-table td {
-            padding: 5px 6px;
-            border-bottom: 1px solid #e5e7eb;
-            color: #111827;
-        }
-        .items-table tr:nth-child(even) {
-            background: #fafafa;
-        }
-        .items-table .number {
+        
+        .items-table th.center {
             text-align: center;
-            width: 25px;
         }
-        .items-table .price {
+        
+        .items-table th.right {
             text-align: right;
-            font-weight: 500;
         }
-        .items-table .quantity {
+        
+        .items-table tbody tr {
+            border: 1px solid #e5e5e5;
+        }
+        
+        .items-table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .items-table td {
+            padding: 5px;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .items-table td.center {
             text-align: center;
         }
+        
+        .items-table td.right {
+            text-align: right;
+        }
+        
+        .items-table td.bold {
+            font-weight: bold;
+        }
+        
         /* Summary */
-        .invoice-summary {
+        .summary-section {
             display: flex;
             justify-content: flex-end;
-            margin: 10px 0;
+            margin-bottom: 10px;
         }
+        
         .summary-table {
             width: 200px;
-            border-collapse: collapse;
-            font-size: 7.5px;
+            border: 1px solid #ddd;
         }
-        .summary-table td {
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
             padding: 4px 8px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .summary-table .label {
-            text-align: left;
-            color: #6b7280;
-            font-weight: 500;
-        }
-        .summary-table .value {
-            text-align: right;
-            color: #111827;
-            font-weight: 500;
-        }
-        .summary-table .total {
-            font-size: 9px;
-            font-weight: 700;
-            color: #059669;
-            background: #f0fdf4;
-            border-top: 2px solid #d1fae5;
-        }
-        .summary-table .total .value {
-            color: #059669;
-        }
-        /* Footer */
-        .invoice-footer {
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-            color: #9ca3af;
-            font-size: 7px;
-        }
-        .notes {
-            margin-top: 8px;
-            padding: 6px;
-            background: #f9fafb;
-            border-radius: 4px;
-            border: 1px solid #e5e7eb;
-        }
-        .notes h3 {
+            border-bottom: 1px solid #e5e5e5;
             font-size: 8px;
-            font-weight: 600;
-            color: #374151;
-            margin: 0 0 2px 0;
         }
-        .notes p {
-            margin: 0;
-            color: #6b7280;
-            font-size: 7px;
+        
+        .summary-row:last-child {
+            border-bottom: none;
         }
-        /* Status Badge */
-        .status-badge {
-            display: inline-block;
-            padding: 1px 4px;
-            border-radius: 8px;
-            font-size: 6.5px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        
+        .summary-label {
+            color: #555;
         }
-        .status-selesai {
-            background: #dcfce7;
-            color: #166534;
+        
+        .summary-row.total {
+            background: #000;
+            color: #fff;
+            font-weight: bold;
+            font-size: 10px;
+            padding: 6px 8px;
+        }
+        
+        .summary-row.total .summary-label {
+            color: #fff;
+        }
+        
+        /* Notes */
+        .notes {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-left: 3px solid #000;
+            margin-bottom: 8px;
+            font-size: 8px;
+        }
+        
+        .notes strong {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 8px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 8px;
+            border-top: 1px solid #ddd;
+            font-size: 7.5px;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .footer strong {
+            color: #000;
+            font-size: 9px;
         }
     </style>
 </head>
 <body>
-    <div class="invoice-container">
-        <!-- Header -->
-        <div class="invoice-header">
-            <div class="company-info">
-                <div style="display: flex; align-items: center;">
-                    <!-- <img src="{{ public_path('logo.png') }}" alt="Logo" class="company-logo"> -->
-                    <div class="company-details">
-                        <h1>PT. ARTHA JAYA MAS</h1>
-                        <p>Jl. Ciwaru Raya, No 24, Cipare, Serang, 42117</p>
-                        <p>Telp: (+62) 8777-4467-228 | Email: Info@arthajaya.com</p>
-                    </div>
-                </div>
+    <!-- Header -->
+    <div class="header">
+        <div class="company-info">
+            <h1>PT. ARTHA JAYA MAS</h1>
+            <div class="company-details">
+                Jl. Ciwaru Raya, No 24, Cipare, Serang, 42117<br>
+                Telp: (+62) 8777-4467-228 | Email: Info@arthajaya.com
             </div>
-            <div class="invoice-title">
-                <h2>INVOICE</h2>
-                <div class="invoice-number">{{ $row['number'] }}</div>
-                <div class="invoice-date">Tanggal: {{ $generatedAt->timezone(config('app.timezone','Asia/Jakarta'))->format('d/m/Y') }}</div>
+        </div>
+        <div class="invoice-title">
+            <h2>INVOICE</h2>
+            <div class="invoice-meta">
+                <div><strong>No:</strong> {{ $row['number'] }}</div>
+                <div><strong>Tanggal:</strong> {{ $generatedAt->timezone(config('app.timezone','Asia/Jakarta'))->format('d/m/Y') }}</div>
                 @if(!empty($row['status']))
-                    <span class="status-badge status-selesai">{{ $row['status'] }}</span>
+                <div><strong>Status:</strong> {{ strtoupper($row['status']) }}</div>
                 @endif
             </div>
         </div>
+    </div>
 
-        <!-- Client Info -->
-        <div class="client-info">
-            <div class="client-details">
-                <h3>Informasi Produksi</h3>
-                <p><span class="label">Team:</span> {{ $row['team'] ?? '-' }}</p>
-                <p><span class="label">No. Ref:</span> {{ $row['no_ref'] ?? '-' }}</p>
-                <p><span class="label">Branch:</span> {{ $row['branch'] ?? '-' }}</p>
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="info-box">
+            <h3>Informasi Produksi</h3>
+            <div class="info-row">
+                <span class="info-label">Team:</span>
+                <span class="info-value">{{ $row['team'] ?? '-' }}</span>
             </div>
-            <div class="client-details">
-                <h3>Detail Produksi</h3>
-                <p><span class="label">Dibuat:</span> {{ $row['created_at'] ?? '-' }}</p>
-                <p><span class="label">Jumlah Item:</span> {{ $row['items_count'] ?? 0 }}</p>
-                <p><span class="label">Status:</span> {{ $row['status'] ?? '-' }}</p>
+            <div class="info-row">
+                <span class="info-label">No. Ref:</span>
+                <span class="info-value">{{ $row['no_ref'] ?? '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Branch:</span>
+                <span class="info-value">{{ $row['branch'] ?? '-' }}</span>
             </div>
         </div>
+        <div class="info-box">
+            <h3>Detail Produksi</h3>
+            <div class="info-row">
+                <span class="info-label">Tanggal Dibuat:</span>
+                <span class="info-value">{{ $row['created_at'] ?? '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Jumlah Item:</span>
+                <span class="info-value">{{ $row['items_count'] ?? 0 }} item</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tanggal Selesai:</span>
+                <span class="info-value">{{ $row['updated_at'] ?? '-' }}</span>
+            </div>
+        </div>
+    </div>
 
-        <!-- Items Table -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th class="number">No.</th>
-                    <th>Jenis Produksi</th>
-                    <th>Nama Bahan</th>
-                    <th class="quantity">Jumlah</th>
-                    <th class="price">Harga</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if(!empty($row['items']) && count($row['items']) > 0)
-                    @foreach($row['items'] as $index => $item)
-                        <tr>
-                            <td class="number">{{ $index + 1 }}</td>
-                            <td>{{ $item['nama_produksi'] ?? '-' }}</td>
-                            <td>{{ $item['nama_bahan'] ?? '-' }}</td>
-                            <td class="quantity">{{ number_format($item['jumlah'] ?? 0, 0, ',', '.') }} unit</td>
-                            <td class="price">Rp {{ number_format($item['harga'] ?? 0, 0, ',', '.') }}</td>
-                        </tr>
-                    @endforeach
-                @else
+    <!-- Items Table -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th class="center" width="5%">No</th>
+                <th width="35%">Jenis Produksi</th>
+                <th width="30%">Nama Bahan</th>
+                <th class="center" width="12%">Jumlah</th>
+                <th class="right" width="18%">Harga</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(!empty($row['items']) && count($row['items']) > 0)
+                @foreach($row['items'] as $index => $item)
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 12px; color: #9ca3af;">
-                            Tidak ada item produksi
-                        </td>
+                        <td class="center">{{ $index + 1 }}</td>
+                        <td class="bold">{{ $item['nama_produksi'] ?? '-' }}</td>
+                        <td>{{ $item['nama_bahan'] ?? '-' }}</td>
+                        <td class="center">{{ number_format($item['jumlah'] ?? 0, 0, ',', '.') }}</td>
+                        <td class="right bold">Rp {{ number_format($item['harga'] ?? 0, 0, ',', '.') }}</td>
                     </tr>
-                @endif
-            </tbody>
-        </table>
-
-        <!-- Summary -->
-        <div class="invoice-summary">
-            <table class="summary-table">
+                @endforeach
+            @else
                 <tr>
-                    <td class="label">Subtotal</td>
-                    <td class="value">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
+                    <td colspan="5" style="text-align: center; padding: 15px; color: #999;">
+                        Tidak ada item produksi
+                    </td>
                 </tr>
-                <tr>
-                    <td class="label">Pajak (0%)</td>
-                    <td class="value">Rp 0</td>
-                </tr>
-                <tr class="total">
-                    <td class="label">TOTAL</td>
-                    <td class="value">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
-                </tr>
-            </table>
-        </div>
+            @endif
+        </tbody>
+    </table>
 
-        <!-- Notes -->
-        @if(!empty($row['note']))
-            <div class="notes">
-                <h3>Catatan</h3>
-                <p>{{ $row['note'] }}</p>
+    <!-- Summary -->
+    <div class="summary-section">
+        <div class="summary-table">
+            <div class="summary-row">
+                <span class="summary-label">Subtotal</span>
+                <span>Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</span>
             </div>
-        @endif
-
-        <!-- Footer -->
-        <div class="invoice-footer">
-            <p>Terima kasih atas kepercayaan Anda kepada PT. Artha Jaya Mas</p>
-            <p>Invoice ini dicetak pada {{ $generatedAt->timezone(config('app.timezone','Asia/Jakarta'))->format('d/m/Y H:i') }} WIB</p>
+            <div class="summary-row">
+                <span class="summary-label">Pajak (0%)</span>
+                <span>Rp 0</span>
+            </div>
+            <div class="summary-row total">
+                <span class="summary-label">TOTAL</span>
+                <span>Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</span>
+            </div>
         </div>
+    </div>
+
+    <!-- Notes -->
+    @if(!empty($row['note']))
+        <div class="notes">
+            <strong>Catatan:</strong>
+            {{ $row['note'] }}
+        </div>
+    @endif
+
+    <!-- Footer -->
+    <div class="footer">
+        <strong>TERIMA KASIH</strong><br>
+        Atas kepercayaan Anda kepada PT. Artha Jaya Mas<br>
+        <span style="font-size: 7px;">Invoice ini dicetak pada {{ $generatedAt->timezone(config('app.timezone','Asia/Jakarta'))->format('d/m/Y H:i') }} WIB</span>
     </div>
 </body>
 </html>

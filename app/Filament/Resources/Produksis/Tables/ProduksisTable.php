@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Produksis\Tables;
 
 use App\Filament\Pages\Progress;
-use App\Filament\Pages\ReportCenter;
+use App\Filament\Pages\Report;
 use App\Filament\Resources\Produksis\ProduksiResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -71,14 +71,14 @@ class ProduksisTable
                     ->label('Print')
                     ->icon('heroicon-o-printer')
                     ->color('success')
-                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi, true)
+                    ->url(fn ($record) => Report::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi, true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon('heroicon-o-document-text')
                     ->color('primary')
-                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi . '&format=invoice', true)
+                    ->url(fn ($record) => Report::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi . '&format=invoice', true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()

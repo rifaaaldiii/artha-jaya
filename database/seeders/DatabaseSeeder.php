@@ -6,8 +6,11 @@ use App\Models\User;
 use App\Models\Team;
 use App\Models\Petukang;
 use App\Models\Petugas;
+use App\Filament\Pages\Report;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\JenisJasaSeeder;
+use Database\Seeders\JenisProduksiSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -126,5 +129,11 @@ class DatabaseSeeder extends Seeder
         foreach ($petugas as $petugasData) {
             Petugas::factory()->create($petugasData);
         }
+
+        // Jenis Jasa seeding
+        $this->call(JenisJasaSeeder::class);
+        
+        // Jenis Produksi seeding
+        $this->call(JenisProduksiSeeder::class);
     }
 }

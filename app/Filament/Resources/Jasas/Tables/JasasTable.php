@@ -7,7 +7,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
 use App\Filament\Pages\ProgressJasa;
-use App\Filament\Pages\ReportCenter;
+use App\Filament\Pages\Report;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use App\Filament\Resources\Jasas\JasaResource;
@@ -72,14 +72,14 @@ class JasasTable
                     ->label('Print')
                     ->icon('heroicon-o-printer')
                     ->color('success')
-                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
+                    ->url(fn ($record) => Report::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon('heroicon-o-document-text')
                     ->color('primary')
-                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa . '&format=invoice', true)
+                    ->url(fn ($record) => Report::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa . '&format=invoice', true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
