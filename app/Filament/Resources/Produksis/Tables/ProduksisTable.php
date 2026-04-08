@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Produksis\Tables;
 
 use App\Filament\Pages\Progress;
+use App\Filament\Pages\ReportCenter;
 use App\Filament\Resources\Produksis\ProduksiResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -11,6 +12,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
 
 class ProduksisTable
 {
@@ -30,23 +32,10 @@ class ProduksisTable
                     ->sortable()
                     ->searchable()
                     ->placeholder('-'),
-                TextColumn::make('nama_produksi_nama_bahan')
-                    ->label('Nama Produksi')
-                    ->sortable()
-                    ->searchable(query: function ($query, string $search) {
-                        $query->where(function ($q) use ($search) {
-                            $q->where('nama_produksi', 'like', "%{$search}%")
-                              ->orWhere('nama_bahan', 'like', "%{$search}%")
-                              ->orWhereRaw("CONCAT(nama_produksi, '-' nama_bahan) like ?", ["%{$search}%"]);
-                        });
-                    })
-                    ->getStateUsing(fn ($record) => $record->nama_produksi . '-' . $record->nama_bahan),
-                TextColumn::make("jumlah")->label('Jumlah')->sortable()->searchable(),
-                TextColumn::make("harga")
-                    ->label('Harga')
-                    ->sortable()
-                    ->money('IDR')
-                    ->getStateUsing(fn ($record) => $record->harga ?? 0),
+                TextColumn::make('items_count')
+                    ->label('Jumlah Item')
+                    ->counts('items')
+                    ->sortable(),
                 TextColumn::make('team.nama')
                     ->label('Team')
                     ->sortable()
@@ -78,6 +67,13 @@ class ProduksisTable
             ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id),
+                Action::make('print')
+                    ->label('Print')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi, true)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
                     ->authorize(fn ($record) => ProduksiResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()

@@ -7,9 +7,11 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
 use App\Filament\Pages\ProgressJasa;
+use App\Filament\Pages\ReportCenter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use App\Filament\Resources\Jasas\JasaResource;
+use Filament\Actions\Action;
 
 class JasasTable
 {
@@ -35,13 +37,9 @@ class JasasTable
                     ->label('Pelanggan')
                     ->sortable()
                     ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('jenis_layanan')
-                    ->label('Nama Jasa')
-                    ->sortable()
-                    ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('harga')
-                    ->label('Harga')
-                    ->money('IDR')
+                \Filament\Tables\Columns\TextColumn::make('items_count')
+                    ->label('Jumlah Item')
+                    ->counts('items')
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -70,6 +68,13 @@ class JasasTable
             ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id),
+                Action::make('print')
+                    ->label('Print')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
                     ->authorize(fn ($record) => JasaResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()

@@ -17,6 +17,7 @@ use App\Filament\Resources\Jasas\Pages\ListJasas;
 use App\Filament\Resources\Jasas\Pages\CreateJasa;
 use App\Filament\Resources\Jasas\Schemas\JasaForm;
 use App\Filament\Resources\Jasas\Tables\JasasTable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class JasaResource extends Resource
 {
@@ -28,10 +29,10 @@ class JasaResource extends Resource
         return [
             'no_jasa',
             'no_ref',
-            'jenis_layanan',
             'status',
             'catatan',
             'pelanggan.nama',
+            'items.jenis_layanan',
         ];
     }
 
@@ -40,14 +41,22 @@ class JasaResource extends Resource
         // For Filament global search: display only string (NO HTML),
         // so just a plain text short summary, not HTML elements
         $pelangganNama = $record->pelanggan?->nama ?? '-';
-        $jenisLayanan = $record->jenis_layanan ?? '-';
         $noJasa = $record->no_jasa ?? '-';
         $noRef = $record->no_ref ?? '-';
 
+        $itemsInfo = '';
+        if ($record->items && $record->items->count() > 0) {
+            $firstItem = $record->items->first();
+            $itemsInfo = ' | ' . $firstItem->jenis_layanan;
+            if ($record->items->count() > 1) {
+                $itemsInfo .= ' (+' . ($record->items->count() - 1) . ' items)';
+            }
+        }
+
         // Display in one line, similar to: [Nama] | [No. Jasa] | [No. Ref] | [Layanan]
         return "{$pelangganNama} | {$noJasa}" 
-            . (!empty($noRef) && $noRef !== '-' ? " | {$noRef}" : '') 
-            . (!empty($jenisLayanan) && $jenisLayanan !== '-' ? " | {$jenisLayanan}" : '');
+            . (!empty($noRef) && $noRef !== '-' ? " | {$noRef}" : '')
+            . $itemsInfo;
     }
 
     public static function getNavigationLabel(): string
@@ -80,6 +89,11 @@ class JasaResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->withCount('items');
     }
 
     public static function getPages(): array

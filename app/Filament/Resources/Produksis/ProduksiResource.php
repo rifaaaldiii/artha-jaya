@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\Produksis\Pages\ListProduksis;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class ProduksiResource extends Resource
 {
@@ -22,19 +23,26 @@ class ProduksiResource extends Resource
     {
         return [
             'no_produksi',
-            'nama_produksi',
-            'nama_bahan',
+            'no_ref',
             'status',
             'catatan',
+            'items.nama_produksi',
+            'items.nama_bahan',
         ];
     }
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        return $record->no_produksi 
-            . ' | ' 
-            . $record->nama_produksi 
-            . (!empty($record->nama_bahan) ? ' [Bahan: ' . $record->nama_bahan . ']' : '');
+        $itemsInfo = '';
+        if ($record->items && $record->items->count() > 0) {
+            $firstItem = $record->items->first();
+            $itemsInfo = ' | ' . $firstItem->nama_produksi;
+            if ($record->items->count() > 1) {
+                $itemsInfo .= ' (+' . ($record->items->count() - 1) . ' items)';
+            }
+        }
+        
+        return $record->no_produksi . $itemsInfo;
     }
 
     public static function getNavigationLabel(): string
@@ -67,6 +75,11 @@ class ProduksiResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->withCount('items');
     }
 
     public static function getPages(): array

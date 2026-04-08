@@ -16,7 +16,7 @@ class ListJasas extends ManageRecords
         return [
             CreateAction::make()
                 ->authorize(JasaResource::canCreate())
-                ->mutateFormDataUsing(fn (array $data): array => JasaResource::mutateFormDataBeforeCreate($data)),
+                ->url(JasaResource::getUrl('create')),
         ];
     }
 

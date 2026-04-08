@@ -230,12 +230,13 @@
         <thead>
             <tr>
                 <th style="width:26px;">No.</th>
-                <th style="width:60px;">Nomor Produksi</th>
-                <th style="width:180px;">Produk &amp; Bahan</th>
-                <th style="width:45px;">Jumlah</th>
+                <th style="width:60px;">No. Produksi</th>
+                <th style="width:60px;">No. Ref</th>
+                <th style="width:200px;">Detail Item</th>
+                <th style="width:50px;">Jml Item</th>
+                <th style="width:85px;">Total Harga</th>
                 <th style="width:65px;">Team</th>
-                <th style="width:85px;">Dibuat</th>
-                <th style="width:85px;">Diperbarui</th>
+                <th style="width:75px;">Dibuat</th>
             </tr>
         </thead>
         <tbody>
@@ -243,22 +244,25 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $row['number'] ?? '-' }}</td>
+                <td>{{ $row['no_ref'] ?? '-' }}</td>
                 <td style="text-align:left;">
-                    <span style="font-weight:600;">{{ $row['name'] ?? '-' }}</span>
-                    <br>
-                    <span class="small">{{ $row['material'] ?? '-' }}</span>
+                    @if(!empty($row['items_summary']))
+                        <div style="white-space:pre-wrap; font-size:9px; line-height:1.3;">{{ $row['items_summary'] }}</div>
+                    @else
+                        <span style="color:#999;">-</span>
+                    @endif
                     @if(!empty($row['note']))
                         <div class="note">Catatan: {{ $row['note'] }}</div>
                     @endif
                 </td>
-                <td>{{ $row['quantity'] ?? '-' }}</td>
+                <td style="text-align:center;">{{ $row['items_count'] ?? 0 }}</td>
+                <td style="text-align:right; font-weight:600;">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
                 <td>{{ $row['team'] ?? '-' }}</td>
                 <td><span class="small">{{ $row['created_at'] ?? '-' }}</span></td>
-                <td><span class="small">{{ $row['updated_at'] ?? '-' }}</span></td>
             </tr>
         @empty
             <tr>
-                <td colspan="7" style="text-align:center; padding:14px; color:#b0b3b7; font-style:italic;">
+                <td colspan="8" style="text-align:center; padding:14px; color:#b0b3b7; font-style:italic;">
                     Tidak ada data untuk ditampilkan.
                 </td>
             </tr>

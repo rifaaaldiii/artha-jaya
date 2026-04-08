@@ -38,7 +38,7 @@ class RecentProduksiWidget extends BaseWidget
         return $table
             ->query(
                 Produksi::query()
-                    ->with('team')
+                    ->with(['team', 'items'])
                     ->latest('createdAt')
             )
             ->columns([
@@ -46,13 +46,18 @@ class RecentProduksiWidget extends BaseWidget
                     ->label('No. Produksi')
                     ->searchable()
                     ->sortable()
-                    ->weight('medium'),
-                \Filament\Tables\Columns\TextColumn::make('nama_produksi_bahan')
-                    ->label('Jenis')
-                    ->getStateUsing(fn ($record) => "{$record->nama_produksi} - {$record->nama_bahan}")
-                    ->searchable(['nama_produksi', 'nama_bahan'])
+                    ->weight('medium')
+                    ->description(fn ($record) => $record->branch ? "Branch: {$record->branch}" : null),
+                \Filament\Tables\Columns\TextColumn::make('items_count')
+                    ->label('Items')
+                    ->getStateUsing(fn ($record) => $record->items->count() . ' item(s)')
                     ->badge()
                     ->color('info'),
+                \Filament\Tables\Columns\TextColumn::make('total_harga')
+                    ->label('Total Harga')
+                    ->getStateUsing(fn ($record) => 'Rp ' . number_format($record->items->sum('harga') ?? 0, 0, ',', '.'))
+                    ->weight('semibold')
+                    ->color('success'),
                 \Filament\Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -65,7 +70,8 @@ class RecentProduksiWidget extends BaseWidget
                 \Filament\Tables\Columns\TextColumn::make('team.nama')
                     ->label('Team')
                     ->badge()
-                    ->color('primary'),
+                    ->color('primary')
+                    ->placeholder('-'),
             ])
             ->defaultSort('createdAt', 'desc')
             ->paginated(true);

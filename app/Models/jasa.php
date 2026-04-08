@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Jasa extends Model
 {
@@ -14,8 +15,6 @@ class Jasa extends Model
         'no_jasa',
         'no_ref',
         'branch',
-        'jenis_layanan',
-        'harga',
         'jadwal',
         'jadwal_petugas',
         'catatan',
@@ -59,6 +58,14 @@ class Jasa extends Model
     public function pelanggan(): BelongsTo
     {
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
+    }
+
+    /**
+     * Get all items for this jasa.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(JasaItem::class, 'jasa_id');
     }
 
     protected static function booted(): void

@@ -120,6 +120,26 @@ class ReportCenter extends Page implements HasForms
         if (!isset($this->singleDownloadFormData)) {
             $this->singleDownloadFormData = ['singleDataNumber' => null];
         }
+        
+        // Check if we have URL parameters for direct single download
+        $singleNumber = request()->query('single_number');
+        $reportType = request()->query('report_type');
+        
+        if ($singleNumber && $reportType) {
+            // Set the report type
+            $this->filters['report_type'] = $reportType;
+            $this->filterForm->fill($this->filters);
+            
+            // Trigger single download
+            $downloadResponse = $this->downloadPdfSingleByNumber($singleNumber);
+            
+            if ($downloadResponse) {
+                // Return the download response
+                $downloadResponse->send();
+                exit;
+            }
+        }
+        
         $this->applyFilters();
     }
 
@@ -337,7 +357,7 @@ class ReportCenter extends Page implements HasForms
         ];
 
         $pdf = Pdf::loadView($view, $payload)
-            ->setPaper('a4', 'landscape')
+            ->setPaper('a5', 'landscape')
             ->setOptions(['isRemoteEnabled' => true]);
 
         $filename = sprintf(
@@ -446,7 +466,7 @@ class ReportCenter extends Page implements HasForms
         ];
 
         $pdf = Pdf::loadView($view, $payload)
-            ->setPaper('a4', 'landscape')
+            ->setPaper('a5', 'landscape')
             ->setOptions(['isRemoteEnabled' => true]);
 
         $filename = sprintf(
@@ -470,10 +490,11 @@ class ReportCenter extends Page implements HasForms
         $reportType = $this->filters['report_type'] ?? 'jasa';
 
         $query = $reportType === 'produksi'
-            ? Produksi::query()->with('team:id,nama')
+            ? Produksi::query()->with(['team:id,nama', 'items'])
             : Jasa::query()->with([
                 'pelanggan:id,nama',
                 'petugasMany:id,nama',
+                'items',
             ]);
 
         // Filter by date range
@@ -497,12 +518,32 @@ class ReportCenter extends Page implements HasForms
         $reportType = $this->filters['report_type'] ?? 'jasa';
 
         if ($reportType === 'produksi') {
+            // Calculate total from items
+            $totalHarga = $record->items ? $record->items->sum('harga') : 0;
+            $itemsCount = $record->items ? $record->items->count() : 0;
+            
+            // Build items summary
+            $itemsSummary = '';
+            if ($record->items && $record->items->count() > 0) {
+                $itemsList = $record->items->map(function ($item, $index) {
+                    return sprintf('%d. %s - %s (%s unit)', 
+                        $index + 1,
+                        $item->nama_produksi,
+                        $item->nama_bahan,
+                        number_format($item->jumlah, 0, ',', '.')
+                    );
+                })->implode("\n");
+                $itemsSummary = $itemsList;
+            }
+            
             return [
                 'id' => $record->id,
                 'number' => $record->no_produksi,
-                'name' => $record->nama_produksi,
-                'material' => $record->nama_bahan,
-                'quantity' => $record->jumlah,
+                'no_ref' => $record->no_ref ?? '-',
+                'branch' => $record->branch ?? '-',
+                'items_count' => $itemsCount,
+                'items_summary' => $itemsSummary,
+                'total_harga' => $totalHarga,
                 'team' => $record->team->nama ?? '-',
                 'status' => $record->status,
                 'created_at' => $this->formatDate($record->createdAt, $timezone),
@@ -511,22 +552,44 @@ class ReportCenter extends Page implements HasForms
             ];
         }
 
+        // Jasa transform
         $petugasList = $record->relationLoaded('petugasMany')
             ? $record->petugasMany->pluck('nama')->filter()->implode(', ')
             : '';
 
         $scheduledAt = $record->jadwal ?? $record->jadwal_petugas;
+        
+        // Calculate total from items
+        $totalHarga = $record->items ? $record->items->sum('harga') : 0;
+        $itemsCount = $record->items ? $record->items->count() : 0;
+        
+        // Build items summary
+        $itemsSummary = '';
+        if ($record->items && $record->items->count() > 0) {
+            $itemsList = $record->items->map(function ($item, $index) {
+                return sprintf('%d. %s - Rp %s', 
+                    $index + 1,
+                    $item->jenis_layanan,
+                    number_format($item->harga ?? 0, 0, ',', '.')
+                );
+            })->implode("\n");
+            $itemsSummary = $itemsList;
+        }
 
         return [
             'id' => $record->id,
             'number' => $record->no_jasa,
-            'reference' => $record->no_ref,
-            'service' => $record->jenis_layanan,
+            'no_ref' => $record->no_ref ?? '-',
+            'branch' => $record->branch ?? '-',
+            'items_count' => $itemsCount,
+            'items_summary' => $itemsSummary,
+            'total_harga' => $totalHarga,
             'customer' => $record->pelanggan->nama ?? '-',
             'petugas' => $petugasList ?: '-',
             'status' => $record->status,
             'scheduled_at' => $this->formatDate($scheduledAt, $timezone, 'd/m/Y H:i'),
             'created_at' => $this->formatDate($record->createdAt, $timezone),
+            'updated_at' => $this->formatDate($record->updateAt, $timezone),
             'note' => $record->catatan,
         ];
     }

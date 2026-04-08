@@ -34,7 +34,7 @@ class RecentJasaWidget extends BaseWidget
         return $table
             ->query(
                 Jasa::query()
-                    ->with(['pelanggan', 'petugas'])
+                    ->with(['pelanggan', 'petugasMany', 'items'])
                     ->latest('createdAt')
             )
             ->columns([
@@ -42,12 +42,18 @@ class RecentJasaWidget extends BaseWidget
                     ->label('No. Jasa')
                     ->searchable()
                     ->sortable()
-                    ->weight('medium'),
-                \Filament\Tables\Columns\TextColumn::make('jenis_layanan')
-                    ->label('Jenis')
-                    ->searchable()
+                    ->weight('medium')
+                    ->description(fn ($record) => $record->pelanggan?->nama),
+                \Filament\Tables\Columns\TextColumn::make('items_count')
+                    ->label('Items')
+                    ->getStateUsing(fn ($record) => $record->items->count() . ' item(s)')
                     ->badge()
                     ->color('info'),
+                \Filament\Tables\Columns\TextColumn::make('total_harga')
+                    ->label('Total Harga')
+                    ->getStateUsing(fn ($record) => 'Rp ' . number_format($record->items->sum('harga') ?? 0, 0, ',', '.'))
+                    ->weight('semibold')
+                    ->color('success'),
                 \Filament\Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -57,9 +63,15 @@ class RecentJasaWidget extends BaseWidget
                         'jasa baru' => 'gray',
                         default => 'info',
                     }),
-                \Filament\Tables\Columns\TextColumn::make('pelanggan.nama')
-                    ->label('Pelanggan')
-                    ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('petugas_display')
+                    ->label('Petugas')
+                    ->getStateUsing(function ($record) {
+                        if ($record->petugasMany && $record->petugasMany->count() > 0) {
+                            return $record->petugasMany->pluck('nama')->join(', ');
+                        }
+                        return $record->petugas?->nama ?? '-';
+                    })
+                    ->limit(30),
             ])
             ->defaultSort('createdAt', 'desc')
             ->paginated(true);

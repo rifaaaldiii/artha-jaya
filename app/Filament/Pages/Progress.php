@@ -57,7 +57,7 @@ class Progress extends Page implements HasForms
     protected function loadRecord(): void
     {
         if ($this->selectedProduksiId) {
-            $this->record = Produksi::with('team')->find($this->selectedProduksiId);
+            $this->record = Produksi::with(['team', 'items'])->find($this->selectedProduksiId);
         } else {
             $this->record = null;
         }
@@ -107,12 +107,21 @@ class Progress extends Page implements HasForms
                     ->label('Cari & Pilih Produksi')
                     ->options(function () {
                         return Produksi::query()
+                            ->with('items')
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($produksi) {
+                                $itemsInfo = '';
+                                if ($produksi->items && $produksi->items->count() > 0) {
+                                    $firstItem = $produksi->items->first();
+                                    $itemsInfo = $firstItem->nama_produksi;
+                                    if ($produksi->items->count() > 1) {
+                                        $itemsInfo .= ' (+' . ($produksi->items->count() - 1) . ')';
+                                    }
+                                }
                                 return [
-                                    $produksi->id => $produksi->no_produksi . ' | ' . $produksi->nama_produksi . ' - ' . $produksi->nama_bahan
+                                    $produksi->id => $produksi->no_produksi . ' | ' . $produksi->no_ref . ' - ' . $itemsInfo
                                 ];
                             })
                             ->toArray();
@@ -120,24 +129,49 @@ class Progress extends Page implements HasForms
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
                         return Produksi::query()
+                            ->with('items')
                             ->where(function ($query) use ($search) {
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_produksi', 'like', $searchTerm)
-                                    ->orWhere('nama_produksi', 'like', $searchTerm)
-                                    ->orWhere('nama_bahan', 'like', $searchTerm);
+                                    ->orWhere('no_ref', 'like', $searchTerm)
+                                    ->orWhereHas('items', function ($q) use ($search) {
+                                        $q->where('nama_produksi', 'like', $searchTerm)
+                                            ->orWhere('nama_bahan', 'like', $searchTerm);
+                                    });
                             })
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($produksi) {
+                                $itemsInfo = '';
+                                if ($produksi->items && $produksi->items->count() > 0) {
+                                    $firstItem = $produksi->items->first();
+                                    $itemsInfo = $firstItem->nama_produksi;
+                                    if ($produksi->items->count() > 1) {
+                                        $itemsInfo .= ' (+' . ($produksi->items->count() - 1) . ')';
+                                    }
+                                }
                                 return [
-                                    $produksi->id => $produksi->no_produksi . ' | ' . $produksi->nama_produksi . ' - ' . $produksi->nama_bahan
+                                    $produksi->id => $produksi->no_produksi . ' | ' . $produksi->no_ref . ' - ' . $itemsInfo
                                 ];
                             })
                             ->toArray();
                     })
                     ->preload()
-                    ->getOptionLabelUsing(fn ($value): ?string => Produksi::find($value)?->no_produksi . ' | ' . Produksi::find($value)?->nama_produksi . ' - ' . Produksi::find($value)?->nama_bahan)
+                    ->getOptionLabelUsing(function ($value): ?string {
+                        $produksi = Produksi::with('items')->find($value);
+                        if (!$produksi) return null;
+                        
+                        $itemsInfo = '';
+                        if ($produksi->items && $produksi->items->count() > 0) {
+                            $firstItem = $produksi->items->first();
+                            $itemsInfo = $firstItem->nama_produksi;
+                            if ($produksi->items->count() > 1) {
+                                $itemsInfo .= ' (+' . ($produksi->items->count() - 1) . ')';
+                            }
+                        }
+                        return $produksi->no_produksi . ' | ' . $produksi->no_ref . ' - ' . $itemsInfo;
+                    })
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->selectedProduksiId = $state;

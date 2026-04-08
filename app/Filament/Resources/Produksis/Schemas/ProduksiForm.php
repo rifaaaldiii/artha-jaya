@@ -7,6 +7,9 @@ use App\Models\Team;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Repeater;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -17,13 +20,113 @@ class ProduksiForm
     {
         return $schema
             ->components([
+                Section::make('Informasi Produksi')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make("no_ref")
+                                    ->label("No. Ref")
+                                    ->required()
+                                    ->columnSpan(1),
+
+                                Select::make("branch")
+                                    ->label("Branch")
+                                    ->options([
+                                        'AJC' => 'AJC',
+                                        'AJP' => 'AJP',
+                                        'AJK' => 'AJK',
+                                        'AJR' => 'AJR',
+                                    ])
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->collapsible()
+                    ->collapsed(false),
+
+                Section::make('Item Produksi')
+                    ->description('Tambahkan satu atau lebih item produksi')
+                    ->schema([
+                        Repeater::make('items')
+                            ->relationship('items')
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        Select::make("nama_produksi")
+                                            ->label("Jenis Produksi")
+                                            ->required()
+                                            ->searchable()
+                                            ->preload()
+                                            ->options(fn () => JenisProduksi::query()
+                                                ->orderBy('nama')
+                                                ->pluck('nama', 'nama')
+                                                ->toArray()
+                                            )
+                                            ->columnSpan(2),
+                                        
+                                        TextInput::make("nama_bahan")
+                                            ->label("Nama Bahan")
+                                            ->required()
+                                            ->columnSpan(2),
+                                        
+                                        TextInput::make("jumlah")
+                                            ->label("Jumlah")
+                                            ->numeric()
+                                            ->required()
+                                            ->columnSpan(1),
+                                        
+                                        TextInput::make("harga")
+                                            ->label("Harga")
+                                            ->numeric()
+                                            ->prefix('Rp')
+                                            ->required()
+                                            ->columnSpan(1),
+                                    ]),
+                            ])
+                            ->columns(1)
+                            ->addActionLabel('+ Tambah Item')
+                            ->required()
+                            ->minItems(1)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => 
+                                ($state['nama_produksi'] ?? 'Item') . 
+                                (isset($state['jumlah']) ? ' - ' . $state['jumlah'] . ' unit' : '')
+                            ),
+                    ])
+                    ->collapsible()
+                    ->collapsed(false),
+
+                Section::make('Informasi Team')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('team_id')
+                                    ->label('Team')
+                                    ->relationship('team', 'nama', fn ($query) => $query->where('status', 'ready'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->getOptionLabelUsing(fn ($value): ?string => Team::find($value)?->nama)
+                                    ->required()
+                                    ->columnSpan(1),
+
+                                Textarea::make("catatan")
+                                    ->label("Catatan")
+                                    ->rows(3)
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->collapsible()
+                    ->collapsed(false),
+
+                // Hidden fields
                 TextInput::make("no_produksi")
                     ->label("No. Produksi")
                     ->required()
                     ->hidden()
-                    ->dehydrated(fn ($state) => filled($state)) // Only dehydrate when field is not null
+                    ->dehydrated(fn ($state) => filled($state))
                     ->default(function ($record = null) {
-                        // Only auto-generate if creating (not editing)
                         if ($record && $record->no_produksi) {
                             return $record->no_produksi;
                         }
@@ -43,75 +146,7 @@ class ProduksiForm
                         }
 
                         return $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
-                    })
-                    ->afterStateHydrated(function ($component, $state, $record) {
-                        // In case the input is still null for create, set default
-                        if (blank($state)) {
-                            $prefix = 'P-';
-                            $padLength = 5;
-                            $lastNo = \App\Models\Produksi::query()
-                                ->where('no_produksi', 'like', $prefix . '%')
-                                ->orderByDesc('id')
-                                ->value('no_produksi');
-                            if ($lastNo) {
-                                $num = intval(substr($lastNo, strlen($prefix)));
-                                $nextNum = $num + 1;
-                            } else {
-                                $nextNum = 1;
-                            }
-                            $component->state($prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT));
-                        }
                     }),
-                Select::make("nama_produksi")
-                    ->label("Jenis Produksi")
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->options(fn () => JenisProduksi::query()
-                        ->orderBy('nama')
-                        ->pluck('nama', 'nama')
-                        ->toArray()
-                    ),
-
-                TextInput::make("no_ref")
-                    ->label("No. Ref")
-                    ->required(),
-
-                Select::make("branch")
-                    ->label("Branch")
-                    ->options([
-                        'AJC' => 'AJC',
-                        'AJP' => 'AJP',
-                        'AJK' => 'AJK',
-                        'AJR' => 'AJR',
-                    ])
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                    TextInput::make("nama_bahan")
-                    ->label("Nama Bahan")
-                    ->required(),
-                TextInput::make("jumlah")
-                    ->label("Jumlah")
-                    ->numeric()
-                    ->required(),
-                TextInput::make("harga")
-                    ->label("Harga")
-                    ->numeric()
-                    ->prefix('Rp')
-                    ->required(),
-
-                Select::make('team_id')
-                    ->label('Team')
-                    ->relationship('team', 'nama', fn ($query) => $query->where('status', 'ready'))
-                    ->searchable()
-                    ->preload()
-                    ->getOptionLabelUsing(fn ($value): ?string => Team::find($value)?->nama)
-                    ->required(),
-
-                Textarea::make("catatan")
-                    ->label("Catatan"),
 
                 TextInput::make("status")
                     ->default("produksi baru")
@@ -121,7 +156,6 @@ class ProduksiForm
                 TextInput::make("createdAt")
                     ->default(fn ($record = null) =>
                         $record?->createdAt
-                            // Set timezone ke Asia/Bangkok (WIB/Waktu Indonesia Barat juga GMT+7)
                             ? Carbon::parse($record->createdAt)->setTimezone('Asia/Bangkok')->toDateTimeString()
                             : Carbon::now('Asia/Bangkok')->toDateTimeString()
                     )
@@ -136,7 +170,6 @@ class ProduksiForm
                     )
                     ->hidden()
                     ->dehydrated(fn ($state) => filled($state)),
-                    
             ]);
     }
 

@@ -7,6 +7,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
 use App\Models\JenisJasa;
@@ -61,16 +62,16 @@ class JasaForm
                         $component->state($prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT));
                     }
                 }),
-            Select::make("jenis_layanan")
-                ->label("Jenis Jasa & Layanan")
-                ->required()
-                ->searchable()
-                ->preload()
-                ->options(fn () => JenisJasa::query()
-                    ->orderBy('nama')
-                    ->pluck('nama', 'nama')
-                    ->toArray()
-                ),
+            // Select::make("jenis_layanan")
+            //     ->label("Jenis Jasa & Layanan")
+            //     ->required()
+            //     ->searchable()
+            //     ->preload()
+            //     ->options(fn () => JenisJasa::query()
+            //         ->orderBy('nama')
+            //         ->pluck('nama', 'nama')
+            //         ->toArray()
+            //     ),
 
             TextInput::make("no_ref")
                 ->label("No. Ref")
@@ -88,11 +89,29 @@ class JasaForm
                 ->preload()
                 ->required(),
             
-            TextInput::make("harga")
-                ->label("Harga")
-                ->numeric()
-                ->prefix('Rp')
-                ->required(),
+            Repeater::make('items')
+                ->relationship('items')
+                ->schema([
+                    Select::make("jenis_layanan")
+                        ->label("Jenis Jasa & Layanan")
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->options(fn () => JenisJasa::query()
+                            ->orderBy('nama')
+                            ->pluck('nama', 'nama')
+                            ->toArray()
+                        ),
+                    TextInput::make("harga")
+                        ->label("Harga")
+                        ->numeric()
+                        ->prefix('Rp')
+                        ->required(),
+                ])
+                ->columns(2)
+                ->addActionLabel('Tambah Item Jasa')
+                ->required()
+                ->minItems(1),
             
             Select::make('pelanggan_id')
                 ->label('Pilih Pelanggan')

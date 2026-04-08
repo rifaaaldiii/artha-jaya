@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Produksi extends Model
 {
@@ -13,10 +14,6 @@ class Produksi extends Model
         'no_produksi',
         'no_ref',
         'branch',
-        'nama_produksi',
-        'nama_bahan',
-        'jumlah',
-        'harga',
         'status',
         'catatan',
         'progress_images',
@@ -39,6 +36,14 @@ class Produksi extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'team_id');
+    }
+
+    /**
+     * Get all items for this produksi.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(ProduksiItem::class, 'produksi_id');
     }
 
     protected static function booted(): void

@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Produksis\Pages;
 
 use App\Filament\Resources\Produksis\ProduksiResource;
+use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Schemas\Schema;
 use Livewire\Attributes\On;
 
 class ListProduksis extends ManageRecords
@@ -15,7 +17,8 @@ class ListProduksis extends ManageRecords
     {
         return [
             CreateAction::make()
-                ->visible(fn () => ProduksiResource::canCreate()),
+                ->visible(fn () => ProduksiResource::canCreate())
+                ->form(fn (Schema $schema) => ProduksiForm::configure($schema)),
         ];
     }
 

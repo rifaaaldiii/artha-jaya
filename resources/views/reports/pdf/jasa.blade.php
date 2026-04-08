@@ -206,10 +206,14 @@
         <thead>
             <tr>
                 <th style="width:26px;">No.</th>
-                <th style="width:60px;">Nomor Jasa</th>
-                <th style="width:60px;">Nomor Ref</th>
-                <th style="width:220px;">Layanan &amp; Pelanggan</th>
-                <th style="width:68px;">Jadwal</th>
+                <th style="width:55px;">No. Jasa</th>
+                <th style="width:55px;">No. Ref</th>
+                <th style="width:180px;">Detail Item</th>
+                <th style="width:50px;">Jml Item</th>
+                <th style="width:75px;">Total Harga</th>
+                <th style="width:70px;">Pelanggan</th>
+                <th style="width:65px;">Petugas</th>
+                <th style="width:65px;">Jadwal</th>
             </tr>
         </thead>
         <tbody>
@@ -217,19 +221,26 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $row['number'] ?? '-' }}</td>
-                <td>{{ $row['reference'] ?? '-' }}</td>
+                <td>{{ $row['no_ref'] ?? '-' }}</td>
                 <td style="text-align:left;">
-                    <span style="font-weight:600;">{{ $row['service'] ?? '-' }}</span><br>
-                    <span class="small">{{ $row['customer'] ?? '-' }}</span>
+                    @if(!empty($row['items_summary']))
+                        <div style="white-space:pre-wrap; font-size:9px; line-height:1.3;">{{ $row['items_summary'] }}</div>
+                    @else
+                        <span style="color:#999;">-</span>
+                    @endif
                     @if(!empty($row['note']))
                         <div class="note">Catatan: {{ $row['note'] }}</div>
                     @endif
                 </td>
+                <td style="text-align:center;">{{ $row['items_count'] ?? 0 }}</td>
+                <td style="text-align:right; font-weight:600;">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
+                <td>{{ $row['customer'] ?? '-' }}</td>
+                <td><span class="small">{{ $row['petugas'] ?? '-' }}</span></td>
                 <td><span class="small">{{ $row['scheduled_at'] ?? '-' }}</span></td>
             </tr>
         @empty
             <tr>
-                <td colspan="5" style="text-align:center; padding:14px; color:#b0b3b7; font-style:italic;">
+                <td colspan="9" style="text-align:center; padding:14px; color:#b0b3b7; font-style:italic;">
                     Tidak ada data untuk ditampilkan.
                 </td>
             </tr>

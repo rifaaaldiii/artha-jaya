@@ -60,7 +60,7 @@ class ProgressJasa extends Page implements HasForms
     protected function loadRecord(): void
     {
         if ($this->selectedJasaId) {
-            $this->record = Jasa::with(['petugas', 'petugasMany', 'pelanggan'])->find($this->selectedJasaId);
+            $this->record = Jasa::with(['petugas', 'petugasMany', 'pelanggan', 'items'])->find($this->selectedJasaId);
             
             if ($this->record) {
                 $this->petugasIds = $this->record->petugasMany()->pluck('petugas_id')->toArray();
@@ -133,12 +133,21 @@ class ProgressJasa extends Page implements HasForms
                     ->label('Cari & Pilih Jasa')
                     ->options(function () {
                         return Jasa::query()
+                            ->with('items')
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($jasa) {
+                                $itemsInfo = '';
+                                if ($jasa->items && $jasa->items->count() > 0) {
+                                    $firstItem = $jasa->items->first();
+                                    $itemsInfo = $firstItem->jenis_layanan;
+                                    if ($jasa->items->count() > 1) {
+                                        $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
+                                    }
+                                }
                                 return [
-                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $jasa->jenis_layanan
+                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $itemsInfo
                                 ];
                             })
                             ->toArray();
@@ -146,24 +155,48 @@ class ProgressJasa extends Page implements HasForms
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
                         return Jasa::query()
+                            ->with('items')
                             ->where(function ($query) use ($search) {
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_jasa', 'like', $searchTerm)
                                     ->orWhere('no_ref', 'like', $searchTerm)
-                                    ->orWhere('jenis_layanan', 'like', $searchTerm);
+                                    ->orWhereHas('items', function ($q) use ($search) {
+                                        $q->where('jenis_layanan', 'like', $searchTerm);
+                                    });
                             })
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($jasa) {
+                                $itemsInfo = '';
+                                if ($jasa->items && $jasa->items->count() > 0) {
+                                    $firstItem = $jasa->items->first();
+                                    $itemsInfo = $firstItem->jenis_layanan;
+                                    if ($jasa->items->count() > 1) {
+                                        $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
+                                    }
+                                }
                                 return [
-                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $jasa->jenis_layanan
+                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $itemsInfo
                                 ];
                             })
                             ->toArray();
                     })
                     ->preload()
-                    ->getOptionLabelUsing(fn ($value): ?string => Jasa::find($value)?->no_jasa . ' | ' . Jasa::find($value)?->no_ref . ' - ' . Jasa::find($value)?->jenis_layanan)
+                    ->getOptionLabelUsing(function ($value): ?string {
+                        $jasa = Jasa::with('items')->find($value);
+                        if (!$jasa) return null;
+                        
+                        $itemsInfo = '';
+                        if ($jasa->items && $jasa->items->count() > 0) {
+                            $firstItem = $jasa->items->first();
+                            $itemsInfo = $firstItem->jenis_layanan;
+                            if ($jasa->items->count() > 1) {
+                                $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
+                            }
+                        }
+                        return $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $itemsInfo;
+                    })
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->selectedJasaId = $state;

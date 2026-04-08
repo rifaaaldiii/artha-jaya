@@ -217,6 +217,93 @@
         }
         .whitespace-pre-wrap { white-space: pre-wrap; }
 
+        /* Info Grid Layout */
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .info-section {
+            background: var(--aj-card-bg);
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid var(--aj-card-border);
+        }
+        .info-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--aj-text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--aj-card-divider);
+        }
+        .items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .item-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .item-card:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .item-card-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .item-badge {
+            display: inline-block;
+            background: #22c55e;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .item-card-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+        }
+        .item-row:not(:last-child) {
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .item-label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .item-value {
+            font-size: 14px;
+            color: var(--aj-text);
+            font-weight: 600;
+            text-align: right;
+        }
+        .item-price {
+            color: #22c55e;
+        }
+        .catatan-section {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
         /* Progress Images Gallery */
         .progress-images-section {
             margin-top: 16px;
@@ -687,69 +774,138 @@
                     </div>
                 </div>
                 <div class="detail-main">
-                    <ul class="detail-list">
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">No. Jasa</span>
-                            <span class="detail-item-value">{{ $this->record->no_jasa }}</span>
-                        </li>
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">No. Ref</span>
-                            <span class="detail-item-value">{{ $this->record->no_ref }}</span>
-                        </li>
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Jenis Layanan</span>
-                            <span class="detail-item-value">{{ $this->record->jenis_layanan }}</span>
-                        </li>
-                        {{-- Pilih salah satu dari jadwal: Prioritaskan jadwal_petugas jika ada, jika tidak jadwal --}}
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Jadwal</span>
-                            <span class="detail-item-value">
-                                @if($this->record->jadwal_petugas)
-                                    {{ $this->record->jadwal_petugas->format('d F Y, H:i') }} WIB
-                                @elseif($this->record->jadwal)
-                                    {{ $this->record->jadwal->format('d F Y, H:i') }} WIB
-                                @else
-                                    -
+                    {{-- Information Grid --}}
+                    <div class="info-grid">
+                        {{-- Primary Info Section --}}
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                Informasi Jasa
+                            </div>
+                            <ul class="detail-list">
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">No. Jasa</span>
+                                    <span class="detail-item-value">{{ $this->record->no_jasa }}</span>
+                                </li>
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">No. Ref</span>
+                                    <span class="detail-item-value">{{ $this->record->no_ref }}</span>
+                                </li>
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Jadwal</span>
+                                    <span class="detail-item-value">
+                                        @if($this->record->jadwal_petugas)
+                                            {{ $this->record->jadwal_petugas->format('d F Y, H:i') }} WIB
+                                        @elseif($this->record->jadwal)
+                                            {{ $this->record->jadwal->format('d F Y, H:i') }} WIB
+                                        @else
+                                            <span style="color: #9ca3af;">Belum dijadwalkan</span>
+                                        @endif
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {{-- Items Section --}}
+                        @if($this->record->items && $this->record->items->count() > 0)
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                                </svg>
+                                Detail Item ({{ $this->record->items->count() }})
+                            </div>
+                            <div class="items-container">
+                                @foreach($this->record->items as $index => $item)
+                                <div class="item-card">
+                                    <div class="item-card-header">
+                                        <span class="item-badge">Item {{ $index + 1 }}</span>
+                                    </div>
+                                    <div class="item-card-body">
+                                        <div class="item-row">
+                                            <span class="item-label">Jenis Layanan</span>
+                                            <span class="item-value">{{ $item->jenis_layanan }}</span>
+                                        </div>
+                                        <div class="item-row">
+                                            <span class="item-label">Harga</span>
+                                            <span class="item-value item-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- People Section --}}
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                </svg>
+                                Petugas & Pelanggan
+                            </div>
+                            <ul class="detail-list">
+                                @if($this->record->petugasMany && $this->record->petugasMany->count() > 0)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Petugas</span>
+                                    <span class="detail-item-value">
+                                        {{ $this->record->petugasMany->pluck('nama')->join(', ') }}
+                                    </span>
+                                </li>
+                                @elseif($this->record->petugas)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Petugas</span>
+                                    <span class="detail-item-value">{{ $this->record->petugas->nama }}</span>
+                                </li>
                                 @endif
-                            </span>
-                        </li>
-                        @if($this->record->petugasMany && $this->record->petugasMany->count() > 0)
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Petugas</span>
-                            <span class="detail-item-value">
-                                {{ $this->record->petugasMany->pluck('nama')->join(', ') }}
-                            </span>
-                        </li>
-                        @elseif($this->record->petugas)
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Petugas</span>
-                            <span class="detail-item-value">{{ $this->record->petugas->nama }}</span>
-                        </li>
-                        @endif
-                        @if($this->record->pelanggan)
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Pelanggan</span>
-                            <span class="detail-item-value">{{ $this->record->pelanggan->nama }}</span>
-                        </li>
-                        @endif
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Tanggal Dibuat</span>
-                            <span class="detail-item-value">{{ $this->record->createdAt ? $this->record->createdAt->format('d F Y, H:i') : '-' }} WIB</span>
-                        </li>
-                        @if($this->record->updateAt)
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Terakhir Diupdate</span>
-                            <span class="detail-item-value">{{ $this->record->updateAt->format('d F Y, H:i')}} WIB</span>
-                        </li>
-                        @endif
-                        <li class="detail-list-item">
-                            <span class="detail-item-label">Status</span>
-                            <span class="detail-item-value"><span class="{{ $badgeClass }}">{{ $statuses[$currentStatus]['label'] }}</span></span>
-                        </li>
-                    </ul>
+                                @if($this->record->pelanggan)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Pelanggan</span>
+                                    <span class="detail-item-value">{{ $this->record->pelanggan->nama }}</span>
+                                </li>
+                                @endif
+                            </ul>
+                        </div>
+
+                        {{-- Timestamps Section --}}
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Waktu
+                            </div>
+                            <ul class="detail-list">
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Tanggal Dibuat</span>
+                                    <span class="detail-item-value">{{ $this->record->createdAt ? $this->record->createdAt->format('d F Y, H:i') : '-' }} WIB</span>
+                                </li>
+                                @if($this->record->updateAt)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Terakhir Diupdate</span>
+                                    <span class="detail-item-value">{{ $this->record->updateAt->format('d F Y, H:i')}} WIB</span>
+                                </li>
+                                @endif
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Status</span>
+                                    <span class="detail-item-value"><span class="{{ $badgeClass }}">{{ $statuses[$currentStatus]['label'] }}</span></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {{-- Catatan Section --}}
                     @if($this->record->catatan)
-                    <div>
-                        <span class="detail-item-label" style="color:#e11d48;">Catatan</span>
+                    <div class="info-section catatan-section">
+                        <div class="info-section-title" style="color: #dc2626;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                            Catatan
+                        </div>
                         <div class="detail-note whitespace-pre-wrap">
                             {{ $this->record->catatan }}
                         </div>
