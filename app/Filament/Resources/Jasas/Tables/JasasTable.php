@@ -26,6 +26,11 @@ class JasasTable
                     ->label('No. Ref')
                     ->sortable()
                     ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('branch')
+                    ->label('Branch')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('-'),
                 \Filament\Tables\Columns\TextColumn::make('pelanggan.nama')
                     ->label('Pelanggan')
                     ->sortable()
@@ -34,6 +39,10 @@ class JasasTable
                     ->label('Nama Jasa')
                     ->sortable()
                     ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('harga')
+                    ->label('Harga')
+                    ->money('IDR')
+                    ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()

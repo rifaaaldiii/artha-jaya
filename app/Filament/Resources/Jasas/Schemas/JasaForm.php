@@ -76,6 +76,24 @@ class JasaForm
                 ->label("No. Ref")
                 ->required(),
             
+            Select::make("branch")
+                ->label("Branch")
+                ->options([
+                    'AJC' => 'AJC',
+                    'AJP' => 'AJP',
+                    'AJK' => 'AJK',
+                    'AJR' => 'AJR',
+                ])
+                ->searchable()
+                ->preload()
+                ->required(),
+            
+            TextInput::make("harga")
+                ->label("Harga")
+                ->numeric()
+                ->prefix('Rp')
+                ->required(),
+            
             Select::make('pelanggan_id')
                 ->label('Pilih Pelanggan')
                 ->options(function () {

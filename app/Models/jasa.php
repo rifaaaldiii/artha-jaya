@@ -13,10 +13,13 @@ class Jasa extends Model
     protected $fillable = [
         'no_jasa',
         'no_ref',
+        'branch',
         'jenis_layanan',
+        'harga',
         'jadwal',
         'jadwal_petugas',
         'catatan',
+        'progress_images',
         'petugas_id',
         'pelanggan_id',
         'status',
@@ -31,6 +34,7 @@ class Jasa extends Model
         'jadwal_petugas' => 'datetime',
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
+        'progress_images' => 'array',
     ];
 
     /**

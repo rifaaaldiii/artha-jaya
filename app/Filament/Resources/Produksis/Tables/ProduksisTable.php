@@ -21,6 +21,15 @@ class ProduksisTable
             ->columns([
                 
                 TextColumn::make("no_produksi")->label('No. Produksi')->sortable()->searchable(),
+                TextColumn::make("no_ref")
+                    ->label('No. Ref')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make("branch")
+                    ->label('Branch')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('-'),
                 TextColumn::make('nama_produksi_nama_bahan')
                     ->label('Nama Produksi')
                     ->sortable()
@@ -33,6 +42,11 @@ class ProduksisTable
                     })
                     ->getStateUsing(fn ($record) => $record->nama_produksi . '-' . $record->nama_bahan),
                 TextColumn::make("jumlah")->label('Jumlah')->sortable()->searchable(),
+                TextColumn::make("harga")
+                    ->label('Harga')
+                    ->sortable()
+                    ->money('IDR')
+                    ->getStateUsing(fn ($record) => $record->harga ?? 0),
                 TextColumn::make('team.nama')
                     ->label('Team')
                     ->sortable()

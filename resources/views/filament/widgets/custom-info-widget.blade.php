@@ -116,7 +116,7 @@
             <a href="{{ url('admin/produksis') }}" class="custom-info-widget-link produksi">
                 <!-- Factory/production/industry icon SVG -->
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M3 21V10.705l5-3.158v3.158l5-3.158v3.158l5-3.158V21H3zm2-2h2v-2H5v2zm4 0h2v-4H9v4zm4 0h2v-6h-2v6zm4-2h-2v2h2v-2z" fill="currentColor"/></svg>
-                Produksi
+                Produksi Step Nosing
             </a>
             <a href="{{ url('admin/jasas') }}" class="custom-info-widget-link jasa">
                 <!-- Handshake/service icon SVG -->

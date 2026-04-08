@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
+use Filament\Forms\Components\FileUpload;
 
 class ProgressJasa extends Page implements HasForms
 {
@@ -26,7 +27,7 @@ class ProgressJasa extends Page implements HasForms
 
     protected string $view = 'filament.pages.progressJasa';
     
-    protected static ?string $navigationLabel = 'Progress Jasa';
+    protected static ?string $navigationLabel = 'Progress';
     
     protected static ?string $title = 'Progress Jasa';
     
@@ -106,6 +107,11 @@ class ProgressJasa extends Page implements HasForms
                 'petugasIds' => $this->record->petugasMany()->pluck('petugas_id')->toArray(),
             ]);
         }
+        
+        // Initialize image upload form
+        $this->imageUploadForm->fill([
+            'progressImages' => [],
+        ]);
     }
 
     public array $data = [];
@@ -115,6 +121,7 @@ class ProgressJasa extends Page implements HasForms
         return [
             'jasaForm',
             'terjadwalForm',
+            'imageUploadForm',
         ];
     }
 
@@ -165,6 +172,29 @@ class ProgressJasa extends Page implements HasForms
             ])
             ->statePath('data');
     }
+
+    public function imageUploadForm($form)
+    {
+        return $form
+            ->schema([
+                FileUpload::make('progressImages')
+                    ->label('Upload Foto Progress')
+                    ->image()
+                    ->multiple()
+                    ->disk('public')  // Explicitly use public disk
+                    ->directory('progress/jasa')
+                    ->visibility('public')
+                    ->maxSize(2048)
+                    ->maxFiles(10)
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                    ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.'),
+            ])
+            ->statePath('imageData');
+    }
+
+    public array $imageData = [];
+
+    public bool $isUploading = false;
 
     public function terjadwalForm($form)
     {
@@ -223,6 +253,11 @@ class ProgressJasa extends Page implements HasForms
         }
     }
 
+    public function setUploadingStatus(bool $status): void
+    {
+        $this->isUploading = $status;
+    }
+
     public function canUpdateJasaStatus($jasaId): bool
     {
         $jasa = Jasa::find($jasaId);
@@ -250,6 +285,16 @@ class ProgressJasa extends Page implements HasForms
                 ->title('Data jasa tidak ditemukan')
                 ->danger()
                 ->body('Silakan pilih jasa terlebih dahulu.')
+                ->send();
+            return;
+        }
+
+        // Check if images are still uploading
+        if ($this->isUploading) {
+            Notification::make()
+                ->title('Upload Belum Selesai')
+                ->warning()
+                ->body('Mohon tunggu hingga semua gambar selesai diupload sebelum memperbarui status.')
                 ->send();
             return;
         }
@@ -298,6 +343,68 @@ class ProgressJasa extends Page implements HasForms
                 ->title('Tidak ada perubahan')
                 ->warning()
                 ->body('Status jasa sudah berada pada posisi tersebut.')
+                ->send();
+            return;
+        }
+
+        // Handle image upload
+        try {
+            $formData = $this->imageUploadForm->getState();
+            $progressImages = $formData['progressImages'] ?? [];
+            
+            \Log::info('=== JASA IMAGE UPLOAD DEBUG ===');
+            \Log::info('Form data:', $formData);
+            \Log::info('Progress images count:', ['count' => is_array($progressImages) ? count($progressImages) : 0]);
+            \Log::info('Progress images:', $progressImages);
+            
+            if (!empty($progressImages) && is_array($progressImages)) {
+                // Get existing images or initialize empty array
+                $existingImages = $this->record->progress_images ?? [];
+                if (!is_array($existingImages)) {
+                    $existingImages = [];
+                }
+                
+                \Log::info('Existing images before update:', ['count' => count($existingImages)]);
+                
+                // Add each new image to array
+                foreach ($progressImages as $imagePath) {
+                    if ($imagePath) {
+                        $fullStoragePath = storage_path('app/public/' . $imagePath);
+                        $fileExists = file_exists($fullStoragePath);
+                        
+                        \Log::info('Processing image:', [
+                            'path' => $imagePath,
+                            'full_path' => $fullStoragePath,
+                            'exists' => $fileExists,
+                        ]);
+                        
+                        $existingImages[] = [
+                            'path' => $imagePath,
+                            'uploaded_at' => now()->format('Y-m-d H:i:s'),
+                            'status_from' => $this->record->status,
+                            'status_to' => $this->updateStatusValue,
+                            'uploaded_by' => Auth::id(),
+                        ];
+                    }
+                }
+                
+                // Update record with new images array
+                $this->record->progress_images = $existingImages;
+                
+                \Log::info('Total images after update:', ['count' => count($existingImages)]);
+            } else {
+                \Log::warning('No images uploaded or invalid format');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Image upload error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            Notification::make()
+                ->title('Error Upload Gambar')
+                ->danger()
+                ->body('Terjadi kesalahan saat mengupload gambar: ' . $e->getMessage())
                 ->send();
             return;
         }
@@ -375,6 +482,16 @@ class ProgressJasa extends Page implements HasForms
                     'jadwalPetugas' => null,
                     'petugasIds' => [],
                 ]);
+                
+                // Reset form - Clear all uploaded images
+                \Log::info('[JASA] Resetting image data...');
+                $this->imageData = ['progressImages' => []];
+                \Log::info('[JASA] Image data after reset:', $this->imageData);
+                
+                \Log::info('[JASA] Dispatching page reload...');
+                // Use JavaScript to force page reload instead of Livewire refresh
+                $this->js('window.location.reload();');
+                \Log::info('[JASA] === UPDATE COMPLETE ===');
                 return;
             }
         }
@@ -389,6 +506,16 @@ class ProgressJasa extends Page implements HasForms
             ->body('Status jasa berhasil diperbarui menjadi '.ucwords($this->updateStatusValue).'.')
             ->send();
         $this->updateStatusValue = null;
+        
+        // Reset form - Clear all uploaded images
+        \Log::info('[JASA] Resetting image data...');
+        $this->imageData = ['progressImages' => []];
+        \Log::info('[JASA] Image data after reset:', $this->imageData);
+        
+        \Log::info('[JASA] Dispatching page reload...');
+        // Use JavaScript to force page reload instead of Livewire refresh
+        $this->js('window.location.reload();');
+        \Log::info('[JASA] === UPDATE COMPLETE ===');
     }
 
     protected function getAllowedStatusesForRole(): array

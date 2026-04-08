@@ -73,12 +73,33 @@ class ProduksiForm
                         ->toArray()
                     ),
 
+                TextInput::make("no_ref")
+                    ->label("No. Ref")
+                    ->required(),
+
+                Select::make("branch")
+                    ->label("Branch")
+                    ->options([
+                        'AJC' => 'AJC',
+                        'AJP' => 'AJP',
+                        'AJK' => 'AJK',
+                        'AJR' => 'AJR',
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+
                     TextInput::make("nama_bahan")
                     ->label("Nama Bahan")
                     ->required(),
                 TextInput::make("jumlah")
                     ->label("Jumlah")
                     ->numeric()
+                    ->required(),
+                TextInput::make("harga")
+                    ->label("Harga")
+                    ->numeric()
+                    ->prefix('Rp')
                     ->required(),
 
                 Select::make('team_id')

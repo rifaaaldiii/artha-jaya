@@ -217,6 +217,195 @@
         }
         .whitespace-pre-wrap { white-space: pre-wrap; }
 
+        /* Progress Images Gallery */
+        .progress-images-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--aj-card-divider);
+        }
+        .progress-images-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--aj-text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .progress-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        .progress-image-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid var(--aj-card-border);
+            transition: all 0.2s ease;
+            background: var(--aj-soft-bg);
+        }
+        .progress-image-item:hover {
+            border-color: #22c55e;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+        }
+        .progress-image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .progress-image-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        /* Image Modal/Lightbox */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+        .image-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            animation: zoomIn 0.3s ease;
+        }
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            z-index: 10001;
+        }
+        .image-modal-close:hover {
+            background: rgba(220, 38, 38, 0.8);
+            border-color: white;
+            transform: rotate(90deg);
+        }
+        .image-modal-info {
+            margin-top: 16px;
+            text-align: center;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 20px;
+            border-radius: 8px;
+        }
+        .image-modal-counter {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        .image-modal-status {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .image-modal-date {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        /* Navigation arrows */
+        .image-modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            z-index: 10001;
+        }
+        .image-modal-nav:hover {
+            background: rgba(34, 197, 94, 0.8);
+            border-color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .image-modal-prev {
+            left: 20px;
+        }
+        .image-modal-next {
+            right: 20px;
+        }
+        @media (max-width: 768px) {
+            .image-modal-nav {
+                width: 44px;
+                height: 44px;
+                font-size: 36px;
+            }
+            .image-modal-prev {
+                left: 10px;
+            }
+            .image-modal-next {
+                right: 10px;
+            }
+            .image-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 28px;
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         @media (max-width: 1024px) {
             .progress-container { gap: 16px; }
             .prog-sidebar { width: 200px; }
@@ -278,6 +467,28 @@
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
+        }
+        /* Image upload section */
+        .image-upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .image-upload-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--aj-status-title);
+        }
+        .image-upload-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .image-upload-wrapper {
+                flex-direction: column;
+            }
         }
         .update-status-select {
             padding: 10px 12px;
@@ -545,6 +756,68 @@
                     </div>
                     @endif
 
+                    {{-- Progress Images Gallery --}}
+                    @if($this->record->progress_images && count($this->record->progress_images) > 0)
+                    <div class="progress-images-section">
+                        <div class="progress-images-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            Foto Progress ({{ count($this->record->progress_images) }})
+                        </div>
+                        
+                        @php
+                            $displayedCount = 0;
+                            $missingCount = 0;
+                        @endphp
+                        
+                        <div class="progress-images-grid">
+                            @foreach($this->record->progress_images as $index => $imageData)
+                                @php
+                                    $imagePath = is_array($imageData) ? ($imageData['path'] ?? '') : $imageData;
+                                    $statusFrom = is_array($imageData) ? ($imageData['status_from'] ?? '-') : '-';
+                                    $statusTo = is_array($imageData) ? ($imageData['status_to'] ?? '-') : '-';
+                                    $uploadedAt = is_array($imageData) ? ($imageData['uploaded_at'] ?? '-') : '-';
+                                    $fullPath = $imagePath ? \Illuminate\Support\Facades\Storage::disk('public')->url($imagePath) : '';
+                                    $fileExists = $imagePath && file_exists(storage_path('app/public/' . $imagePath));
+                                    
+                                    if ($fileExists) {
+                                        $displayedCount++;
+                                    } else {
+                                        $missingCount++;
+                                    }
+                                @endphp
+                                
+                                @if($fileExists)
+                                <div class="progress-image-item" onclick="openImageModal('{{ $fullPath }}', '{{ $statusFrom }} → {{ $statusTo }}', '{{ $uploadedAt }}', {{ $index }})">
+                                    <img src="{{ $fullPath }}" alt="Progress Image {{ $index + 1 }}" loading="lazy">
+                                    <div class="progress-image-badge">#{{ $index + 1 }}</div>
+                                </div>
+                                @else
+                                {{-- Show placeholder for missing files --}}
+                                <div class="progress-image-item" style="opacity: 0.5; cursor: not-allowed;" title="File tidak ditemukan: {{ $imagePath }}">
+                                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #fee2e2; color: #dc2626; font-size: 12px; text-align: center; padding: 8px;">
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 24px; height: 24px; margin: 0 auto 4px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                            </svg>
+                                            <div>Missing</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-image-badge" style="background: #dc2626;">#{{ $index + 1 }}</div>
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                        
+                        @if($missingCount > 0)
+                        <div style="margin-top: 12px; padding: 8px 12px; background: #fef3c7; border-left: 3px solid #f59e0b; border-radius: 4px; font-size: 13px; color: #92400e;">
+                            <strong>Perhatian:</strong> {{ $missingCount }} dari {{ count($this->record->progress_images) }} foto tidak ditemukan di storage. Mungkin file telah dihapus atau upload gagal.
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
                     {{-- Tombol dan Dropdown untuk Update Status --}}
                     @php
                         $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
@@ -621,19 +894,29 @@
                                         </div>
                                     @else
                                         {{-- Form normal untuk status lainnya --}}
-                                        <div class="update-status-field">
-                                            <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
-                                            <div class="update-status-actions">
-                                                <select id="updateStatusValue"
-                                                        class="update-status-select"
-                                                        wire:model.defer="updateStatusValue"
-                                                        wire:loading.attr="disabled"
-                                                >
-                                                    <option value="">Konfirmasi status berikutnya</option>
-                                                    <option value="{{ $nextSequentialStatus }}">
-                                                        {{ $statuses[$nextSequentialStatus]['label'] }}
-                                                    </option>
-                                                </select>
+                                        <div class="image-upload-wrapper">
+                                            <!-- Status Update Field -->
+                                            <div class="update-status-field" style="flex: 1; min-width: 200px;">
+                                                <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
+                                                <div class="update-status-actions">
+                                                    <select id="updateStatusValue"
+                                                            class="update-status-select"
+                                                            wire:model.defer="updateStatusValue"
+                                                            wire:loading.attr="disabled"
+                                                    >
+                                                        <option value="">Konfirmasi status berikutnya</option>
+                                                        <option value="{{ $nextSequentialStatus }}">
+                                                            {{ $statuses[$nextSequentialStatus]['label'] }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Image Upload Field -->
+                                            <div class="image-upload-section" style="flex: 1; min-width: 250px;">
+                                                <div>
+                                                    {{ $this->imageUploadForm }}
+                                                </div>
 
                                                 <x-filament::button
                                                     color="success"
@@ -641,7 +924,7 @@
                                                     wire:click="updateStatus"
                                                     wire:loading.attr="disabled"
                                                     wire:target="updateStatus"
-                                                    :disabled="false"
+                                                    :disabled="$this->isUploading"
                                                 >
                                                     Simpan Status
                                                 </x-filament::button>
@@ -691,7 +974,195 @@
         </div>
     @endif
 
-    @script
+    {{-- Image Modal/Lightbox --}}
+    <div id="imageModal" class="image-modal" onclick="closeImageModal(event)">
+        <div class="image-modal-content" onclick="event.stopPropagation()">
+            <button class="image-modal-close" onclick="closeImageModal()" title="Tutup (Esc)">&times;</button>
+            
+            {{-- Navigation Arrows --}}
+            <button class="image-modal-nav image-modal-prev" onclick="navigateImage(-1)" title="Foto Sebelumnya (←)">&#8249;</button>
+            <button class="image-modal-nav image-modal-next" onclick="navigateImage(1)" title="Foto Selanjutnya (→)">&#8250;</button>
+            
+            <img id="modalImage" src="" alt="Progress Image Closeup">
+            
+            <div class="image-modal-info">
+                <div id="modalCounter" class="image-modal-counter"></div>
+                <div id="modalStatus" class="image-modal-status"></div>
+                <div id="modalDate" class="image-modal-date"></div>
+            </div>
+        </div>
+    </div>
+</x-filament-panels::page>
+
+{{-- Global JavaScript for Image Modal - Must run before DOM interactions --}}
+<script>
+    // Image Modal with Navigation - Make functions globally accessible
+    window.currentImageIndex = 0;
+    window.allImages = [];
+
+    window.openImageModal = function(imageSrc, statusInfo, dateInfo, index = 0) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const counterDiv = document.getElementById('modalCounter');
+        const statusDiv = document.getElementById('modalStatus');
+        const dateDiv = document.getElementById('modalDate');
+        const prevBtn = document.querySelector('.image-modal-prev');
+        const nextBtn = document.querySelector('.image-modal-next');
+        
+        // Collect all image data
+        window.allImages = [];
+        const imageItems = document.querySelectorAll('.progress-image-item[onclick]');
+        imageItems.forEach((item, idx) => {
+            const onclickAttr = item.getAttribute('onclick');
+            const match = onclickAttr.match(/openImageModal\('([^']+)',\s*'([^']+)',\s*'([^']+)'(?:,\s*(\d+))?\)/);
+            if (match) {
+                window.allImages.push({
+                    src: match[1],
+                    status: match[2],
+                    date: match[3],
+                    index: idx
+                });
+            }
+        });
+        
+        window.currentImageIndex = index;
+        window.updateModalImage();
+        
+        // Show/hide navigation buttons based on image count
+        if (window.allImages.length <= 1) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+        }
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.updateModalImage = function() {
+        const modalImg = document.getElementById('modalImage');
+        const counterDiv = document.getElementById('modalCounter');
+        const statusDiv = document.getElementById('modalStatus');
+        const dateDiv = document.getElementById('modalDate');
+        
+        if (window.allImages[window.currentImageIndex]) {
+            const img = window.allImages[window.currentImageIndex];
+            modalImg.src = img.src;
+            counterDiv.textContent = `Foto ${window.currentImageIndex + 1} dari ${window.allImages.length}`;
+            statusDiv.textContent = `Status: ${img.status}`;
+            dateDiv.textContent = `Diupload: ${img.date}`;
+        }
+    }
+
+    window.navigateImage = function(direction) {
+        if (window.allImages.length <= 1) return;
+        
+        window.currentImageIndex += direction;
+        
+        // Loop around
+        if (window.currentImageIndex < 0) {
+            window.currentImageIndex = window.allImages.length - 1;
+        } else if (window.currentImageIndex >= window.allImages.length) {
+            window.currentImageIndex = 0;
+        }
+        
+        window.updateModalImage();
+    }
+
+    window.closeImageModal = function(event) {
+        if (event && event.target !== event.currentTarget) return;
+        
+        const modal = document.getElementById('imageModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.closeImageModal();
+        }
+    });
+
+    // Listen for Livewire events to clear file upload
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('$refresh', () => {
+            setTimeout(() => window.clearFileUpload && window.clearFileUpload(), 100);
+        });
+    });
+
+    // Track file upload status
+    window.trackUploadStatus = function() {
+        const component = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+        if (!component) return;
+
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        let isUploading = false;
+
+        fileInputs.forEach(input => {
+            // Check if file input has files being processed
+            if (input.files && input.files.length > 0) {
+                isUploading = true;
+            }
+
+            // Listen to file selection changes
+            input.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    component.call('setUploadingStatus', true);
+                } else {
+                    component.call('setUploadingStatus', false);
+                }
+            });
+        });
+
+        // Listen for upload completion events from Filament
+        document.addEventListener('filament:file-upload:completed', () => {
+            setTimeout(() => {
+                const hasFiles = Array.from(fileInputs).some(input => input.files && input.files.length > 0);
+                component.call('setUploadingStatus', hasFiles);
+            }, 500);
+        });
+
+        document.addEventListener('filament:file-upload:deleted', () => {
+            setTimeout(() => {
+                const hasFiles = Array.from(fileInputs).some(input => input.files && input.files.length > 0);
+                component.call('setUploadingStatus', hasFiles);
+            }, 300);
+        });
+    }
+
+    // Initialize upload tracking
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.trackUploadStatus(), 500);
+        });
+    } else {
+        setTimeout(() => window.trackUploadStatus(), 500);
+    }
+
+    // Re-track after Livewire updates
+    document.addEventListener('livewire:init', () => {
+        Livewire.hook('morph.updated', (el) => {
+            if (el.el.querySelector && el.el.querySelector('input[type="file"]')) {
+                setTimeout(() => window.trackUploadStatus(), 300);
+            }
+        });
+    });
+
+    window.clearFileUpload = function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach((input) => {
+            input.value = '';
+        });
+        
+        const previewContainers = document.querySelectorAll('[data-file-upload-item]');
+        previewContainers.forEach((container) => {
+            container.remove();
+        });
+    }
+
     // Set favicon
     (function() {
         const link = document.createElement('link');
@@ -793,5 +1264,4 @@
             setTimeout(forceBlackLabels, 200);
         });
     }
-    @endscript
-</x-filament-panels::page>
+</script>

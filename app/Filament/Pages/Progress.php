@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Components\FileUpload;
 
 class Progress extends Page implements HasForms
 {
@@ -26,7 +27,7 @@ class Progress extends Page implements HasForms
 
     protected string $view = 'filament.pages.progress';
     
-    protected static ?string $navigationLabel = 'Progress Product';
+    protected static ?string $navigationLabel = 'Progress';
     
     protected static ?string $title = 'Progress';
     
@@ -43,7 +44,7 @@ class Progress extends Page implements HasForms
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Product';
+        return 'Produksi Step Nosing';
     }
 
     #[On('aj-refresh-produksi')]
@@ -94,6 +95,7 @@ class Progress extends Page implements HasForms
     {
         return [
             'produksiForm',
+            'imageUploadForm',
         ];
     }
 
@@ -145,9 +147,37 @@ class Progress extends Page implements HasForms
             ->statePath('data');
     }
 
+    public function imageUploadForm($form)
+    {
+        return $form
+            ->schema([
+                FileUpload::make('progressImages')
+                    ->label('Upload Foto Progress')
+                    ->image()
+                    ->multiple()
+                    ->disk('public')  // Explicitly use public disk
+                    ->directory('progress/produksi')
+                    ->visibility('public')
+                    ->maxSize(2048)
+                    ->maxFiles(10)
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                    ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.'),
+            ])
+            ->statePath('imageData');
+    }
+
+    public array $imageData = [];
+
+    public bool $isUploading = false;
+
     public function updatedSelectedProduksiId(): void
     {
         $this->loadRecord();
+    }
+
+    public function setUploadingStatus(bool $status): void
+    {
+        $this->isUploading = $status;
     }
 
     public function getProduksiOptions(): array
@@ -243,6 +273,16 @@ class Progress extends Page implements HasForms
             return;
         }
 
+        // Check if images are still uploading
+        if ($this->isUploading) {
+            Notification::make()
+                ->title('Upload Belum Selesai')
+                ->warning()
+                ->body('Mohon tunggu hingga semua gambar selesai diupload sebelum memperbarui status.')
+                ->send();
+            return;
+        }
+
         $nextStatus = $this->nextSequentialStatus;
 
         if (! $nextStatus) {
@@ -284,16 +324,93 @@ class Progress extends Page implements HasForms
             return;
         }
 
+        // Handle image upload
+        try {
+            $formData = $this->imageUploadForm->getState();
+            $progressImages = $formData['progressImages'] ?? [];
+            
+            \Log::info('=== IMAGE UPLOAD DEBUG ===');
+            \Log::info('Form data:', $formData);
+            \Log::info('Progress images count:', ['count' => is_array($progressImages) ? count($progressImages) : 0]);
+            \Log::info('Progress images:', $progressImages);
+            
+            if (!empty($progressImages) && is_array($progressImages)) {
+                // Get existing images or initialize empty array
+                $existingImages = $this->record->progress_images ?? [];
+                if (!is_array($existingImages)) {
+                    $existingImages = [];
+                }
+                
+                \Log::info('Existing images before update:', ['count' => count($existingImages)]);
+                
+                // Add each new image to array
+                foreach ($progressImages as $imagePath) {
+                    if ($imagePath) {
+                        $fullStoragePath = storage_path('app/public/' . $imagePath);
+                        $fileExists = file_exists($fullStoragePath);
+                        
+                        \Log::info('Processing image:', [
+                            'path' => $imagePath,
+                            'full_path' => $fullStoragePath,
+                            'exists' => $fileExists,
+                        ]);
+                        
+                        $existingImages[] = [
+                            'path' => $imagePath,
+                            'uploaded_at' => now()->format('Y-m-d H:i:s'),
+                            'status_from' => $this->record->status,
+                            'status_to' => $this->updateStatusValue,
+                            'uploaded_by' => Auth::id(),
+                        ];
+                    }
+                }
+                
+                // Update record with new images array
+                $this->record->progress_images = $existingImages;
+                
+                \Log::info('Total images after update:', ['count' => count($existingImages)]);
+            } else {
+                \Log::warning('No images uploaded or invalid format');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Image upload error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            Notification::make()
+                ->title('Error Upload Gambar')
+                ->danger()
+                ->body('Terjadi kesalahan saat mengupload gambar: ' . $e->getMessage())
+                ->send();
+            return;
+        }
+
         $this->record->status = $this->updateStatusValue;
         $this->record->save();
         $this->record->refresh();
 
+        \Log::info('=== STATUS UPDATE SUCCESS ===');
+        \Log::info('Record ID:', ['id' => $this->record->id]);
+        \Log::info('New status:', ['status' => $this->record->status]);
+        \Log::info('Total progress images:', ['count' => count($this->record->progress_images ?? [])]);
+        
+        // Reset form - Clear all uploaded images
+        \Log::info('Resetting image data...');
+        $this->imageData = ['progressImages' => []];
+        \Log::info('Image data after reset:', $this->imageData);
+        
         Notification::make()
             ->title('Success')
             ->success()
             ->body('Status produksi berhasil diperbarui menjadi '.ucwords($this->updateStatusValue).'.')
             ->send();
         $this->updateStatusValue = null;
+        
+        \Log::info('Dispatching page reload...');
+        // Use JavaScript to force page reload instead of Livewire refresh
+        $this->js('window.location.reload();');
+        \Log::info('=== UPDATE COMPLETE ===');
     }
 
     protected function getAllowedStatusesForRole(): array

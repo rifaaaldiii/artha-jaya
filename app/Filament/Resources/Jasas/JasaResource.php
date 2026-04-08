@@ -52,7 +52,7 @@ class JasaResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return 'Jasa & Layanan Input';
+        return 'Input';
     }
 
     public static function getLabel(): ?string

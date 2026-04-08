@@ -39,7 +39,7 @@ class ProduksiResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return 'Product Input';
+        return 'Input';
     }
 
     public static function getLabel(): ?string
@@ -78,7 +78,7 @@ class ProduksiResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Product';
+        return 'Produksi Step Nosing';
     }
 
     public static function canCreate(): bool

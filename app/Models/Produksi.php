@@ -11,11 +11,15 @@ class Produksi extends Model
 
     protected $fillable = [
         'no_produksi',
+        'no_ref',
+        'branch',
         'nama_produksi',
         'nama_bahan',
         'jumlah',
+        'harga',
         'status',
         'catatan',
+        'progress_images',
         'team_id',
         'createdAt',
         'updateAt',
@@ -26,6 +30,7 @@ class Produksi extends Model
     protected $casts = [
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
+        'progress_images' => 'array',
     ];
 
     /**
