@@ -40,6 +40,8 @@ class ProduksiForm
                                     ->searchable()
                                     ->preload()
                                     ->required()
+                                    ->default(fn () => Auth::user()->branch ?? null)
+                                    ->disabled(fn () => Auth::user()->branch !== null)
                                     ->columnSpan(1),
                             ]),
                     ])

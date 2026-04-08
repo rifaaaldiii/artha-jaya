@@ -75,6 +75,13 @@ class JasasTable
                     ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
+                Action::make('invoice')
+                    ->label('Invoice')
+                    ->icon('heroicon-o-document-text')
+                    ->color('primary')
+                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa . '&format=invoice', true)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
                     ->authorize(fn ($record) => JasaResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()

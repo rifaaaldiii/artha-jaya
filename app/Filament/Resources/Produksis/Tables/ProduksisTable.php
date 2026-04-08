@@ -74,6 +74,13 @@ class ProduksisTable
                     ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi, true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
+                Action::make('invoice')
+                    ->label('Invoice')
+                    ->icon('heroicon-o-document-text')
+                    ->color('primary')
+                    ->url(fn ($record) => ReportCenter::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi . '&format=invoice', true)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
                     ->authorize(fn ($record) => ProduksiResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()

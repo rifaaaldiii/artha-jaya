@@ -8,8 +8,8 @@
             padding: 0;
         }
         @page {
-            size: A4 portrait;
-            margin: 2.5cm 1.7cm 2.5cm 1.7cm;
+            size: A5 landscape;
+            margin: 1.5cm 1.2cm 1.5cm 1.2cm;
         }
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;

@@ -59,6 +59,11 @@ class ReportCenter extends Page implements HasForms
     public string $downloadMode = 'date_range';
 
     /**
+     * Download format: 'report' or 'invoice'
+     */
+    public string $downloadFormat = 'report';
+
+    /**
      * Show single download form
      */
     public bool $showSingleDownloadForm = false;
@@ -124,14 +129,19 @@ class ReportCenter extends Page implements HasForms
         // Check if we have URL parameters for direct single download
         $singleNumber = request()->query('single_number');
         $reportType = request()->query('report_type');
+        $format = request()->query('format', 'report');
         
         if ($singleNumber && $reportType) {
             // Set the report type
             $this->filters['report_type'] = $reportType;
             $this->filterForm->fill($this->filters);
             
-            // Trigger single download
-            $downloadResponse = $this->downloadPdfSingleByNumber($singleNumber);
+            // Trigger single download based on format
+            if ($format === 'invoice') {
+                $downloadResponse = $this->downloadInvoiceSingleByNumber($singleNumber);
+            } else {
+                $downloadResponse = $this->downloadPdfSingleByNumber($singleNumber);
+            }
             
             if ($downloadResponse) {
                 // Return the download response
@@ -372,6 +382,64 @@ class ReportCenter extends Page implements HasForms
         );
     }
 
+    public function downloadInvoiceByDateRange()
+    {
+        $this->filters = array_merge($this->filters, $this->filterForm->getState());
+        $filters = $this->filters;
+
+        if (! $this->isDateRangeValid()) {
+            return null;
+        }
+
+        // Only get completed items for date range download
+        $records = $this->buildBaseQuery()
+            ->whereRaw('LOWER(status) = ?', ['selesai'])
+            ->orderBy('id', 'asc')
+            ->get();
+
+        if ($records->isEmpty()) {
+            Notification::make()
+                ->title('Data tidak ditemukan')
+                ->body('Tidak ada data selesai yang cocok dengan filter rentang waktu saat ini.')
+                ->warning()
+                ->send();
+
+            return null;
+        }
+
+        $rows = $records
+            ->map(fn ($record) => $this->transformRecordForInvoice($record))
+            ->toArray();
+
+        $view = $filters['report_type'] === 'produksi'
+            ? 'reports.pdf.produksi-invoice'
+            : 'reports.pdf.jasa-invoice';
+
+        $payload = [
+            'rows' => $rows,
+            'filters' => $filters,
+            'summary' => $this->buildSummary($records),
+            'statusBreakdown' => $this->buildStatusBreakdown($records),
+            'statusLabels' => $this->statusMap[$filters['report_type']] ?? [],
+            'generatedAt' => Carbon::now(),
+        ];
+
+        $pdf = Pdf::loadView($view, $payload)
+            ->setPaper('a5', 'landscape')
+            ->setOptions(['isRemoteEnabled' => true]);
+
+        $filename = sprintf(
+            '%s-invoice-%s.pdf',
+            $filters['report_type'],
+            Carbon::now()->format('Ymd_His')
+        );
+
+        return response()->streamDownload(
+            static fn () => print($pdf->output()),
+            $filename
+        );
+    }
+
     public function downloadPdfSingle()
     {
         $this->filters = array_merge($this->filters, $this->filterForm->getState());
@@ -406,7 +474,7 @@ class ReportCenter extends Page implements HasForms
         // Find the record by number
         if ($reportType === 'produksi') {
             $record = Produksi::query()
-                ->with('team:id,nama')
+                ->with(['team:id,nama', 'items'])
                 ->where('no_produksi', $singleDataNumber)
                 ->first();
         } else {
@@ -414,6 +482,7 @@ class ReportCenter extends Page implements HasForms
                 ->with([
                     'pelanggan:id,nama',
                     'petugasMany:id,nama',
+                    'items',
                 ])
                 ->where('no_jasa', $singleDataNumber)
                 ->first();
@@ -478,6 +547,109 @@ class ReportCenter extends Page implements HasForms
 
         // Clear loading state before returning response
         unset($this->downloadingNumbers[$singleDataNumber]);
+
+        return response()->streamDownload(
+            static fn () => print($pdf->output()),
+            $filename
+        );
+    }
+
+    public function downloadInvoiceSingleByNumber(?string $singleDataNumber = null)
+    {
+        $this->filters = array_merge($this->filters, $this->filterForm->getState());
+        
+        $filters = $this->filters;
+        $reportType = $filters['report_type'] ?? 'jasa';
+
+        if (empty($singleDataNumber)) {
+            Notification::make()
+                ->title('Nomor tidak boleh kosong')
+                ->body('Silakan masukkan nomor produksi atau nomor jasa.')
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        // Set loading state for this specific number
+        $this->downloadingNumbers[$singleDataNumber . '_invoice'] = true;
+
+        // Find the record by number
+        if ($reportType === 'produksi') {
+            $record = Produksi::query()
+                ->with(['team:id,nama', 'items'])
+                ->where('no_produksi', $singleDataNumber)
+                ->first();
+        } else {
+            $record = Jasa::query()
+                ->with([
+                    'pelanggan:id,nama',
+                    'petugasMany:id,nama',
+                    'items',
+                ])
+                ->where('no_jasa', $singleDataNumber)
+                ->first();
+        }
+
+        if (!$record) {
+            // Clear loading state
+            unset($this->downloadingNumbers[$singleDataNumber . '_invoice']);
+            $this->dispatch('$refresh');
+            
+            Notification::make()
+                ->title('Data tidak ditemukan')
+                ->body(sprintf('Tidak ada data dengan nomor %s.', $singleDataNumber))
+                ->warning()
+                ->send();
+
+            return null;
+        }
+
+        // Validate status must be "selesai"
+        if (strcasecmp($record->status ?? '', 'selesai') !== 0) {
+            // Clear loading state
+            unset($this->downloadingNumbers[$singleDataNumber . '_invoice']);
+            $this->dispatch('$refresh');
+            
+            Notification::make()
+                ->title('Data belum selesai')
+                ->body(sprintf('Data dengan nomor %s belum selesai. Hanya data dengan status "Selesai" yang dapat diunduh.', $singleDataNumber))
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        $rows = [$this->transformRecordForInvoice($record)];
+
+        $view = $reportType === 'produksi'
+            ? 'reports.pdf.produksi-invoice'
+            : 'reports.pdf.jasa-invoice';
+
+        $records = EloquentCollection::make([$record]);
+
+        $payload = [
+            'row' => $rows[0],
+            'filters' => array_merge($filters, ['single_number' => $singleDataNumber]),
+            'summary' => $this->buildSummary($records),
+            'statusBreakdown' => $this->buildStatusBreakdown($records),
+            'statusLabels' => $this->statusMap[$reportType] ?? [],
+            'generatedAt' => Carbon::now(),
+        ];
+
+        $pdf = Pdf::loadView($view, $payload)
+            ->setPaper('a5', 'landscape')
+            ->setOptions(['isRemoteEnabled' => true]);
+
+        $filename = sprintf(
+            '%s-invoice-%s-%s.pdf',
+            $reportType,
+            $singleDataNumber,
+            Carbon::now()->format('Ymd_His')
+        );
+
+        // Clear loading state before returning response
+        unset($this->downloadingNumbers[$singleDataNumber . '_invoice']);
 
         return response()->streamDownload(
             static fn () => print($pdf->output()),
@@ -583,6 +755,85 @@ class ReportCenter extends Page implements HasForms
             'branch' => $record->branch ?? '-',
             'items_count' => $itemsCount,
             'items_summary' => $itemsSummary,
+            'total_harga' => $totalHarga,
+            'customer' => $record->pelanggan->nama ?? '-',
+            'petugas' => $petugasList ?: '-',
+            'status' => $record->status,
+            'scheduled_at' => $this->formatDate($scheduledAt, $timezone, 'd/m/Y H:i'),
+            'created_at' => $this->formatDate($record->createdAt, $timezone),
+            'updated_at' => $this->formatDate($record->updateAt, $timezone),
+            'note' => $record->catatan,
+        ];
+    }
+
+    protected function transformRecordForInvoice($record): array
+    {
+        $timezone = config('app.timezone', 'UTC');
+        $reportType = $this->filters['report_type'] ?? 'jasa';
+
+        if ($reportType === 'produksi') {
+            // Calculate total from items
+            $totalHarga = $record->items ? $record->items->sum('harga') : 0;
+            $itemsCount = $record->items ? $record->items->count() : 0;
+            
+            // Build items array for invoice
+            $items = [];
+            if ($record->items && $record->items->count() > 0) {
+                foreach ($record->items as $item) {
+                    $items[] = [
+                        'nama_produksi' => $item->nama_produksi ?? '-',
+                        'nama_bahan' => $item->nama_bahan ?? '-',
+                        'jumlah' => $item->jumlah ?? 0,
+                        'harga' => $item->harga ?? 0,
+                    ];
+                }
+            }
+            
+            return [
+                'id' => $record->id,
+                'number' => $record->no_produksi,
+                'no_ref' => $record->no_ref ?? '-',
+                'branch' => $record->branch ?? '-',
+                'items_count' => $itemsCount,
+                'items' => $items,
+                'total_harga' => $totalHarga,
+                'team' => $record->team->nama ?? '-',
+                'status' => $record->status,
+                'created_at' => $this->formatDate($record->createdAt, $timezone),
+                'updated_at' => $this->formatDate($record->updateAt, $timezone),
+                'note' => $record->catatan,
+            ];
+        }
+
+        // Jasa transform for invoice
+        $petugasList = $record->relationLoaded('petugasMany')
+            ? $record->petugasMany->pluck('nama')->filter()->implode(', ')
+            : '';
+
+        $scheduledAt = $record->jadwal ?? $record->jadwal_petugas;
+        
+        // Calculate total from items
+        $totalHarga = $record->items ? $record->items->sum('harga') : 0;
+        $itemsCount = $record->items ? $record->items->count() : 0;
+        
+        // Build items array for invoice
+        $items = [];
+        if ($record->items && $record->items->count() > 0) {
+            foreach ($record->items as $item) {
+                $items[] = [
+                    'jenis_layanan' => $item->jenis_layanan ?? '-',
+                    'harga' => $item->harga ?? 0,
+                ];
+            }
+        }
+
+        return [
+            'id' => $record->id,
+            'number' => $record->no_jasa,
+            'no_ref' => $record->no_ref ?? '-',
+            'branch' => $record->branch ?? '-',
+            'items_count' => $itemsCount,
+            'items' => $items,
             'total_harga' => $totalHarga,
             'customer' => $record->pelanggan->nama ?? '-',
             'petugas' => $petugasList ?: '-',

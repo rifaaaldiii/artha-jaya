@@ -7,6 +7,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserForm
 {
@@ -23,15 +24,29 @@ class UserForm
                     ->label("Email")
                     ->required()
                     ->unique(ignoreRecord: true),
-                Select::make("role")->label("Role")->options([
-                    "administrator"=> "Administrator",
-                    "admin_toko"=> "Admin Toko",
-                    "admin_gudang"=> "Admin gudang",
-                    "kepala_teknisi_lapangan"=> "Kepala Teknisi Lapangan",
-                    "kepala_teknisi_gudang"=> "Kepala Teknisi Gudang",
-                    "petukang"=> "Petukang",
-                    "petugas"=> "Petugas",
-                ]),
+                Select::make("role")
+                    ->label("Role")
+                    ->options([
+                        "administrator"=> "Administrator",
+                        "admin_toko"=> "Admin Toko",
+                        "admin_gudang"=> "Admin gudang",
+                        "kepala_teknisi_lapangan"=> "Kepala Teknisi Lapangan",
+                        "kepala_teknisi_gudang"=> "Kepala Teknisi Gudang",
+                        "petukang"=> "Petukang",
+                        "petugas"=> "Petugas",
+                    ])
+                    ->required(),
+                Select::make("branch")
+                    ->label("Branch")
+                    ->options([
+                        'AJC' => 'AJC',
+                        'AJP' => 'AJP',
+                        'AJK' => 'AJK',
+                        'AJR' => 'AJR',
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
                 TextInput::make('password')
                     ->label('Password')
                     ->password()

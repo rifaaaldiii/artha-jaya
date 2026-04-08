@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Filament\Schemas\Schema;
 use App\Models\JenisJasa;
 use App\Models\Pelanggan;
+use Illuminate\Support\Facades\Auth;
 
 class JasaForm
 {
@@ -87,7 +88,9 @@ class JasaForm
                 ])
                 ->searchable()
                 ->preload()
-                ->required(),
+                ->required()
+                ->default(fn () => Auth::user()->branch ?? null)
+                ->disabled(fn () => Auth::user()->branch !== null),
             
             Repeater::make('items')
                 ->relationship('items')
@@ -109,7 +112,7 @@ class JasaForm
                         ->required(),
                 ])
                 ->columns(2)
-                ->addActionLabel('Tambah Item Jasa')
+                ->addActionLabel('+ Tambah Item')
                 ->required()
                 ->minItems(1),
             
