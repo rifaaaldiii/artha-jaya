@@ -12,6 +12,8 @@ class JenisJasa extends Model
     protected $fillable = [
         'nama',
         'deskripsi',
+        'harga',
+        'uom',
     ];
 }
 

@@ -104,14 +104,41 @@ class JasaForm
                             ->orderBy('nama')
                             ->pluck('nama', 'nama')
                             ->toArray()
-                        ),
+                        )
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            if ($state) {
+                                $jenisJasa = JenisJasa::where('nama', $state)->first();
+                                if ($jenisJasa && $jenisJasa->harga) {
+                                    $jumlah = $get('jumlah') ?? 1;
+                                    $set('harga', $jenisJasa->harga * $jumlah);
+                                }
+                            }
+                        }),
+                    TextInput::make("jumlah")
+                        ->label("Jumlah")
+                        ->numeric()
+                        ->required()
+                        ->default(1)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            $jenisLayanan = $get('jenis_layanan');
+                            if ($jenisLayanan && $state) {
+                                $jenisJasa = JenisJasa::where('nama', $jenisLayanan)->first();
+                                if ($jenisJasa && $jenisJasa->harga) {
+                                    $set('harga', $jenisJasa->harga * $state);
+                                }
+                            }
+                        }),
                     TextInput::make("harga")
                         ->label("Harga")
                         ->numeric()
                         ->prefix('Rp')
-                        ->required(),
+                        ->required()
+                        ->disabled()
+                        ->dehydrated(true),
                 ])
-                ->columns(2)
+                ->columns(3)
                 ->addActionLabel('+ Tambah Item')
                 ->required()
                 ->minItems(1),

@@ -12,6 +12,7 @@ class JasaItem extends Model
     protected $fillable = [
         'jasa_id',
         'jenis_layanan',
+        'jumlah',
         'harga',
         'createdAt',
         'updateAt',

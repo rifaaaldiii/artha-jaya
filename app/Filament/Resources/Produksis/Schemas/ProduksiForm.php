@@ -66,6 +66,16 @@ class ProduksiForm
                                                 ->pluck('nama', 'nama')
                                                 ->toArray()
                                             )
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                if ($state) {
+                                                    $jenisProduksi = JenisProduksi::where('nama', $state)->first();
+                                                    if ($jenisProduksi && $jenisProduksi->harga) {
+                                                        $jumlah = $get('jumlah') ?? 1;
+                                                        $set('harga', $jenisProduksi->harga * $jumlah);
+                                                    }
+                                                }
+                                            })
                                             ->columnSpan(2),
                                         
                                         TextInput::make("nama_bahan")
@@ -77,6 +87,17 @@ class ProduksiForm
                                             ->label("Jumlah")
                                             ->numeric()
                                             ->required()
+                                            ->default(1)
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                $namaProduksi = $get('nama_produksi');
+                                                if ($namaProduksi && $state) {
+                                                    $jenisProduksi = JenisProduksi::where('nama', $namaProduksi)->first();
+                                                    if ($jenisProduksi && $jenisProduksi->harga) {
+                                                        $set('harga', $jenisProduksi->harga * $state);
+                                                    }
+                                                }
+                                            })
                                             ->columnSpan(1),
                                         
                                         TextInput::make("harga")
@@ -84,6 +105,8 @@ class ProduksiForm
                                             ->numeric()
                                             ->prefix('Rp')
                                             ->required()
+                                            ->disabled()
+                                            ->dehydrated(true)
                                             ->columnSpan(1),
                                     ]),
                             ])

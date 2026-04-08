@@ -18,6 +18,13 @@ class JenisJasasTable
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('harga')
+                    ->label('Harga')
+                    ->money('IDR')
+                    ->sortable(),
+                TextColumn::make('uom')
+                    ->label('UOM')
+                    ->badge(),
                 TextColumn::make('deskripsi')
                     ->label('Deskripsi')
                     ->limit(60)

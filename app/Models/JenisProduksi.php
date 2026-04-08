@@ -12,6 +12,8 @@ class JenisProduksi extends Model
     protected $fillable = [
         'nama',
         'deskripsi',
+        'harga',
+        'uom',
     ];
 }
 
