@@ -112,6 +112,11 @@ class ProgressJasa extends Page implements HasForms
         $this->imageUploadForm->fill([
             'progressImages' => [],
         ]);
+        
+        // Initialize imageData with proper structure
+        $this->imageData = [
+            'progressImages' => [],
+        ];
     }
 
     public array $data = [];

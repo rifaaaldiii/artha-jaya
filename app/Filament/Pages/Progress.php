@@ -85,6 +85,11 @@ class Progress extends Page implements HasForms
         $this->produksiForm->fill([
             'selectedProduksiId' => $this->selectedProduksiId,
         ]);
+        
+        // Initialize imageData with proper structure
+        $this->imageData = [
+            'progressImages' => [],
+        ];
     }
 
     public array $data = [];
