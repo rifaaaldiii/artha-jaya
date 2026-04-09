@@ -67,7 +67,64 @@ mkdir -p storage/app/public/progress/jasa
 mkdir -p storage/logs
 mkdir -p storage/framework/{cache,sessions,views}
 mkdir -p bootstrap/cache
-echo -e "${GREEN}✅ Permissions set${NC}"
+
+# Create .htaccess for storage directory (fix 403 errors)
+if [ ! -f "storage/app/public/.htaccess" ]; then
+    echo -e "${YELLOW}Creating storage .htaccess file...${NC}"
+    cat > storage/app/public/.htaccess << 'HTACCESS'
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Allow access to image files
+    RewriteCond %{REQUEST_URI} \.(jpg|jpeg|png|gif|webp|svg|ico)$ [NC]
+    RewriteRule ^ - [L]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Allow access to image files
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# Set proper MIME types
+<IfModule mod_mime.c>
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/gif .gif
+    AddType image/webp .webp
+    AddType image/svg+xml .svg
+    AddType image/x-icon .ico
+</IfModule>
+HTACCESS
+    chmod 644 storage/app/public/.htaccess
+    echo -e "${GREEN}✅ Storage .htaccess created${NC}"
+else
+    echo -e "${GREEN}✅ Storage .htaccess already exists${NC}"
+fi
+
 echo ""
 
 # ========================================

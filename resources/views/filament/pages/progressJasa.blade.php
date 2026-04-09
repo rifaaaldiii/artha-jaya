@@ -1324,7 +1324,7 @@
         const link = document.createElement('link');
         link.rel = 'icon';
         link.type = 'image/x-icon';
-        link.href = '{{ asset("favicon.ico") }}';
+        link.href = window.location.origin + '/favicon.ico';
         const existingLink = document.querySelector('link[rel="icon"]');
         if (existingLink) {
             existingLink.remove();
