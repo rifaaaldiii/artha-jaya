@@ -21,7 +21,14 @@ fi
 echo "✅ Pull successful"
 echo ""
 
-# 2. Clear caches only
+# 2. Ensure storage link exists
+echo "🔗 Checking storage link..."
+php artisan storage:link
+
+echo "✅ Storage link ready"
+echo ""
+
+# 3. Clear caches only
 echo "🧹 Clearing caches..."
 php artisan config:clear
 php artisan cache:clear
@@ -30,7 +37,7 @@ php artisan view:clear
 echo "✅ Caches cleared"
 echo ""
 
-# 3. Cache for production
+# 4. Cache for production
 echo "⚡ Rebuilding cache..."
 php artisan config:cache
 php artisan view:cache
