@@ -655,4 +655,17 @@ class ProgressJasa extends Page implements HasForms
         return 'danger';
     }
 
+    public function getImageUrl(?string $imagePath): ?string
+    {
+        if (!$imagePath) {
+            return null;
+        }
+
+        // Get the current request URL to dynamically build the storage URL
+        $requestUrl = request()->getSchemeAndHttpHost();
+        
+        // Build the full URL: {current_host}/storage/progress/jasa/{filename}
+        return $requestUrl . '/storage/' . $imagePath;
+    }
+
 }

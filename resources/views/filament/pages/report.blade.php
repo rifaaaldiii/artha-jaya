@@ -59,6 +59,7 @@
             .fi-ta-ctn { 
                 overflow-x: auto; 
                 margin-top: 1rem;
+                width: 100%;
             }
             .fi-ta { 
                 width: 100%; 
@@ -159,6 +160,7 @@
                 text-align: center;
                 font-size: 0.875rem;
                 color: rgb(107 114 128 / 1);
+                width: 100%;
             }
 
             /* Buttons spacing */
@@ -214,6 +216,21 @@
                 color: #fff;
                 border-color: rgb(59 130 246 / 1);
             }
+
+            /* Professional filter section styling */
+            .fi-section {
+                border: 1px solid rgb(229 231 235 / 1);
+                border-radius: 0.5rem;
+                background: rgb(249 250 251 / 1);
+            }
+            .fi-section-header {
+                padding: 0.875rem 1rem;
+                background: linear-gradient(135deg, rgb(249 250 251 / 1) 0%, rgb(243 244 246 / 1) 100%);
+                border-bottom: 1px solid rgb(229 231 235 / 1);
+            }
+            .fi-section-content {
+                padding: 1.25rem;
+            }
         </style>
         @php
             $reportType = $this->filters['report_type'] ?? 'jasa';
@@ -222,21 +239,17 @@
 
         <div class="space-y-6">
         <!-- Filters -->
-        <div class="fi-fo-component-wp fi-card">
-            <div class="flex flex-col gap-4" style="gap:1rem;">
-                <div>
-                    <h2 class="fi-heading">Filter</h2>
-                    <p class="fi-description">
-                        Gunakan filter di bawah untuk menentukan data yang akan ditampilkan serta didownload ke PDF.
-                    </p>
-                </div>
-            </div>
-            <div style="margin-top: 1.5rem;">
-                {{ $this->filterForm }}
-            </div>
-            <div class="fi-actions fi-actions-end">
-                <x-filament::button color="success" wire:click="resetFilters" icon="heroicon-m-arrow-path">
-                    Reset
+        <div class="fi-fo-component-wp fi-card" style="padding: 1.25rem;">
+            {{ $this->filterForm }}
+            
+            <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <x-filament::button 
+                    color="gray" 
+                    wire:click="resetFilters" 
+                    icon="heroicon-m-arrow-path"
+                    size="sm"
+                >
+                    Reset Filter
                 </x-filament::button>
             </div>
         </div>
@@ -252,7 +265,7 @@
                     </p>
                 </div>
                 <div class="fi-actions">
-                    <x-filament::button
+                    {{-- <x-filament::button
                         color="success"
                         icon="heroicon-m-arrow-down-tray"
                         wire:click="downloadPdfByDateRange"
@@ -261,7 +274,7 @@
                         :disabled="$this->resultCount === 0"
                     >
                         Download PDF
-                    </x-filament::button>
+                    </x-filament::button> --}}
                     <x-filament::button
                         color="primary"
                         icon="heroicon-m-document-text"
@@ -291,7 +304,7 @@
                                         <th>Detail Item</th>
                                         <th>Jml Item</th>
                                         <th>Total Harga</th>
-                                        <th>Team</th>
+                                        <th>Branch</th>
                                         <th>Dibuat</th>
                                         <th>Action</th>
                                     @else
@@ -328,7 +341,7 @@
                                         </td>
                                         <td style="text-align:center;">{{ $row['items_count'] ?? 0 }}</td>
                                         <td style="text-align:right; font-weight:600;">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ $row['team'] ?? '-' }}</td>
+                                        <td>{{ $row['branch'] ?? '-' }}</td>
                                         <td class="text-muted">{{ $row['created_at'] ?? '-' }}</td>
                                     @else
                                         <td style="font-weight:600;">{{ $row['number'] ?? '-' }}</td>
@@ -351,7 +364,7 @@
                                     @endif
                                     <td style="white-space: nowrap;">
                                         <div style="display: inline-flex; gap: 0.5rem;">
-                                            <button
+                                            {{-- <button
                                                 type="button"
                                                 wire:click="downloadPdfSingleByNumber('{{ $row['number'] }}')"
                                                 @if(isset($this->downloadingNumbers[$row['number']])) disabled @endif
@@ -398,7 +411,7 @@
                                                         }
                                                     </style>
                                                 @endif
-                                            </button>
+                                            </button> --}}
                                             <button
                                                 type="button"
                                                 wire:click="downloadInvoiceSingleByNumber('{{ $row['number'] }}')"
@@ -524,6 +537,5 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 </x-filament-panels::page>

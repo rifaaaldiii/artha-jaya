@@ -132,7 +132,7 @@ class Progress extends Page implements HasForms
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_produksi', 'like', $searchTerm)
                                     ->orWhere('no_ref', 'like', $searchTerm)
-                                    ->orWhereHas('items', function ($q) use ($search) {
+                                    ->orWhereHas('items', function ($q) use ($searchTerm) {
                                         $q->where('nama_produksi', 'like', $searchTerm)
                                             ->orWhere('nama_bahan', 'like', $searchTerm);
                                     });
@@ -454,7 +454,7 @@ class Progress extends Page implements HasForms
 
         $roleStatusMap = [
             'cs' => ['produksi baru', 'selesai'],
-            'admin_toko' => ['siap produksi', 'produksi siap diambil'],
+            'admin_toko' => ['siap produksi', 'produksi siap diambil', 'selesai'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
             'kepala_teknisi_gudang' => ['dalam pengerjaan'],
         ];
@@ -511,7 +511,7 @@ class Progress extends Page implements HasForms
 
         $roleStatusMap = [
             'cs' => ['produksi baru', 'selesai'],
-            'admin_toko' => ['siap produksi', 'produksi siap diambil'],
+            'admin_toko' => ['siap produksi', 'produksi siap diambil', 'selesai'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
             'kepala_teknisi_gudang' => ['dalam pengerjaan'],
         ];
@@ -549,5 +549,18 @@ class Progress extends Page implements HasForms
     public static function getNavigationBadgeColor(): ?string
     {
         return 'danger';
+    }
+
+    public function getImageUrl(?string $imagePath): ?string
+    {
+        if (!$imagePath) {
+            return null;
+        }
+
+        // Get the current request URL to dynamically build the storage URL
+        $requestUrl = request()->getSchemeAndHttpHost();
+        
+        // Build the full URL: {current_host}/storage/progress/produksi/{filename}
+        return $requestUrl . '/storage/' . $imagePath;
     }
 }

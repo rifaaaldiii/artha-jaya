@@ -260,8 +260,8 @@
         <div class="info-box">
             <h3>Informasi Produksi</h3>
             <div class="info-row">
-                <span class="info-label">Team:</span>
-                <span class="info-value">{{ $row['team'] ?? '-' }}</span>
+                <span class="info-label">Branch:</span>
+                <span class="info-value">{{ $row['branch'] ?? '-' }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">No. Ref:</span>
