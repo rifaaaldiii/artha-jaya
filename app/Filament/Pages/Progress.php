@@ -192,13 +192,15 @@ class Progress extends Page implements HasForms
                     ->label('Upload Foto Progress')
                     ->image()
                     ->multiple()
-                    ->disk('public')  // Explicitly use public disk
+                    ->disk('public')
                     ->directory('progress/produksi')
                     ->visibility('public')
                     ->maxSize(2048)
                     ->maxFiles(10)
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
-                    ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.'),
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
+                    ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.')
+                    ->downloadable()
+                    ->openable(),
             ])
             ->statePath('imageData');
     }

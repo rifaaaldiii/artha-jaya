@@ -45,6 +45,16 @@ return [
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
+            'directory_visibility' => 'public',
+        ],
+
+        'hostinger_public' => [
+            'driver' => 'local',
+            'root' => env('HOSTINGER_STORAGE_PATH', storage_path('app/public')),
+            'url' => env('HOSTINGER_STORAGE_URL', env('APP_URL').'/storage'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
         ],
 
         's3' => [
