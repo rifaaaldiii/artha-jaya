@@ -234,6 +234,8 @@ class ProgressJasa extends Page implements HasForms
 
     public array $imageData = [];
 
+    public array $terjadwalData = [];
+
     public bool $isUploading = false;
 
     public function terjadwalForm($form)
@@ -278,8 +280,6 @@ class ProgressJasa extends Page implements HasForms
             ])
             ->statePath('terjadwalData');
     }
-
-    public array $terjadwalData = [];
 
     public function updatedSelectedJasaId(): void
     {

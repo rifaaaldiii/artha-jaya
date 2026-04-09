@@ -30,6 +30,13 @@ chmod -R 775 storage/app/public
 echo "✅ Storage directories ready"
 echo ""
 
+# 2.5. Create storage link
+echo "🔗 Creating storage link..."
+php artisan storage:link
+
+echo "✅ Storage link created"
+echo ""
+
 # 3. Clear caches only
 echo "🧹 Clearing caches..."
 php artisan config:clear
