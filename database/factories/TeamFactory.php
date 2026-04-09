@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\team;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Faker\Factory as FakerFactory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\team>
@@ -24,9 +25,11 @@ class TeamFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = FakerFactory::create();
+        
         return [
-            'nama' => $this->faker->company() . ' Team',
-            'status' => $this->faker->randomElement(['ready', 'busy']),
+            'nama' => $faker->company() . ' Team',
+            'status' => $faker->randomElement(['ready', 'busy']),
         ];
     }
 }
