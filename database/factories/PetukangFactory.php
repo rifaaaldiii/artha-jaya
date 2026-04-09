@@ -26,9 +26,9 @@ class PetukangFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => fake()->name(),
-            'status' => fake()->randomElement(['ready', 'busy']),
-            'kontak' => fake()->phoneNumber(),
+            'nama' => $this->faker->name(),
+            'status' => $this->faker->randomElement(['ready', 'busy']),
+            'kontak' => $this->faker->phoneNumber(),
             'team_id' => team::factory(),
         ];
     }

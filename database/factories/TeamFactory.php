@@ -25,8 +25,8 @@ class TeamFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => fake()->company() . ' Team',
-            'status' => fake()->randomElement(['ready', 'busy']),
+            'nama' => $this->faker->company() . ' Team',
+            'status' => $this->faker->randomElement(['ready', 'busy']),
         ];
     }
 }
