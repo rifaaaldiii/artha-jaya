@@ -78,7 +78,7 @@ class AdminPanelProvider extends PanelProvider
 
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Produksi Step Nosing'),
+                    ->label('Jasa StepNosing / Plint'),
 
                 NavigationGroup::make()
                     ->label('Jasa & Layanan'),

@@ -56,7 +56,7 @@ class TeamResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Produksi Step Nosing';
+        return 'Jasa StepNosing / Plint';
     }
 
     public static function shouldRegisterNavigation(): bool
