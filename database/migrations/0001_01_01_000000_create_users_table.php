@@ -22,7 +22,6 @@ return new class extends Migration
                 'admin_gudang', 
                 'kepala_teknisi_lapangan', 
                 'kepala_teknisi_gudang', 
-                'petugas', 
                 'petukang'
             ]);
             $table->timestamp('email_verified_at')->nullable();

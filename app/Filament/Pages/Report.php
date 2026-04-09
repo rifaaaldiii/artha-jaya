@@ -8,7 +8,7 @@ use Filament\Pages\Page;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
@@ -51,6 +51,13 @@ class Report extends Page implements HasForms
         return 'System';
     }
 
+    protected function getForms(): array
+    {
+        return [
+            'filterForm',
+        ];
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         $user = Auth::user();
@@ -76,7 +83,7 @@ class Report extends Page implements HasForms
     protected function loadReportData(): void
     {
         if ($this->reportType === 'produksi') {
-            $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $this->singleNumber)->first();
+            $produksi = Produksi::with(['items'])->where('no_produksi', $this->singleNumber)->first();
             
             if ($produksi) {
                 $this->reportData = [
@@ -84,7 +91,6 @@ class Report extends Page implements HasForms
                     'no_ref' => $produksi->no_ref,
                     'branch' => $produksi->branch,
                     'status' => $produksi->status,
-                    'team' => $produksi->team?->nama ?? '-',
                     'catatan' => $produksi->catatan,
                     'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
                     'updated_at' => $produksi->updateAt?->format('d/m/Y H:i') ?? '-',
@@ -136,7 +142,7 @@ class Report extends Page implements HasForms
     protected function loadPreviewData(): void
     {
         $query = $this->filters['report_type'] === 'produksi' 
-            ? Produksi::with(['team', 'items'])
+            ? Produksi::with(['items'])
             : Jasa::with(['pelanggan', 'petugas', 'items']);
 
         // Apply date filters
@@ -159,12 +165,12 @@ class Report extends Page implements HasForms
                 return [
                     'number' => $item->no_produksi,
                     'no_ref' => $item->no_ref ?? '-',
+                    'branch' => $item->branch ?? '-',
                     'items_summary' => $item->items->map(function ($i) {
                         return "{$i->nama_produksi} - {$i->nama_bahan} ({$i->jumlah})";
                     })->join("\n"),
                     'items_count' => $item->items->count(),
                     'total_harga' => $item->items->sum('harga'),
-                    'team' => $item->team?->nama ?? '-',
                     'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                     'note' => $item->catatan,
                 ];
@@ -186,29 +192,37 @@ class Report extends Page implements HasForms
         })->toArray();
     }
 
-    public function filterForm(Form $form): Form
+    public function filterForm(Schema $form): Schema
     {
         return $form
             ->schema([
-                Select::make('report_type')
-                    ->label('Tipe Laporan')
-                    ->options([
-                        'produksi' => 'Produksi',
-                        'jasa' => 'Jasa',
-                    ])
-                    ->default('jasa')
-                    ->live()
-                    ->afterStateUpdated(function ($state) {
-                        $this->filters['report_type'] = $state;
-                        $this->currentPage = 1;
-                        $this->loadPreviewData();
-                    }),
-                DatePicker::make('start_date')
-                    ->label('Tanggal Mulai')
-                    ->native(false),
-                DatePicker::make('end_date')
-                    ->label('Tanggal Akhir')
-                    ->native(false),
+                \Filament\Schemas\Components\Section::make('Filter Laporan')
+                    ->description('Pilih tipe laporan dan rentang tanggal')
+                    ->columns(3)
+                    ->schema([
+                        Select::make('report_type')
+                            ->label('Tipe Laporan')
+                            ->options([
+                                'produksi' => 'Produksi',
+                                'jasa' => 'Jasa',
+                            ])
+                            ->default('jasa')
+                            ->live()
+                            ->afterStateUpdated(function ($state) {
+                                $this->filters['report_type'] = $state;
+                                $this->currentPage = 1;
+                                $this->loadPreviewData();
+                            })
+                            ->placeholder('Pilih tipe'),
+                        DatePicker::make('start_date')
+                            ->label('Tanggal Mulai')
+                            ->native(false)
+                            ->placeholder('Pilih tanggal'),
+                        DatePicker::make('end_date')
+                            ->label('Tanggal Akhir')
+                            ->native(false)
+                            ->placeholder('Pilih tanggal'),
+                    ]),
             ])
             ->statePath('filters');
     }

@@ -32,7 +32,6 @@ class UserForm
                         "admin_gudang"=> "Admin gudang",
                         "kepala_teknisi_lapangan"=> "Kepala Teknisi Lapangan",
                         "kepala_teknisi_gudang"=> "Kepala Teknisi Gudang",
-                        "petukang"=> "Petukang",
                         "petugas"=> "Petugas",
                     ])
                     ->required(),

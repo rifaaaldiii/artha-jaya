@@ -675,7 +675,7 @@
                     'step' => 3,
                 ],
                 'produksi siap diambil' => [
-                    'label' => 'Siap Diambil',
+                    'label' => 'Produksi Siap Diambil',
                     'subtitle' => 'Siap untuk diambil (Admin Toko/Gudang)',
                     'step' => 4,
                 ],
@@ -945,7 +945,7 @@
                                     $statusFrom = is_array($imageData) ? ($imageData['status_from'] ?? '-') : '-';
                                     $statusTo = is_array($imageData) ? ($imageData['status_to'] ?? '-') : '-';
                                     $uploadedAt = is_array($imageData) ? ($imageData['uploaded_at'] ?? '-') : '-';
-                                    $fullPath = $imagePath ? \Illuminate\Support\Facades\Storage::disk('public')->url($imagePath) : '';
+                                    $fullPath = $imagePath ? $this->getImageUrl($imagePath) : '';
                                     $fileExists = $imagePath && file_exists(storage_path('app/public/' . $imagePath));
                                     
                                     if ($fileExists) {
@@ -956,7 +956,7 @@
                                 @endphp
                                 
                                 @if($fileExists)
-                                <div class="progress-image-item" onclick="openImageModal('{{ $fullPath }}', '{{ $statusFrom }} → {{ $statusTo }}', '{{ $uploadedAt }}', {{ $index }})">
+                                <div class="progress-image-item" onclick="openImageModal('{{ addslashes($fullPath) }}', '{{ addslashes($statusFrom . ' → ' . $statusTo) }}', '{{ addslashes($uploadedAt) }}', {{ $index }})">
                                     <img src="{{ $fullPath }}" alt="Progress Image {{ $index + 1 }}" loading="lazy">
                                     <div class="progress-image-badge">#{{ $index + 1 }}</div>
                                 </div>

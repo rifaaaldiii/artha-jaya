@@ -235,7 +235,7 @@
                 <th style="width:200px;">Detail Item</th>
                 <th style="width:50px;">Jml Item</th>
                 <th style="width:85px;">Total Harga</th>
-                <th style="width:65px;">Team</th>
+                <th style="width:65px;">Branch</th>
                 <th style="width:75px;">Dibuat</th>
             </tr>
         </thead>
@@ -257,7 +257,7 @@
                 </td>
                 <td style="text-align:center;">{{ $row['items_count'] ?? 0 }}</td>
                 <td style="text-align:right; font-weight:600;">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
-                <td>{{ $row['team'] ?? '-' }}</td>
+                <td>{{ $row['branch'] ?? '-' }}</td>
                 <td><span class="small">{{ $row['created_at'] ?? '-' }}</span></td>
             </tr>
         @empty
