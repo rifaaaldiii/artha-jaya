@@ -74,9 +74,24 @@ echo ""
 # STEP 4: Create Storage Link
 # ========================================
 echo -e "${YELLOW}[4/8] Creating storage link...${NC}"
+
+# Remove old symlink/file if exists
 rm -f public/storage
-php artisan storage:link
-echo -e "${GREEN}✅ Storage link created${NC}"
+
+# Try artisan command first
+if php artisan storage:link 2>/dev/null; then
+    echo -e "${GREEN}✅ Storage link created (artisan)${NC}"
+else
+    # Fallback: manual symlink
+    echo -e "${YELLOW}⚠️  Artisan storage:link failed, creating manual symlink...${NC}"
+    if ln -s ../storage/app/public public/storage 2>/dev/null; then
+        echo -e "${GREEN}✅ Storage link created (manual symlink)${NC}"
+    else
+        echo -e "${RED}❌ Failed to create storage link${NC}"
+        echo -e "${YELLOW}   Try manually: cd public && ln -s ../storage/app/public storage${NC}"
+    fi
+fi
+
 echo ""
 
 # ========================================
