@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\petukang;
 use App\Models\team;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as FakerFactory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\petukang>
@@ -26,12 +25,10 @@ class PetukangFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = FakerFactory::create();
-        
         return [
-            'nama' => $faker->name(),
-            'status' => $faker->randomElement(['ready', 'busy']),
-            'kontak' => $faker->phoneNumber(),
+            'nama' => $this->faker->name(),
+            'status' => $this->faker->randomElement(['ready', 'busy']),
+            'kontak' => $this->faker->phoneNumber(),
             'team_id' => team::factory(),
         ];
     }
