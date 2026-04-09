@@ -34,10 +34,19 @@ echo ""
 
 # 3. Set permissions
 echo "🔐 Setting permissions..."
-chmod -R 755 storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 chmod 755 public
 
 echo "✅ Permissions set"
+echo ""
+
+# 4. Create storage directories
+echo "📁 Creating storage directories..."
+mkdir -p storage/app/public/progress/produksi
+mkdir -p storage/app/public/progress/jasa
+chmod -R 775 storage/app/public
+
+echo "✅ Storage directories created"
 echo ""
 
 # 4. Create storage link

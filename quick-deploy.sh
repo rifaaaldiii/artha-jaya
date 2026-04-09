@@ -21,11 +21,13 @@ fi
 echo "✅ Pull successful"
 echo ""
 
-# 2. Ensure storage link exists
-echo "🔗 Checking storage link..."
-php artisan storage:link
+# 2. Ensure storage link exists & directories created
+echo "📁 Checking storage directories..."
+mkdir -p storage/app/public/progress/produksi
+mkdir -p storage/app/public/progress/jasa
+chmod -R 775 storage/app/public
 
-echo "✅ Storage link ready"
+echo "✅ Storage directories ready"
 echo ""
 
 # 3. Clear caches only
