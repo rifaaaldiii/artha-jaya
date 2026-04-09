@@ -21,6 +21,7 @@ class Jasa extends Model
         'progress_images',
         'petugas_id',
         'pelanggan_id',
+        'alamat',
         'status',
         'createdAt',
         'updateAt',
@@ -58,6 +59,14 @@ class Jasa extends Model
     public function pelanggan(): BelongsTo
     {
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
+    }
+
+    /**
+     * Get alamat from pelanggan if alamat is null.
+     */
+    public function getAlamatPelangganAttribute(): ?string
+    {
+        return $this->pelanggan?->alamat;
     }
 
     /**

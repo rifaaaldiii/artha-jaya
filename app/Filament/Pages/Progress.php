@@ -19,8 +19,6 @@ class Progress extends Page implements HasForms
         'produksi baru',
         'siap produksi',
         'dalam pengerjaan',
-        'selesai dikerjakan',
-        'lolos qc',
         'produksi siap diambil',
         'selesai',
     ];
@@ -44,7 +42,7 @@ class Progress extends Page implements HasForms
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Produksi Step Nosing';
+        return 'Jasa StepNosing / Plint';
     }
 
     #[On('aj-refresh-produksi')]
@@ -455,10 +453,10 @@ class Progress extends Page implements HasForms
         $allStatuses = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            'admin_toko' => ['produksi baru', 'selesai'],
+            'cs' => ['produksi baru', 'selesai'],
+            'admin_toko' => ['siap produksi', 'produksi siap diambil'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'lolos qc'],
-            'petukang' => ['selesai dikerjakan'],
+            'kepala_teknisi_gudang' => ['dalam pengerjaan'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
@@ -497,7 +495,7 @@ class Progress extends Page implements HasForms
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_gudang', 'petukang', 'admin_gudang'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'admin_gudang', 'kepala_teknisi_gudang'], true);
     }
 
     public static function getNavigationBadge(): ?string
@@ -512,10 +510,10 @@ class Progress extends Page implements HasForms
         $statusFlow = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            'admin_toko' => ['produksi baru', 'selesai'],
+            'cs' => ['produksi baru', 'selesai'],
+            'admin_toko' => ['siap produksi', 'produksi siap diambil'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'lolos qc'],
-            'petukang' => ['selesai dikerjakan'],
+            'kepala_teknisi_gudang' => ['dalam pengerjaan'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {

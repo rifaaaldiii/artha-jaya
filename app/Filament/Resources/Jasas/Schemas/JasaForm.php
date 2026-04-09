@@ -8,6 +8,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Placeholder;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
 use App\Models\JenisJasa;
@@ -92,6 +95,73 @@ class JasaForm
                 ->default(fn () => Auth::user()->branch ?? null)
                 ->disabled(fn () => Auth::user()->branch !== null),
             
+            Select::make('pelanggan_id')
+                ->label('Pilih Pelanggan')
+                ->options(function () {
+                    return Pelanggan::query()
+                        ->orderBy('nama')
+                        ->get()
+                        ->mapWithKeys(function ($pelanggan) {
+                            return [$pelanggan->id => $pelanggan->nama . ' | ' . $pelanggan->alamat];
+                        })
+                        ->toArray();
+                })
+                ->searchable()
+                ->getSearchResultsUsing(function (string $search) {
+                    return Pelanggan::query()
+                        ->where(function ($query) use ($search) {
+                            $searchTerm = '%' . trim($search) . '%';
+                            $query->where('nama', 'like', $searchTerm)
+                                ->orWhere('alamat', 'like', $searchTerm)
+                                ->orWhere('kontak', 'like', $searchTerm);
+                        })
+                        ->orderBy('nama')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(function ($pelanggan) {
+                            return [$pelanggan->id => $pelanggan->nama . ' | ' . $pelanggan->alamat];
+                        })
+                        ->toArray();
+                })
+                ->getOptionLabelUsing(fn ($value): ?string => 
+                    ($data = Pelanggan::find($value)) ? ($data->nama . ' | ' . $data->alamat) : null
+                )
+                ->preload()
+                ->required(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
+                ->visible(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
+                ->dehydrated(true)
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set, $get, $record) {
+                    if ($state) {
+                        $pelanggan = Pelanggan::find($state);
+                        if ($pelanggan) {
+                            $set('edit_pelanggan_nama', $pelanggan->nama);
+                            $set('edit_pelanggan_kontak', $pelanggan->kontak);
+                            $set('edit_pelanggan_alamat', $pelanggan->alamat);
+                            
+                            // Update info placeholders
+                            $set('pelanggan_nama_info', $pelanggan->nama);
+                            $set('pelanggan_kontak_info', $pelanggan->kontak);
+                            $set('pelanggan_alamat_info', $pelanggan->alamat);
+                            
+                            // If toggle is enabled (default), update alamat jasa
+                            if ($get('use_pelanggan_alamat') !== false) {
+                                $set('alamat', $pelanggan->alamat);
+                            }
+                        }
+                    }
+                })
+                ->afterStateHydrated(function ($state, $component, $record, $get) {
+                    if ($record && $record->pelanggan_id) {
+                        $pelanggan = Pelanggan::find($record->pelanggan_id);
+                        if ($pelanggan) {
+                            $component->livewire->data['pelanggan_nama_info'] = $pelanggan->nama;
+                            $component->livewire->data['pelanggan_kontak_info'] = $pelanggan->kontak;
+                            $component->livewire->data['pelanggan_alamat_info'] = $pelanggan->alamat;
+                        }
+                    }
+                }),
+            
             Repeater::make('items')
                 ->relationship('items')
                 ->schema([
@@ -143,52 +213,6 @@ class JasaForm
                 ->required()
                 ->minItems(1),
             
-            Select::make('pelanggan_id')
-                ->label('Pilih Pelanggan')
-                ->options(function () {
-                    return Pelanggan::query()
-                        ->orderBy('nama')
-                        ->get()
-                        ->mapWithKeys(function ($pelanggan) {
-                            return [$pelanggan->id => $pelanggan->nama . ' | ' . $pelanggan->alamat];
-                        })
-                        ->toArray();
-                })
-                ->searchable()
-                ->getSearchResultsUsing(function (string $search) {
-                    return Pelanggan::query()
-                        ->where(function ($query) use ($search) {
-                            $searchTerm = '%' . trim($search) . '%';
-                            $query->where('nama', 'like', $searchTerm)
-                                ->orWhere('alamat', 'like', $searchTerm)
-                                ->orWhere('kontak', 'like', $searchTerm);
-                        })
-                        ->orderBy('nama')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(function ($pelanggan) {
-                            return [$pelanggan->id => $pelanggan->nama . ' | ' . $pelanggan->alamat];
-                        })
-                        ->toArray();
-                })
-                ->getOptionLabelUsing(fn ($value): ?string => 
-                    ($data = Pelanggan::find($value)) ? ($data->nama . ' | ' . $data->alamat) : null
-                )
-                ->preload()
-                ->required(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
-                ->visible(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
-                ->dehydrated(true)
-                ->reactive()
-                ->afterStateUpdated(function ($state, callable $set, $get, $record) {
-                    if ($record && $state) {
-                        $pelanggan = Pelanggan::find($state);
-                        if ($pelanggan) {
-                            $set('edit_pelanggan_nama', $pelanggan->nama);
-                            $set('edit_pelanggan_kontak', $pelanggan->kontak);
-                            $set('edit_pelanggan_alamat', $pelanggan->alamat);
-                        }
-                    }
-                }),
             
             TextInput::make('edit_pelanggan_nama')
                 ->label('Nama Pelanggan')
@@ -279,6 +303,16 @@ class JasaForm
                         }
                     }
                 })
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                    // Update info placeholder
+                    $set('pelanggan_alamat_info', $state);
+                    
+                    // If toggle is enabled, update alamat jasa
+                    if ($get('use_pelanggan_alamat') !== false) {
+                        $set('alamat', $state);
+                    }
+                })
                 ->rules([
                     function ($get, $record) {
                         return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
@@ -364,6 +398,68 @@ class JasaForm
                     },
                 ]),
             
+            // Switch/Toggle untuk menggunakan alamat pelanggan
+            Toggle::make('use_pelanggan_alamat')
+                ->label('Gunakan alamat pelanggan sebagai alamat jasa')
+                ->default(true)
+                ->reactive()
+                ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama')))
+                ->helperText('Jika diaktifkan, alamat jasa akan mengikuti alamat pelanggan')
+                ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                    if ($state) {
+                        // Get alamat from pelanggan
+                        $pelangganId = $get('pelanggan_id');
+                        if ($pelangganId) {
+                            $pelanggan = Pelanggan::find($pelangganId);
+                            if ($pelanggan) {
+                                $set('alamat', $pelanggan->alamat);
+                            }
+                        } else {
+                            // For edit mode with edit_pelanggan_alamat
+                            $editAlamat = $get('edit_pelanggan_alamat');
+                            if ($editAlamat) {
+                                $set('alamat', $editAlamat);
+                            }
+                        }
+                    } else {
+                        $set('alamat', null);
+                    }
+                }),
+            
+            // Informasi Alamat Pelanggan (Read Only)
+            Section::make('Informasi Pelanggan')
+                ->schema([
+                    TextInput::make('pelanggan_nama_info')
+                        ->label('Nama Pelanggan')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
+                    
+                    TextInput::make('pelanggan_kontak_info')
+                        ->label('Kontak Pelanggan')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
+                    
+                    Textarea::make('pelanggan_alamat_info')
+                        ->label('Alamat Pelanggan')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
+                ])
+                ->columns(1)
+                ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama')))
+                ->statePath(''),
+            
+            
+            Textarea::make('alamat')
+                ->label('Alamat Jasa')
+                ->required()
+                ->visible(fn ($get) => !$get('use_pelanggan_alamat'))
+                ->reactive()
+                ->dehydrated(true)
+                ->helperText('Input alamat jasa secara manual jika berbeda dari alamat pelanggan'),
+            
             DateTimePicker::make("jadwal")
                 ->label("Jadwal Pelanggan"),
                 
@@ -385,7 +481,7 @@ class JasaForm
                 ->dehydrated(fn ($state) => filled($state)),
 
             Toggle::make('create_new_pelanggan')
-                ->label('Buat Pelanggan Baru')
+                ->label('Create new customer')
                 ->default(false)
                 ->reactive()
                 ->visible(fn ($record) => !$record)

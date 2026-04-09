@@ -661,38 +661,28 @@
             $statuses = [
                 'produksi baru' => [
                     'label' => 'Produksi Baru',
-                    'subtitle' => 'Pesanan baru masuk',
+                    'subtitle' => 'Pesanan baru masuk (CS)',
                     'step' => 1,
                 ],
                 'siap produksi' => [
                     'label' => 'Siap Produksi',
-                    'subtitle' => 'Siap untuk diproses',
+                    'subtitle' => 'Siap untuk diproses (Admin Toko/Gudang)',
                     'step' => 2,
                 ],
                 'dalam pengerjaan' => [
                     'label' => 'Dalam Pengerjaan',
-                    'subtitle' => 'Sedang dikerjakan',
+                    'subtitle' => 'Sedang dikerjakan (Kepala Gudang)',
                     'step' => 3,
-                ],
-                'selesai dikerjakan' => [
-                    'label' => 'Selesai Dikerjakan',
-                    'subtitle' => 'Pengerjaan selesai',
-                    'step' => 4,
-                ],
-                'lolos qc' => [
-                    'label' => 'Lolos QC',
-                    'subtitle' => 'Quality control passed',
-                    'step' => 5,
                 ],
                 'produksi siap diambil' => [
                     'label' => 'Siap Diambil',
-                    'subtitle' => 'Siap untuk diambil',
-                    'step' => 6,
+                    'subtitle' => 'Siap untuk diambil (Admin Toko/Gudang)',
+                    'step' => 4,
                 ],
                 'selesai' => [
                     'label' => 'Selesai',
-                    'subtitle' => 'Produksi selesai',
-                    'step' => 7,
+                    'subtitle' => 'Produksi selesai (CS)',
+                    'step' => 5,
                 ],
             ];
             $currentStatus = $this->record->status;
@@ -797,9 +787,8 @@
                                         ($currentStep === 2 ? 'status-badge status-blue' :
                                         ($currentStep === 3 ? 'status-badge status-yellow' :
                                         ($currentStep === 4 ? 'status-badge status-green' :
-                                        ($currentStep === 5 ? 'status-badge status-indigo' :
-                                        ($currentStep === 6 ? 'status-badge status-purple' : 'status-badge status-bg-default'
-                                        )))));
+                                        ($currentStep === 5 ? 'status-badge status-indigo' : 'status-badge status-bg-default'
+                                        ))));
                                 }
                             @endphp
                             <span class="{{ $badgeClass }}">{{ $statuses[$currentStatus]['label'] }}</span>
@@ -1009,10 +998,10 @@
                         if ($nextSequentialStatus) {
                             // Mapping from Progress.php
                             $roleStatusMap = [
-                                'admin_toko' => ['produksi baru', 'selesai'],
+                                'cs' => ['produksi baru', 'selesai'],
+                                'admin_toko' => ['siap produksi', 'produksi siap diambil'],
                                 'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-                                'kepala_teknisi_gudang' => ['dalam pengerjaan', 'lolos qc'],
-                                'petukang' => ['selesai dikerjakan'],
+                                'kepala_gudang' => ['dalam pengerjaan'],
                             ];
                             foreach ($roleStatusMap as $role => $statusesForRole) {
                                 if (in_array($nextSequentialStatus, $statusesForRole, true)) {
