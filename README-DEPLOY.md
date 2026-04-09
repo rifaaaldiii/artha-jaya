@@ -1,13 +1,22 @@
 # 🚀 ARTHA JAYA - DEPLOYMENT GUIDE
 
-## ⚡ Quick Start (2 Steps)
+## ⚡ Quick Start (3 Easy Steps)
 
-### Step 1: Login to PuTTY
-
-### Step 2: Copy-Paste This Command
-
+### Step 1: Clone Repository
 ```bash
-cd ~ && git clone https://github.com/YOUR_USERNAME/artha-jaya.git && cd artha-jaya && chmod +x deploy.sh && ./deploy.sh
+cd ~
+git clone https://github.com/YOUR_USERNAME/artha-jaya.git
+cd artha-jaya
+```
+
+### Step 2: Make Script Executable
+```bash
+chmod +x deploy.sh
+```
+
+### Step 3: Run Deployment
+```bash
+./deploy.sh
 ```
 
 **That's it!** The script will handle everything automatically.
@@ -16,16 +25,14 @@ cd ~ && git clone https://github.com/YOUR_USERNAME/artha-jaya.git && cd artha-ja
 
 ## 📋 What the Script Does
 
-1. ✅ Clone repository
-2. ✅ Install dependencies
-3. ✅ Setup .env file
-4. ✅ Set permissions
-5. ✅ Create storage link
-6. ✅ Clear caches
-7. ✅ Run migrations
-8. ✅ Check admin user
-9. ✅ Optimize for production
-10. ✅ Verify deployment
+1. ✅ Install dependencies
+2. ✅ Setup .env file
+3. ✅ Set permissions
+4. ✅ Create storage link
+5. ✅ Clear caches
+6. ✅ Run migrations
+7. ✅ Optimize for production
+8. ✅ Verify deployment
 
 ---
 

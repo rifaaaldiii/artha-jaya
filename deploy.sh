@@ -2,7 +2,7 @@
 
 # =====================================
 # ARTHA JAYA - AUTO DEPLOYMENT SCRIPT
-# Clone & Deploy in One Command
+# Run after cloning repository
 # =====================================
 # Usage: ./deploy.sh
 
@@ -19,44 +19,28 @@ echo -e "${BLUE}║   ARTHA JAYA - AUTO DEPLOYMENT SCRIPT     ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
 echo ""
 
-# ========================================
-# STEP 1: Clone Repository
-# ========================================
-echo -e "${YELLOW}[1/10] Cloning repository...${NC}"
-
-# Check if artha-jaya folder exists
-if [ -d "artha-jaya" ]; then
-    echo -e "${YELLOW}⚠️  Folder artha-jaya sudah ada.${NC}"
-    read -p "Apakah ingin menggunakan folder yang ada? (y/n): " choice
-    if [[ $choice == "y" ]]; then
-        cd artha-jaya || { echo -e "${RED}❌ Error: Cannot access artha-jaya folder${NC}"; exit 1; }
-        echo -e "${GREEN}✅ Menggunakan folder existing${NC}"
-    else
-        echo -e "${YELLOW}Menghapus folder lama...${NC}"
-        rm -rf artha-jaya
-        git clone https://github.com/YOUR_USERNAME/artha-jaya.git || { echo -e "${RED}❌ Error: Git clone failed${NC}"; exit 1; }
-        cd artha-jaya || { echo -e "${RED}❌ Error: Cannot access artha-jaya folder${NC}"; exit 1; }
-    fi
-else
-    git clone https://github.com/YOUR_USERNAME/artha-jaya.git || { echo -e "${RED}❌ Error: Git clone failed${NC}"; exit 1; }
-    cd artha-jaya || { echo -e "${RED}❌ Error: Cannot access artha-jaya folder${NC}"; exit 1; }
+# Check if we're in the right directory
+if [ ! -f "artisan" ]; then
+    echo -e "${RED}❌ Error: Please run this script from artha-jaya directory${NC}"
+    echo -e "${YELLOW}   cd ~/artha-jaya${NC}"
+    exit 1
 fi
 
-echo -e "${GREEN}✅ Repository cloned successfully${NC}"
+echo -e "${GREEN}✅ Directory verified: $(pwd)${NC}"
 echo ""
 
 # ========================================
-# STEP 2: Install Dependencies
+# STEP 1: Install Dependencies
 # ========================================
-echo -e "${YELLOW}[2/10] Installing dependencies...${NC}"
+echo -e "${YELLOW}[1/8] Installing dependencies...${NC}"
 composer install --no-dev --optimize-autoloader --no-interaction || { echo -e "${RED}❌ Error: Composer install failed${NC}"; exit 1; }
 echo -e "${GREEN}✅ Dependencies installed${NC}"
 echo ""
 
 # ========================================
-# STEP 3: Setup Environment
+# STEP 2: Setup Environment
 # ========================================
-echo -e "${YELLOW}[3/10] Setting up environment...${NC}"
+echo -e "${YELLOW}[2/8] Setting up environment...${NC}"
 
 if [ ! -f ".env" ]; then
     cp .env.example .env
@@ -73,9 +57,9 @@ fi
 echo ""
 
 # ========================================
-# STEP 4: Set Permissions
+# STEP 3: Set Permissions
 # ========================================
-echo -e "${YELLOW}[4/10] Setting permissions...${NC}"
+echo -e "${YELLOW}[3/8] Setting permissions...${NC}"
 chmod -R 755 storage bootstrap/cache
 chmod -R 775 storage/app/public
 mkdir -p storage/app/public/progress/produksi
@@ -87,18 +71,18 @@ echo -e "${GREEN}✅ Permissions set${NC}"
 echo ""
 
 # ========================================
-# STEP 5: Create Storage Link
+# STEP 4: Create Storage Link
 # ========================================
-echo -e "${YELLOW}[5/10] Creating storage link...${NC}"
+echo -e "${YELLOW}[4/8] Creating storage link...${NC}"
 rm -f public/storage
 php artisan storage:link
 echo -e "${GREEN}✅ Storage link created${NC}"
 echo ""
 
 # ========================================
-# STEP 6: Clear Caches
+# STEP 5: Clear Caches
 # ========================================
-echo -e "${YELLOW}[6/10] Clearing caches...${NC}"
+echo -e "${YELLOW}[5/8] Clearing caches...${NC}"
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
@@ -109,38 +93,17 @@ echo -e "${GREEN}✅ Caches cleared${NC}"
 echo ""
 
 # ========================================
-# STEP 7: Database Migration
+# STEP 6: Database Migration
 # ========================================
-echo -e "${YELLOW}[7/10] Running migrations...${NC}"
+echo -e "${YELLOW}[6/8] Running migrations...${NC}"
 php artisan migrate --force
 echo -e "${GREEN}✅ Migrations completed${NC}"
 echo ""
 
 # ========================================
-# STEP 8: Create Admin User (Optional)
+# STEP 7: Optimize for Production
 # ========================================
-echo -e "${YELLOW}[8/10] Checking admin user...${NC}"
-if command -v php &> /dev/null; then
-    USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null)
-    if [ "$USER_COUNT" = "0" ]; then
-        echo -e "${YELLOW}⚠️  Belum ada user admin.${NC}"
-        echo -e "${YELLOW}   Buat manual dengan command:${NC}"
-        echo -e "${BLUE}   php artisan make:filament-user${NC}"
-        echo ""
-        read -p "Buat user sekarang? (y/n): " create_user
-        if [[ $create_user == "y" ]]; then
-            php artisan make:filament-user
-        fi
-    else
-        echo -e "${GREEN}✅ Admin user exists ($USER_COUNT users)${NC}"
-    fi
-fi
-echo ""
-
-# ========================================
-# STEP 9: Optimize for Production
-# ========================================
-echo -e "${YELLOW}[9/10] Optimizing for production...${NC}"
+echo -e "${YELLOW}[7/8] Optimizing for production...${NC}"
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
@@ -148,9 +111,9 @@ echo -e "${GREEN}✅ Optimized for production${NC}"
 echo ""
 
 # ========================================
-# STEP 10: Final Verification
+# STEP 8: Final Verification
 # ========================================
-echo -e "${YELLOW}[10/10] Final verification...${NC}"
+echo -e "${YELLOW}[8/8] Final verification...${NC}"
 
 ERRORS=0
 
