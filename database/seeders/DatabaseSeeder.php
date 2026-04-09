@@ -21,56 +21,62 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User seeding
-        User::factory()->create([
+        // User seeding - directly create without factory
+        User::create([
             'name' => 'Rifaldi Yuda',
             'email' => 'rifaldiyuda29@gmail.com',
             'password' => bcrypt('aev872767'),
             'role' => 'administrator',
-            'username' => 'rifaldi'
+            'username' => 'rifaldi',
+            'createdAt' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Admin Toko',
             'email' => 'admintoko@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'admin_toko',
-            'username' => 'admintoko'
+            'username' => 'admintoko',
+            'createdAt' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Admin Gudang',
             'email' => 'admingudang@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'admin_gudang',
-            'username' => 'admingudang'
+            'username' => 'admingudang',
+            'createdAt' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Kepala Teknisi Lapangan',
             'email' => 'kepalateknisilapangan@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'kepala_teknisi_lapangan',
-            'username' => 'kepalateknisilapangan'
+            'username' => 'kepalateknisilapangan',
+            'createdAt' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Kepala Teknisi Gudang',
             'email' => 'kepalateknisigudang@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'kepala_teknisi_gudang',
-            'username' => 'kepalateknisigudang'
+            'username' => 'kepalateknisigudang',
+            'createdAt' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Petukang',
             'email' => 'petukang@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'petukang',
-            'username' => 'petukang'
+            'username' => 'petukang',
+            'createdAt' => now(),
         ]);
 
-        // Team seeding
+        // Team seeding - directly create
         $teams = [
             ['nama' => 'Team A', 'status' => 'ready'],
             ['nama' => 'Team B', 'status' => 'ready'],
@@ -84,10 +90,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($teams as $teamData) {
-            Team::factory()->create($teamData);
+            Team::create($teamData);
         }
 
-        // Petukang seeding
+        // Petukang seeding - directly create
         $petukangs = [
             ['nama' => 'Petukang 1', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
             ['nama' => 'Petukang 2', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
@@ -102,7 +108,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($petukangs as $petukangData) {
-            Petukang::factory()->create($petukangData);
+            Petukang::create($petukangData);
         }
 
         $petugas = [
@@ -119,7 +125,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($petugas as $petugasData) {
-            Petugas::factory()->create($petugasData);
+            Petugas::create($petugasData);
         }
 
         // Jenis Jasa seeding
