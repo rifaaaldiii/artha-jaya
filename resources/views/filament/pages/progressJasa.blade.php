@@ -1330,7 +1330,7 @@
             existingLink.remove();
         }
         document.head.appendChild(link);
-    })();
+    }());
 
     const registerLivewireErrorHandler = () => {
         if (! window.Livewire) {
