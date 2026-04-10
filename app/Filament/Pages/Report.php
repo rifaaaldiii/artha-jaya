@@ -443,37 +443,87 @@ class Report extends Page implements HasForms
             $query->whereDate('createdAt', '<=', $this->filters['end_date']);
         }
 
+        // Apply search filter
+        if (!empty($this->searchQuery)) {
+            $searchTerm = '%' . $this->searchQuery . '%';
+            
+            if ($this->filters['report_type'] === 'produksi') {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('no_produksi', 'like', $searchTerm)
+                      ->orWhere('no_ref', 'like', $searchTerm)
+                      ->orWhere('branch', 'like', $searchTerm)
+                      ->orWhere('status', 'like', $searchTerm);
+                });
+            } else {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('no_jasa', 'like', $searchTerm)
+                      ->orWhere('no_ref', 'like', $searchTerm)
+                      ->orWhere('status', 'like', $searchTerm)
+                      ->orWhereHas('pelanggan', function($q) use ($searchTerm) {
+                          $q->where('nama', 'like', $searchTerm);
+                      })
+                      ->orWhereHas('petugasMany', function($q) use ($searchTerm) {
+                          $q->where('nama', 'like', $searchTerm);
+                      });
+                });
+            }
+        }
+
         $items = $query->orderBy('createdAt', 'desc')->get();
 
         $viewPath = "reports/pdf/{$this->filters['report_type']}";
         $data = [
             'rows' => $items->map(function ($item) {
                 if ($this->filters['report_type'] === 'produksi') {
+                    // Build items summary
+                    $itemsSummary = '';
+                    if ($item->items->isNotEmpty()) {
+                        $itemsArray = [];
+                        foreach ($item->items as $prodItem) {
+                            $itemName = $prodItem->nama_produksi ?? $prodItem->nama_item ?? 'Item';
+                            $itemsArray[] = "• {$itemName} ({$prodItem->jumlah})";
+                        }
+                        $itemsSummary = implode("\n", $itemsArray);
+                    }
+                    
                     return [
                         'number' => $item->no_produksi,
                         'no_ref' => $item->no_ref ?? '-',
                         'branch' => $item->branch ?? '-',
                         'team' => $item->team?->nama ?? '-',
                         'status' => $item->status,
-                        'total_harga' => $item->items->sum('harga'),
-                        'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                         'items_count' => $item->items->count(),
-                        'items' => $item->items->toArray(),
+                        'total_harga' => $item->items->sum('harga'),
+                        'items_summary' => $itemsSummary,
+                        'note' => $item->catatan,
+                        'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                     ];
                 } else {
+                    // Build items summary
+                    $itemsSummary = '';
+                    if ($item->items->isNotEmpty()) {
+                        $itemsArray = [];
+                        foreach ($item->items as $jasaItem) {
+                            $itemName = $jasaItem->jenis_layanan ?? $jasaItem->nama_item ?? 'Item';
+                            $itemsArray[] = "• {$itemName} ({$jasaItem->jumlah})";
+                        }
+                        $itemsSummary = implode("\n", $itemsArray);
+                    }
+                    
                     return [
                         'number' => $item->no_jasa,
                         'no_ref' => $item->no_ref ?? '-',
-                        'pelanggan' => $item->pelanggan?->nama ?? '-',
+                        'customer' => $item->pelanggan?->nama ?? '-',
                         'petugas' => $item->petugasMany->isNotEmpty() 
                             ? $item->petugasMany->pluck('nama')->join(', ') 
                             : '-',
                         'status' => $item->status,
                         'scheduled_at' => $item->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
-                        'total_harga' => $item->items->sum('harga'),
-                        'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                         'items_count' => $item->items->count(),
-                        'items' => $item->items->toArray(),
+                        'total_harga' => $item->items->sum('harga'),
+                        'items_summary' => $itemsSummary,
+                        'note' => $item->catatan,
+                        'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                     ];
                 }
             })->toArray(),
@@ -481,19 +531,20 @@ class Report extends Page implements HasForms
                 'total' => $items->count(),
                 'total_harga' => $items->sum(function($item) { return $item->items->sum('harga'); }),
                 'date_range' => ($this->filters['start_date'] ?? 'Awal') . ' - ' . ($this->filters['end_date'] ?? 'Akhir'),
-                'report_type' => $this->filters['report_type'],
             ],
+            'filters' => $this->filters,
             'generatedAt' => now(),
         ];
 
         $pdf = Pdf::loadView($viewPath, $data);
 
-        $filename = "report-{$this->filters['report_type']}-all-" . now()->format('Y-m-d') . ".pdf";
+        $filename = "report-{$this->filters['report_type']}-filtered-" . now()->format('Y-m-d') . ".pdf";
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, $filename, [
             'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
 
@@ -524,7 +575,7 @@ class Report extends Page implements HasForms
     {
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['team', 'items'])
-            : Jasa::with(['pelanggan', 'petugas', 'items']);
+            : Jasa::with(['pelanggan', 'petugasMany', 'items']);
 
         if (!empty($this->filters['start_date'])) {
             $query->whereDate('createdAt', '>=', $this->filters['start_date']);
@@ -539,19 +590,55 @@ class Report extends Page implements HasForms
         $data = [
             'rows' => $items->map(function ($item) {
                 if ($this->filters['report_type'] === 'produksi') {
+                    // Build items summary
+                    $itemsSummary = '';
+                    if ($item->items->isNotEmpty()) {
+                        $itemsArray = [];
+                        foreach ($item->items as $prodItem) {
+                            $itemName = $prodItem->nama_produksi ?? $prodItem->nama_item ?? 'Item';
+                            $itemsArray[] = "• {$itemName} ({$prodItem->jumlah})";
+                        }
+                        $itemsSummary = implode("\n", $itemsArray);
+                    }
+                    
                     return [
                         'number' => $item->no_produksi,
                         'no_ref' => $item->no_ref ?? '-',
+                        'branch' => $item->branch ?? '-',
+                        'status' => $item->status,
                         'team' => $item->team?->nama ?? '-',
+                        'items_count' => $item->items->count(),
                         'total_harga' => $item->items->sum('harga'),
+                        'items_summary' => $itemsSummary,
+                        'note' => $item->catatan,
                         'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                     ];
                 } else {
+                    // Build items summary
+                    $itemsSummary = '';
+                    if ($item->items->isNotEmpty()) {
+                        $itemsArray = [];
+                        foreach ($item->items as $jasaItem) {
+                            $itemName = $jasaItem->jenis_layanan ?? $jasaItem->nama_item ?? 'Item';
+                            $itemsArray[] = "• {$itemName} ({$jasaItem->jumlah})";
+                        }
+                        $itemsSummary = implode("\n", $itemsArray);
+                    }
+                    
                     return [
                         'number' => $item->no_jasa,
                         'no_ref' => $item->no_ref ?? '-',
+                        'branch' => $item->branch ?? '-',
+                        'status' => $item->status,
                         'customer' => $item->pelanggan?->nama ?? '-',
+                        'petugas' => $item->petugasMany->isNotEmpty() 
+                            ? $item->petugasMany->pluck('nama')->join(', ') 
+                            : '-',
+                        'scheduled_at' => $item->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
+                        'items_count' => $item->items->count(),
                         'total_harga' => $item->items->sum('harga'),
+                        'items_summary' => $itemsSummary,
+                        'note' => $item->catatan,
                         'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
                     ];
                 }
@@ -571,6 +658,7 @@ class Report extends Page implements HasForms
             echo $pdf->stream();
         }, $filename, [
             'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
 

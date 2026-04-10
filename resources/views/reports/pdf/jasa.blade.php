@@ -206,20 +206,21 @@
         <thead>
             <tr>
                 <th style="width:26px;">No.</th>
+                <th style="width:65px;">Jadwal</th>
                 <th style="width:55px;">No. Jasa</th>
                 <th style="width:55px;">No. Ref</th>
                 <th style="width:180px;">Detail Item</th>
                 <th style="width:50px;">Jml Item</th>
-                <th style="width:75px;">Total Harga</th>
                 <th style="width:70px;">Pelanggan</th>
                 <th style="width:65px;">Petugas</th>
-                <th style="width:65px;">Jadwal</th>
+                <th style="width:75px;">Total Harga</th>
             </tr>
         </thead>
         <tbody>
         @forelse($rows as $index => $row)
             <tr>
                 <td>{{ $index + 1 }}</td>
+                <td><span class="small">{{ $row['scheduled_at'] ?? '-' }}</span></td>
                 <td>{{ $row['number'] ?? '-' }}</td>
                 <td>{{ $row['no_ref'] ?? '-' }}</td>
                 <td style="text-align:left;">
@@ -233,10 +234,9 @@
                     @endif
                 </td>
                 <td style="text-align:center;">{{ $row['items_count'] ?? 0 }}</td>
-                <td style="text-align:right; font-weight:600;">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
                 <td>{{ $row['customer'] ?? '-' }}</td>
                 <td><span class="small">{{ $row['petugas'] ?? '-' }}</span></td>
-                <td><span class="small">{{ $row['scheduled_at'] ?? '-' }}</span></td>
+                <td style="text-align:right; font-weight:600;">Rp {{ number_format($row['total_harga'] ?? 0, 0, ',', '.') }}</td>
             </tr>
         @empty
             <tr>
