@@ -946,7 +946,7 @@
                                     $statusTo = is_array($imageData) ? ($imageData['status_to'] ?? '-') : '-';
                                     $uploadedAt = is_array($imageData) ? ($imageData['uploaded_at'] ?? '-') : '-';
                                     $fullPath = $imagePath ? $this->getImageUrl($imagePath) : '';
-                                    $fileExists = $imagePath && file_exists(storage_path('app/public/' . $imagePath));
+                                    $fileExists = $imagePath && file_exists(public_path($imagePath));
                                     
                                     if ($fileExists) {
                                         $displayedCount++;

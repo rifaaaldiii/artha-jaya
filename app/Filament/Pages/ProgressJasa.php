@@ -228,7 +228,8 @@ class ProgressJasa extends Page implements HasForms
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
                     ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.')
                     ->downloadable()
-                    ->openable(),
+                    ->openable()
+                    ->storeFileNamesIn('originalFileName'),
             ])
             ->statePath('imageData');
     }
@@ -410,12 +411,27 @@ class ProgressJasa extends Page implements HasForms
                 // Add each new image to array
                 foreach ($progressImages as $imagePath) {
                     if ($imagePath) {
-                        $fullStoragePath = storage_path('app/public/' . $imagePath);
-                        $fileExists = file_exists($fullStoragePath);
+                        // Copy file from storage to public directory
+                        $sourcePath = storage_path('app/public/' . $imagePath);
+                        $publicPath = public_path($imagePath);
+                        
+                        // Create directory if it doesn't exist
+                        $publicDir = dirname($publicPath);
+                        if (!file_exists($publicDir)) {
+                            mkdir($publicDir, 0755, true);
+                        }
+                        
+                        // Copy file to public directory
+                        if (file_exists($sourcePath)) {
+                            copy($sourcePath, $publicPath);
+                        }
+                        
+                        $fileExists = file_exists($publicPath);
                         
                         \Log::info('Processing image:', [
                             'path' => $imagePath,
-                            'full_path' => $fullStoragePath,
+                            'source_path' => $sourcePath,
+                            'public_path' => $publicPath,
                             'exists' => $fileExists,
                         ]);
                         
@@ -669,15 +685,25 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
-        // Use Storage facade to get the URL - works better on hosting environments
+        // Load image directly from public directory
         try {
-            $url = Storage::disk('public')->url($imagePath);
+            // Remove leading slash if present
+            $cleanPath = ltrim($imagePath, '/');
+            
+            // Build URL directly to public file
+            $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+            $url = $baseUrl . '/' . $cleanPath;
+            
             // Fix double slashes in URL
             return preg_replace('#([^:])//+#', '$1/', $url);
         } catch (\Exception $e) {
-            // Fallback to manual URL construction
-            $requestUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
-            return $requestUrl . '/storage/' . ltrim($imagePath, '/');
+            // Fallback to storage URL if direct public fails
+            try {
+                $url = Storage::disk('public')->url($imagePath);
+                return preg_replace('#([^:])//+#', '$1/', $url);
+            } catch (\Exception $e2) {
+                return null;
+            }
         }
     }
 
