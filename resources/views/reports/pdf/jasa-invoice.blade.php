@@ -69,6 +69,7 @@
         .info-section {
             margin-bottom: 3mm;
             font-size: 7.5pt;
+            width: auto;
         }
         
         .info-row {

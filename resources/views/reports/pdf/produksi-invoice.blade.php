@@ -70,6 +70,7 @@
         .info-section {
             margin-bottom: 3mm;
             font-size: 7.5pt;
+            width: auto;
         }
         
         .info-row {
@@ -229,9 +230,6 @@
             </div>
             <div class="info-row">
                 <div class="info-label">Branch : {{ $row['branch'] ?? '-' }}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Team Produksi : {{ $row['team'] ?? '-' }}</div>
             </div>
         </div>
         
