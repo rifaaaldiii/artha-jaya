@@ -202,7 +202,23 @@ class Progress extends Page implements HasForms
                     ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.')
                     ->downloadable()
                     ->openable()
-                    ->storeFileNamesIn('originalFileName'),
+                    ->storeFileNamesIn('originalFileName')
+                    ->saveUploadedFilesUsing(function (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) {
+                        // Generate unique filename
+                        $filename = $file->hashName();
+                        $directory = public_path('progress/produksi');
+                        
+                        // Create directory if it doesn't exist
+                        if (!file_exists($directory)) {
+                            mkdir($directory, 0755, true);
+                        }
+                        
+                        // Move file directly to public directory
+                        $file->move($directory, $filename);
+                        
+                        // Return relative path from public root
+                        return 'progress/produksi/' . $filename;
+                    }),
             ])
             ->statePath('imageData');
     }
@@ -387,26 +403,11 @@ class Progress extends Page implements HasForms
                 // Add each new image to array
                 foreach ($progressImages as $imagePath) {
                     if ($imagePath) {
-                        // Copy file from storage to public directory
-                        $sourcePath = storage_path('app/public/' . $imagePath);
                         $publicPath = public_path($imagePath);
-                        
-                        // Create directory if it doesn't exist
-                        $publicDir = dirname($publicPath);
-                        if (!file_exists($publicDir)) {
-                            mkdir($publicDir, 0755, true);
-                        }
-                        
-                        // Copy file to public directory
-                        if (file_exists($sourcePath)) {
-                            copy($sourcePath, $publicPath);
-                        }
-                        
                         $fileExists = file_exists($publicPath);
                         
                         \Log::info('Processing image:', [
                             'path' => $imagePath,
-                            'source_path' => $sourcePath,
                             'public_path' => $publicPath,
                             'exists' => $fileExists,
                         ]);

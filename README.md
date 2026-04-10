@@ -77,3 +77,4 @@ php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
+cd /home/u381971818/domains/springgreen-lyrebird-361927.hostingersite.com/public_html
