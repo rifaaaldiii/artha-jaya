@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class Progress extends Page implements HasForms
 {
@@ -201,24 +202,7 @@ class Progress extends Page implements HasForms
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
                     ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.')
                     ->downloadable()
-                    ->openable()
-                    ->storeFileNamesIn('originalFileName')
-                    ->saveUploadedFilesUsing(function (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) {
-                        // Generate unique filename
-                        $filename = $file->hashName();
-                        $directory = public_path('progress/produksi');
-                        
-                        // Create directory if it doesn't exist
-                        if (!file_exists($directory)) {
-                            mkdir($directory, 0755, true);
-                        }
-                        
-                        // Move file directly to public directory
-                        $file->move($directory, $filename);
-                        
-                        // Return relative path from public root
-                        return 'progress/produksi/' . $filename;
-                    }),
+                    ->openable(),
             ])
             ->statePath('imageData');
     }
@@ -235,6 +219,32 @@ class Progress extends Page implements HasForms
     public function setUploadingStatus(bool $status): void
     {
         $this->isUploading = $status;
+    }
+
+    /**
+     * Copy uploaded file from storage to public directory
+     */
+    protected function copyToPublic(string $storagePath): string
+    {
+        $sourcePath = storage_path('app/public/' . $storagePath);
+        $publicPath = public_path($storagePath);
+        
+        // Create directory if it doesn't exist
+        $publicDir = dirname($publicPath);
+        if (!file_exists($publicDir)) {
+            mkdir($publicDir, 0755, true);
+        }
+        
+        // Copy file to public directory
+        if (file_exists($sourcePath)) {
+            copy($sourcePath, $publicPath);
+            \Log::info('File copied to public:', [
+                'from' => $sourcePath,
+                'to' => $publicPath,
+            ]);
+        }
+        
+        return $storagePath;
     }
 
     public function getProduksiOptions(): array
@@ -403,6 +413,9 @@ class Progress extends Page implements HasForms
                 // Add each new image to array
                 foreach ($progressImages as $imagePath) {
                     if ($imagePath) {
+                        // Copy file from storage to public directory
+                        $this->copyToPublic($imagePath);
+                        
                         $publicPath = public_path($imagePath);
                         $fileExists = file_exists($publicPath);
                         

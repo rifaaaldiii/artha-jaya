@@ -1,15 +1,16 @@
-# Image Upload Fix - Direct Public Directory Storage
+# Image Upload Fix - Public Directory Storage
 
 ## Perubahan yang Dilakukan
 
 ### 1. Progress.php & ProgressJasa.php
-- Menambahkan custom `saveUploadedFilesUsing()` callback pada FileUpload component
-- File langsung disimpan ke directory `public/progress/produksi` atau `public/progress/jasa`
-- Tidak lagi menggunakan storage symlink atau copy dari storage
+- Menambahkan method `copyToPublic()` untuk copy file dari storage ke public
+- File diupload ke storage terlebih dahulu (Filament default), kemudian di-copy ke public directory
+ - Otomatis membuat directory jika belum ada
+- Tidak lagi bergantung pada storage symlink untuk akses file
 
-### 2. Upload Flow (BARU)
+### 2. Upload Flow
 ```
-User Upload → Livewire Temporary Upload → Custom Handler → public/progress/produksi|jasa → Database
+User Upload → Storage (storage/app/public/progress/...) → copyToPublic() → public/progress/... → Database
 ```
 
 ### 3. Load Flow
@@ -112,11 +113,12 @@ chmod -R 775 public/progress
 
 ## Keuntungan Pendekatan Ini
 
-✅ **Tidak perlu storage symlink** - Tidak bergantung pada `php artisan storage:link`
-✅ **Direct access** - File langsung diakses dari public directory
-✅ **Simpler deployment** - Tidak perlu setup symlink di hosting
-✅ **Better compatibility** - Bekerja di semua hosting bahkan yang disable exec()
-✅ **Faster access** - Tidak ada overhead symlink resolution
+✅ **Compatible dengan Filament** - Menggunakan Filament's default upload mechanism
+✅ **Dual storage** - File ada di storage DAN public untuk backup
+✅ **Direct access** - File diakses langsung dari public directory (lebih cepat)
+✅ **Auto create directories** - Directory otomatis dibuat jika belum ada
+✅ **Better logging** - Log lengkap untuk debugging
+✅ **No symlink dependency** - Tidak bergantung pada storage symlink untuk akses
 
 ## Struktur File
 
@@ -148,6 +150,7 @@ Di database, path disimpan sebagai relative path dari public root:
 
 ## Catatan Penting
 
-⚠️ **Backup Images**: Pastikan untuk backup directory `public/progress` secara teratur
-⚠️ **Disk Space**: Monitor disk usage karena file disimpan di public directory
-⚠️ **Migration**: Image lama yang ada di `storage/app/public` tidak akan terpengaruh, tetap bisa diakses dengan fallback mechanism
+⚠️ **Dual Storage**: File disimpan di storage DAN public directory (2x disk usage)
+⚠️ **Backup Images**: Backup kedua directory: `storage/app/public/progress` dan `public/progress`
+⚠️ **Disk Space**: Monitor disk usage karena file disimpan di 2 lokasi
+⚠️ **Storage Link**: Tetap jalankan `php artisan storage:link` untuk upload awal
