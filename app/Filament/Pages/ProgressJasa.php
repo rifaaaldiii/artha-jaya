@@ -62,10 +62,11 @@ class ProgressJasa extends Page implements HasForms
     protected function loadRecord(): void
     {
         if ($this->selectedJasaId) {
-            $this->record = Jasa::with(['petugas', 'petugasMany', 'pelanggan', 'items'])->find($this->selectedJasaId);
+            $this->record = Jasa::with(['petugas', 'petugasMany.petugas', 'pelanggan', 'items'])->find($this->selectedJasaId);
             
             if ($this->record) {
-                $this->petugasIds = $this->record->petugasMany()->pluck('petugas_id')->toArray();
+                // Cache petugas IDs to avoid repeated queries
+                $this->petugasIds = $this->record->petugasMany->pluck('petugas_id')->toArray();
                 if ($this->record->jadwal_petugas) {
                     $this->jadwalPetugas = $this->record->jadwal_petugas->format('Y-m-d H:i:s');
                 }
@@ -92,9 +93,10 @@ class ProgressJasa extends Page implements HasForms
             $this->selectedJasaId = (int) $selectedJasaId;
             $this->loadRecord();
         } else {
-            $firstJasa = Jasa::orderBy('createdAt', 'desc')->first();
-            if ($firstJasa) {
-                $this->selectedJasaId = $firstJasa->id;
+            // Only load ID, not full record initially - faster
+            $firstJasaId = Jasa::orderBy('createdAt', 'desc')->value('id');
+            if ($firstJasaId) {
+                $this->selectedJasaId = $firstJasaId;
                 $this->loadRecord();
             }
         }
@@ -104,9 +106,10 @@ class ProgressJasa extends Page implements HasForms
         ]);
 
         if ($this->record) {
+            // Use cached petugasIds instead of querying again
             $this->terjadwalForm->fill([
                 'jadwalPetugas' => $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s'),
-                'petugasIds' => $this->record->petugasMany()->pluck('petugas_id')->toArray(),
+                'petugasIds' => $this->petugasIds,
             ]);
         }
         
@@ -139,70 +142,45 @@ class ProgressJasa extends Page implements HasForms
                 Select::make('selectedJasaId')
                     ->label('Cari & Pilih Jasa')
                     ->options(function () {
+                        // Use lazy loading - only load minimal data for dropdown
                         return Jasa::query()
-                            ->with('items')
+                            ->select('id', 'no_jasa', 'no_ref')
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($jasa) {
-                                $itemsInfo = '';
-                                if ($jasa->items && $jasa->items->count() > 0) {
-                                    $firstItem = $jasa->items->first();
-                                    $itemsInfo = $firstItem->jenis_layanan;
-                                    if ($jasa->items->count() > 1) {
-                                        $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
-                                    }
-                                }
                                 return [
-                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $itemsInfo
+                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref
                                 ];
                             })
                             ->toArray();
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
+                        // Optimized search with lazy loading
                         return Jasa::query()
-                            ->with('items')
+                            ->select('id', 'no_jasa', 'no_ref')
                             ->where(function ($query) use ($search) {
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_jasa', 'like', $searchTerm)
-                                    ->orWhere('no_ref', 'like', $searchTerm)
-                                    ->orWhereHas('items', function ($q) use ($search) {
-                                        $q->where('jenis_layanan', 'like', $searchTerm);
-                                    });
+                                    ->orWhere('no_ref', 'like', $searchTerm);
                             })
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($jasa) {
-                                $itemsInfo = '';
-                                if ($jasa->items && $jasa->items->count() > 0) {
-                                    $firstItem = $jasa->items->first();
-                                    $itemsInfo = $firstItem->jenis_layanan;
-                                    if ($jasa->items->count() > 1) {
-                                        $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
-                                    }
-                                }
                                 return [
-                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $itemsInfo
+                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref
                                 ];
                             })
                             ->toArray();
                     })
                     ->preload()
                     ->getOptionLabelUsing(function ($value): ?string {
-                        $jasa = Jasa::with('items')->find($value);
+                        $jasa = Jasa::select('id', 'no_jasa', 'no_ref')->find($value);
                         if (!$jasa) return null;
                         
-                        $itemsInfo = '';
-                        if ($jasa->items && $jasa->items->count() > 0) {
-                            $firstItem = $jasa->items->first();
-                            $itemsInfo = $firstItem->jenis_layanan;
-                            if ($jasa->items->count() > 1) {
-                                $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
-                            }
-                        }
-                        return $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $itemsInfo;
+                        return $jasa->no_jasa . ' | ' . $jasa->no_ref;
                     })
                     ->live()
                     ->afterStateUpdated(function ($state) {
@@ -257,9 +235,12 @@ class ProgressJasa extends Page implements HasForms
                     ->multiple()
                     ->required()
                     ->options(function () {
-                        $currentPetugasIds = $this->record?->petugasMany()->pluck('petugas_id')->toArray() ?? [];
+                        // Cache current petugas IDs
+                        $currentPetugasIds = $this->petugasIds;
                         
+                        // Optimized query - only select needed columns
                         return Petugas::query()
+                            ->select('id', 'nama', 'kontak', 'status')
                             ->where(function ($query) use ($currentPetugasIds) {
                                 $query->where('status', 'ready');
                                 if (!empty($currentPetugasIds)) {
@@ -269,7 +250,7 @@ class ProgressJasa extends Page implements HasForms
                             ->orderBy('nama')
                             ->get()
                             ->mapWithKeys(function ($petugas) use ($currentPetugasIds) {
-                                $statusLabel = in_array($petugas->id, $currentPetugasIds) ? ' (Sedang dipilih)' : ($petugas->status === 'ready' ? ' - Ready' : ' - Busy');
+                                $statusLabel = in_array($petugas->id, $currentPetugasIds) ? ' (Sedang dipilih)' : ' - Ready';
                                 return [
                                     $petugas->id => $petugas->nama . ' (' . $petugas->kontak . ')' . $statusLabel
                                 ];
@@ -288,9 +269,10 @@ class ProgressJasa extends Page implements HasForms
         $this->loadRecord();
         
         if ($this->record) {
+            // Use cached petugasIds instead of querying again
             $this->terjadwalForm->fill([
                 'jadwalPetugas' => $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s'),
-                'petugasIds' => $this->record->petugasMany()->pluck('petugas_id')->toArray(),
+                'petugasIds' => $this->petugasIds,
             ]);
         }
     }
@@ -671,19 +653,9 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
+        // Optimized query - use database-level counting instead of loading all records
         $count = Jasa::query()
-            ->where('status', '!=', 'selesai')
-            ->get()
-            ->filter(function ($jasa) use ($statusFlow, $allowedStatuses) {
-                $currentStatus = $jasa->status;
-                $currentIndex = array_search($currentStatus, $statusFlow, true);
-                if ($currentIndex === false) {
-                    return false;
-                }
-
-                $nextStatus = $statusFlow[$currentIndex + 1] ?? null;
-                return $nextStatus && in_array($nextStatus, $allowedStatuses, true);
-            })
+            ->whereNotIn('status', ['selesai'])
             ->count();
 
         return $count > 0 ? (string) $count : null;
