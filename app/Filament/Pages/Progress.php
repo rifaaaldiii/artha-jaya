@@ -216,6 +216,7 @@ class Progress extends Page implements HasForms
         $this->loadRecord();
     }
 
+    #[On('uploading-status-changed')]
     public function setUploadingStatus(bool $status): void
     {
         $this->isUploading = $status;

@@ -1266,9 +1266,9 @@
             // Listen to file selection changes
             input.addEventListener('change', function() {
                 if (this.files && this.files.length > 0) {
-                    component.call('setUploadingStatus', true);
+                    window.dispatchEvent(new CustomEvent('uploading-status-changed', { detail: { status: true } }));
                 } else {
-                    component.call('setUploadingStatus', false);
+                    window.dispatchEvent(new CustomEvent('uploading-status-changed', { detail: { status: false } }));
                 }
             });
         });
@@ -1277,14 +1277,14 @@
         document.addEventListener('filament:file-upload:completed', () => {
             setTimeout(() => {
                 const hasFiles = Array.from(fileInputs).some(input => input.files && input.files.length > 0);
-                component.call('setUploadingStatus', hasFiles);
+                window.dispatchEvent(new CustomEvent('uploading-status-changed', { detail: { status: hasFiles } }));
             }, 500);
         });
 
         document.addEventListener('filament:file-upload:deleted', () => {
             setTimeout(() => {
                 const hasFiles = Array.from(fileInputs).some(input => input.files && input.files.length > 0);
-                component.call('setUploadingStatus', hasFiles);
+                window.dispatchEvent(new CustomEvent('uploading-status-changed', { detail: { status: hasFiles } }));
             }, 300);
         });
     }

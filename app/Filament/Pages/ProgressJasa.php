@@ -295,6 +295,7 @@ class ProgressJasa extends Page implements HasForms
         }
     }
 
+    #[On('uploading-status-changed')]
     public function setUploadingStatus(bool $status): void
     {
         $this->isUploading = $status;
