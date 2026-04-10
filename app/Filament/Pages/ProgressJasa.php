@@ -671,11 +671,13 @@ class ProgressJasa extends Page implements HasForms
 
         // Use Storage facade to get the URL - works better on hosting environments
         try {
-            return Storage::disk('public')->url($imagePath);
+            $url = Storage::disk('public')->url($imagePath);
+            // Fix double slashes in URL
+            return preg_replace('#([^:])//+#', '$1/', $url);
         } catch (\Exception $e) {
             // Fallback to manual URL construction
-            $requestUrl = request()->getSchemeAndHttpHost();
-            return $requestUrl . '/storage/' . $imagePath;
+            $requestUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+            return $requestUrl . '/storage/' . ltrim($imagePath, '/');
         }
     }
 
