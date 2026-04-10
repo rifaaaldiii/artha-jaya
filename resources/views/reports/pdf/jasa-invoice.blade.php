@@ -81,14 +81,6 @@
             font-weight: bold;
         }
         
-        .info-sep {
-            width: 3mm;
-        }
-        
-        .info-value {
-            flex: 1;
-        }
-        
         /* Table */
         .items-table {
             width: 100%;
@@ -232,14 +224,10 @@
         <!-- Info -->
         <div class="info-section">
             <div class="info-row">
-                <div class="info-label">No. Referensi</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['no_ref'] ?? '-' }}</div>
+                <div class="info-label">No. Referensi : {{ $row['no_ref'] ?? '-' }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Status</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ strtoupper($row['status'] ?? '-') }}</div>
+                <div class="info-label">Branch : {{ $row['branch'] ?? '-' }}</div>
             </div>
         </div>
         
