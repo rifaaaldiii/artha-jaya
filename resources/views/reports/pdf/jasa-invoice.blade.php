@@ -89,20 +89,6 @@
             flex: 1;
         }
         
-        /* Client Box */
-        .client-box {
-            border: 0.5pt solid #000;
-            padding: 2mm;
-            margin-bottom: 3mm;
-            font-size: 7.5pt;
-        }
-        
-        .client-box-title {
-            font-weight: bold;
-            margin-bottom: 1.5mm;
-            font-size: 8pt;
-        }
-        
         /* Table */
         .items-table {
             width: 100%;
@@ -254,31 +240,6 @@
                 <div class="info-label">Status</div>
                 <div class="info-sep">:</div>
                 <div class="info-value">{{ strtoupper($row['status'] ?? '-') }}</div>
-            </div>
-        </div>
-        
-        <!-- Client Box -->
-        <div class="client-box">
-            <div class="client-box-title">PELANGGAN:</div>
-            <div class="info-row">
-                <div class="info-label">Nama</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['customer'] ?? '-' }}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Branch</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['branch'] ?? '-' }}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Petugas</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['petugas'] ?? '-' }}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Jadwal</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['scheduled_at'] ?? '-' }}</div>
             </div>
         </div>
         

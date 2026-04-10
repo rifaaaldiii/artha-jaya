@@ -90,20 +90,6 @@
             flex: 1;
         }
         
-        /* Production Box */
-        .production-box {
-            border: 0.5pt solid #000;
-            padding: 2mm;
-            margin-bottom: 3mm;
-            font-size: 7.5pt;
-        }
-        
-        .production-box-title {
-            font-weight: bold;
-            margin-bottom: 1.5mm;
-            font-size: 8pt;
-        }
-        
         /* Table */
         .items-table {
             width: 100%;
@@ -252,34 +238,13 @@
                 <div class="info-value">{{ $row['no_ref'] ?? '-' }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Branch</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['branch'] ?? '-' }}</div>
+                <div class="info-label">Branch : {{ $row['branch'] ?? '-' }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Team Produksi</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['team'] ?? '-' }}</div>
+                <div class="info-label">Team Produksi : {{ $row['team'] ?? '-' }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Status</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ strtoupper($row['status'] ?? '-') }}</div>
-            </div>
-        </div>
-        
-        <!-- Production Box -->
-        <div class="production-box">
-            <div class="production-box-title">DETAIL PRODUKSI:</div>
-            <div class="info-row">
-                <div class="info-label">Tanggal Dibuat</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['created_at'] ?? '-' }}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Total Item</div>
-                <div class="info-sep">:</div>
-                <div class="info-value">{{ $row['items_count'] ?? 0 }} item</div>
+                <div class="info-label">Status : {{ $row['status'] ?? '-' }}</div>
             </div>
         </div>
         
