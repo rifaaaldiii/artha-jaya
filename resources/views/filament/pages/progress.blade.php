@@ -957,7 +957,7 @@
                                 
                                 @if($fileExists)
                                 <div class="progress-image-item" onclick="openImageModal('{{ addslashes($fullPath) }}', '{{ addslashes($statusFrom . ' → ' . $statusTo) }}', '{{ addslashes($uploadedAt) }}', {{ $index }})">
-                                    <img src="{{ $fullPath }}" alt="Progress Image {{ $index + 1 }}" loading="lazy">
+                                    <img src="{{ $fullPath }}" alt="Progress Image {{ $index + 1 }}" loading="lazy" onerror="this.parentElement.style.display='none'; console.error('Failed to load image: {{ addslashes($fullPath) }}');">
                                     <div class="progress-image-badge">#{{ $index + 1 }}</div>
                                 </div>
                                 @else
@@ -1193,6 +1193,16 @@
             counterDiv.textContent = `Foto ${window.currentImageIndex + 1} dari ${window.allImages.length}`;
             statusDiv.textContent = `Status: ${img.status}`;
             dateDiv.textContent = `Diupload: ${img.date}`;
+            
+            // Add error handler for modal image
+            modalImg.onerror = function() {
+                console.error('Failed to load modal image:', img.src);
+                counterDiv.textContent = 'Gambar tidak dapat dimuat';
+                counterDiv.style.color = '#dc2626';
+            };
+            modalImg.onload = function() {
+                counterDiv.style.color = '';
+            };
         }
     }
 
@@ -1304,17 +1314,21 @@
     }
 
     // Set favicon
-    (function() {
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.type = 'image/x-icon';
-        link.href = '{{ asset("favicon.ico") }}';
-        const existingLink = document.querySelector('link[rel="icon"]');
-        if (existingLink) {
-            existingLink.remove();
-        }
-        document.head.appendChild(link);
-    })();
+    try {
+        (function() {
+            const link = document.createElement('link');
+            link.rel = 'icon';
+            link.type = 'image/x-icon';
+            link.href = '{{ asset("favicon.ico") }}';
+            const existingLink = document.querySelector('link[rel="icon"]');
+            if (existingLink) {
+                existingLink.remove();
+            }
+            document.head.appendChild(link);
+        })();
+    } catch (e) {
+        console.error('Error setting favicon:', e);
+    }
 
     const registerLivewireErrorHandler = () => {
         if (! window.Livewire) {

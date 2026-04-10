@@ -42,6 +42,7 @@ class ProduksiForm
                                     ->required()
                                     ->default(fn () => Auth::user()->branch ?? null)
                                     ->disabled(fn () => Auth::user()->branch !== null)
+                                    ->dehydrated()
                                     ->columnSpan(1),
                             ]),
                     ])
