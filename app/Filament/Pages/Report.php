@@ -108,7 +108,7 @@ class Report extends Page implements HasForms
                 ];
             }
         } elseif ($this->reportType === 'jasa') {
-            $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $this->singleNumber)->first();
+            $jasa = Jasa::with(['pelanggan', 'petugasMany', 'items'])->where('no_jasa', $this->singleNumber)->first();
             
             if ($jasa) {
                 $this->reportData = [
@@ -117,7 +117,7 @@ class Report extends Page implements HasForms
                     'branch' => $jasa->branch,
                     'status' => $jasa->status,
                     'pelanggan' => $jasa->pelanggan?->nama ?? '-',
-                    'petugas' => $jasa->petugas->pluck('nama')->join(', ') ?: '-',
+                    'petugas' => $jasa->petugasMany->isNotEmpty() ? $jasa->petugasMany->pluck('nama')->join(', ') : '-',
                     'scheduled_at' => $jasa->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
                     'catatan' => $jasa->catatan,
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
@@ -143,7 +143,7 @@ class Report extends Page implements HasForms
     {
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['items'])
-            : Jasa::with(['pelanggan', 'petugas', 'items']);
+            : Jasa::with(['pelanggan', 'petugasMany', 'items']);
 
         // Apply date filters
         if (!empty($this->filters['start_date'])) {
@@ -184,7 +184,7 @@ class Report extends Page implements HasForms
                     'items_count' => $item->items->count(),
                     'total_harga' => $item->items->sum('harga'),
                     'customer' => $item->pelanggan?->nama ?? '-',
-                    'petugas' => $item->petugas->pluck('nama')->join(', ') ?: '-',
+                    'petugas' => $item->petugasMany->isNotEmpty() ? $item->petugasMany->pluck('nama')->join(', ') : '-',
                     'scheduled_at' => $item->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
                     'note' => $item->catatan,
                 ];
@@ -398,7 +398,7 @@ class Report extends Page implements HasForms
             $pdf = Pdf::loadView('reports/pdf/produksi', $data);
             $filename = "produksi-{$number}.pdf";
         } else {
-            $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $number)->first();
+            $jasa = Jasa::with(['pelanggan', 'petugasMany', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) return;
             
             $data = [
@@ -408,7 +408,7 @@ class Report extends Page implements HasForms
                     'branch' => $jasa->branch,
                     'status' => $jasa->status,
                     'pelanggan' => $jasa->pelanggan?->nama ?? '-',
-                    'petugas' => $jasa->petugas->pluck('nama')->join(', ') ?: '-',
+                    'petugas' => $jasa->petugasMany->isNotEmpty() ? $jasa->petugasMany->pluck('nama')->join(', ') : '-',
                     'scheduled_at' => $jasa->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
                     'catatan' => $jasa->catatan,
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
@@ -458,7 +458,7 @@ class Report extends Page implements HasForms
 
             $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
         } else {
-            $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $number)->first();
+            $jasa = Jasa::with(['pelanggan', 'petugasMany', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) return;
             
             $data = [
@@ -468,7 +468,7 @@ class Report extends Page implements HasForms
                     'branch' => $jasa->branch,
                     'status' => $jasa->status,
                     'pelanggan' => $jasa->pelanggan?->nama ?? '-',
-                    'petugas' => $jasa->petugas->pluck('nama')->join(', ') ?: '-',
+                    'petugas' => $jasa->petugasMany->isNotEmpty() ? $jasa->petugasMany->pluck('nama')->join(', ') : '-',
                     'scheduled_at' => $jasa->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
                     'catatan' => $jasa->catatan,
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
