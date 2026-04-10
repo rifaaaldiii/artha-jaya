@@ -16,6 +16,19 @@ Route::middleware(['auth'])->prefix('reports')->name('reports.')->group(function
     Route::get('/pdf', [ReportController::class, 'generate'])->name('pdf');
 });
 
+// Invoice download route
+Route::middleware(['auth'])->get('/admin/report/download-invoice', function (\Illuminate\Http\Request $request) {
+    $number = $request->query('number');
+    $type = $request->query('type', 'jasa');
+    
+    if (!$number) {
+        abort(400, 'Number parameter is required');
+    }
+    
+    $reportPage = new \App\Filament\Pages\Report();
+    return $reportPage->openInvoice($number, $type);
+});
+
 // routes/web.php
 Route::get('/session-expired', function (\Illuminate\Http\Request $request) {
     Auth::logout();

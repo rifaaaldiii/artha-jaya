@@ -18,6 +18,8 @@ class ReportController extends Controller
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
 
+        if (!$singleNumber) {
+            abort(404, 'No report number provided');
         // If single number is provided, generate single report
         if ($singleNumber) {
             $reportData = $this->loadReportData($reportType, $singleNumber);
@@ -54,11 +56,14 @@ class ReportController extends Controller
             return $pdf->download($filename);
         }
 
+        $reportData = $this->loadReportData($reportType, $singleNumber);
         // Otherwise, generate report for date range
         $query = $reportType === 'produksi' 
             ? \App\Models\Produksi::with(['team', 'items'])
             : \App\Models\Jasa::with(['pelanggan', 'petugas', 'items']);
 
+        if (!$reportData) {
+            abort(404, 'Report data not found');
         if (!empty($startDate)) {
             $query->whereDate('createdAt', '>=', $startDate);
         }
@@ -66,13 +71,18 @@ class ReportController extends Controller
             $query->whereDate('createdAt', '<=', $endDate);
         }
 
+        $viewPath = $format === 'invoice' 
         $items = $query->orderBy('createdAt', 'desc')->get();
         
         $viewPath = $format === 'invoice'
             ? "reports/pdf/{$reportType}-invoice"
             : "reports/pdf/{$reportType}";
+
             
         $data = [
+            'row' => $reportData,
+            'generatedAt' => now(),
+            'filters' => [],
             'rows' => $items->map(function ($item) use ($reportType) {
                 if ($reportType === 'produksi') {
                     return [
@@ -93,15 +103,21 @@ class ReportController extends Controller
                 }
             })->toArray(),
             'summary' => [
+                'total' => 1,
+                'date_range' => now()->format('d/m/Y'),
                 'total' => $items->count(),
                 'date_range' => ($startDate ?? 'Awal') . ' - ' . ($endDate ?? 'Akhir'),
             ],
+            'rows' => [$reportData],
             'generatedAt' => now(),
         ];
 
         $pdf = Pdf::loadView($viewPath, $data);
+
         
         $filename = $format === 'invoice'
+            ? "{$reportType}-invoice-{$singleNumber}.pdf"
+            : "{$reportType}-{$singleNumber}.pdf";
             ? "invoice-{$reportType}-" . now()->format('Y-m-d') . ".pdf"
             : "report-{$reportType}-" . now()->format('Y-m-d') . ".pdf";
 
@@ -116,7 +132,7 @@ class ReportController extends Controller
     {
         if ($reportType === 'produksi') {
             $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $singleNumber)->first();
-            
+
             if (!$produksi) {
                 return null;
             }
@@ -144,7 +160,7 @@ class ReportController extends Controller
             ];
         } elseif ($reportType === 'jasa') {
             $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $singleNumber)->first();
-            
+
             if (!$jasa) {
                 return null;
             }
