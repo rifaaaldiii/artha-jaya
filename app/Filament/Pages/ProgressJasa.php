@@ -39,6 +39,7 @@ class ProgressJasa extends Page implements HasForms
     public ?string $updateStatusValue = null;
     public ?string $jadwalPetugas = null;
     public array $petugasIds = [];
+    public array $selectedPetugasIds = []; // For multi-select in blade
     public bool $isUploading = false;
     public array $imageData = [];
     public array $terjadwalData = [];
@@ -82,6 +83,7 @@ class ProgressJasa extends Page implements HasForms
             
             if ($this->record) {
                 $this->petugasIds = $this->record->petugasMany->pluck('id')->toArray();
+                $this->selectedPetugasIds = $this->petugasIds; // Sync with multi-select
                 $this->jadwalPetugas = $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s');
                 
                 $this->terjadwalForm->fill([
@@ -307,14 +309,16 @@ class ProgressJasa extends Page implements HasForms
             $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
             
             if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'administrator'], true)) {
+                // Coba ambil dari Filament form terlebih dahulu, fallback ke blade form
                 try {
                     $terjadwalData = $this->terjadwalForm->getState();
+                    $jadwalPetugas = $terjadwalData['jadwalPetugas'] ?? null;
+                    $petugasIds = $terjadwalData['petugasIds'] ?? [];
                 } catch (\Exception $e) {
-                    $terjadwalData = [];
+                    // Fallback ke blade form data
+                    $jadwalPetugas = $this->jadwalPetugas;
+                    $petugasIds = $this->selectedPetugasIds;
                 }
-                
-                $jadwalPetugas = $terjadwalData['jadwalPetugas'] ?? null;
-                $petugasIds = $terjadwalData['petugasIds'] ?? [];
 
                 if (empty($petugasIds) || !$jadwalPetugas) {
                     Notification::make()
@@ -383,7 +387,7 @@ class ProgressJasa extends Page implements HasForms
 
         $roleStatusMap = [
             'admin_toko' => ['jasa baru', 'selesai'],
-            'kepala_teknisi_lapangan' => ['terjadwal'],
+            'kepala_teknisi_lapangan' => ['terjadwal', 'selesai dikerjakan'],
             'petugas' => ['selesai dikerjakan'],
             'administrator' => self::STATUS_FLOW,
         ];
@@ -434,5 +438,14 @@ class ProgressJasa extends Page implements HasForms
         $url = $baseUrl . '/' . $cleanPath;
         
         return preg_replace('#([^:])//+#', '$1/', $url);
+    }
+
+    // Getter untuk available petugas (digunakan di blade untuk multi-select)
+    public function getAvailablePetugasProperty()
+    {
+        return Petugas::query()
+            ->select('id', 'nama', 'kontak')
+            ->orderBy('nama')
+            ->get();
     }
 }

@@ -771,7 +771,7 @@
                         </div>
                         <div class="detail-header-status">
                             @php
-                                // Sesuaikan badge untuk admin gudang: status 1 (siap produksi) hijau, status 2 (siap diambil) biru, selain itu default
+                                // Sesuaikan badge untuk admin gudang: status 1 (siap Jasa & Layanan) hijau, status 2 (siap diambil) biru, selain itu default
                                 if(auth()->user() && auth()->user()->role === 'admin gudang') {
                                     $badgeClass =
                                         $currentStep === 1 ? 'status-badge status-green' :
@@ -999,23 +999,14 @@
                         // Find the role allowed for the next status - for info message if not allowed
                         $nextSequentialStatusRole = null;
                         if ($nextSequentialStatus) {
-                            // Mapping from Progress.php
+                            // Mapping untuk Progress Jasa
                             $roleStatusMap = [
-                                'cs' => ['produksi baru', 'selesai'],
-                                'admin_toko' => ['siap produksi', 'produksi siap diambil'],
-                                'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-                                'kepala_gudang' => ['dalam pengerjaan'],
+                                'terjadwal' => 'kepala_teknisi_lapangan',
+                                'selesai dikerjakan' => 'petugas / kepala_teknisi_lapangan',
+                                'selesai' => 'admin_toko',
                             ];
-                            foreach ($roleStatusMap as $role => $statusesForRole) {
-                                if (in_array($nextSequentialStatus, $statusesForRole, true)) {
-                                    $nextSequentialStatusRole = $role;
-                                    break;
-                                }
-                            }
-                            // fallback if not found, for admin etc
-                            if (!$nextSequentialStatusRole) {
-                                $nextSequentialStatusRole = 'administrator';
-                            }
+                            $nextSequentialStatusRole = $roleStatusMap[$nextSequentialStatus] ?? 'administrator';
+                            
                             // Format role for display
                             $nextSequentialStatusRoleDisplay = ucwords(str_replace('_', ' ', $nextSequentialStatusRole));
                         } else {
@@ -1027,7 +1018,7 @@
                         <div class="update-status-card">
                             <div class="update-status-header">
                                 <div>
-                                    <div class="update-status-title">Update Status Produksi</div>
+                                    <div class="update-status-title">Update Status Jasa & Layanan</div>
                                     <p class="update-status-subtitle">
                                         Status hanya dapat bergerak ke langkah berikutnya.
                                     </p>
@@ -1054,6 +1045,74 @@
                                             </div>
                                         </div>
 
+                                        <!-- Form Terjadwal (Date/Time & Multi-select Petugas) -->
+                                        @if($nextStatus === 'terjadwal')
+                                        <div class="update-status-field" style="flex: 1; min-width: 300px;">
+                                            <label class="update-status-label">Form Penjadwalan</label>
+                                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                                <!-- Input Tanggal dan Waktu -->
+                                                <div>
+                                                    <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
+                                                        Tanggal & Waktu Pelaksanaan
+                                                    </label>
+                                                    <input type="datetime-local"
+                                                           class="update-status-input"
+                                                           wire:model.defer="jadwalPetugas"
+                                                           wire:loading.attr="disabled"
+                                                           style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card-bg); color: var(--text-primary);"
+                                                    />
+                                                </div>
+
+                                                <!-- Multi-select Petugas -->
+                                                <div>
+                                                    <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
+                                                        Petugas Pelaksana (Multi-select)
+                                                    </label>
+                                                    <div x-data="{ open: false }" class="multi-select-wrapper">
+                                                        <button type="button"
+                                                                @click="open = !open"
+                                                                class="multi-select-trigger"
+                                                                wire:loading.attr="disabled"
+                                                                style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card-bg); color: var(--text-primary); text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                                                        >
+                                                            <span>
+                                                                @if(count($selectedPetugasIds) > 0)
+                                                                    {{ count($selectedPetugasIds) }} petugas dipilih
+                                                                @else
+                                                                    Pilih petugas
+                                                                @endif
+                                                            </span>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                            </svg>
+                                                        </button>
+
+                                                        <div x-show="open"
+                                                             @click.away="open = false"
+                                                             x-transition
+                                                             style="position: absolute; z-index: 50; margin-top: 5px; width: 100%; max-height: 250px; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+                                                        >
+                                                            @foreach($this->availablePetugas as $petugas)
+                                                                <label class="multi-select-option"
+                                                                       style="display: flex; align-items: center; padding: 10px 12px; cursor: pointer; transition: background 0.15s ease;"
+                                                                       onmouseover="this.style.background='var(--hover)'"
+                                                                       onmouseout="this.style.background='transparent'"
+                                                                >
+                                                                    <input type="checkbox"
+                                                                           value="{{ $petugas->id }}"
+                                                                           wire:model.defer="selectedPetugasIds"
+                                                                           style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;"
+                                                                    />
+                                                                    <span style="font-size: 14px;">{{ $petugas->nama }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
                                         <!-- Image Upload Field -->
                                         <div class="image-upload-section" style="flex: 1; min-width: 250px;">
                                             <!-- <label class="image-upload-label">Upload Foto Progress</label> -->
@@ -1079,7 +1138,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                                             </svg>
-                                            Status diperbarui secara berurutan untuk menjaga histori produksi.
+                                            Status diperbarui secara berurutan untuk menjaga histori Jasa & Layanan.
                                         </span>
 
                                         <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
