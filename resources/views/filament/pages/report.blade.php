@@ -53,7 +53,7 @@
                             <td class="px-4 py-3 text-right font-medium">
                                 Rp {{ number_format($row['total_harga'], 0, ',', '.') }}
                             </td>
-                            <td class="px-4 py-3 text-sm">{{ $row['created_at'] }}</td>
+                            <td class="px-4 py-3 text-sm">{{ $row['created_at'] ?? '-' }}</td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
                                     <button onclick="window.openReport('{{ $row['number'] }}', '{{ $filters['report_type'] }}', 'report')"
