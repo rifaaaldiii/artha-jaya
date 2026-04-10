@@ -1113,13 +1113,18 @@
                                         </div>
                                         @endif
 
-                                        <!-- Image Upload Field -->
+                                        <!-- Image Upload Field (Hidden for Terjadwal status) -->
+                                        @if($nextStatus !== 'terjadwal')
                                         <div class="image-upload-section" style="flex: 1; min-width: 250px;">
                                             <!-- <label class="image-upload-label">Upload Foto Progress</label> -->
                                             <div>
                                                 {{ $this->imageUploadForm }}
                                             </div>
+                                        </div>
+                                        @endif
 
+                                        <!-- Submit Button -->
+                                        <div style="flex: 0 0 auto;">
                                             <x-filament::button
                                                 color="success"
                                                 icon="heroicon-m-check-badge"
