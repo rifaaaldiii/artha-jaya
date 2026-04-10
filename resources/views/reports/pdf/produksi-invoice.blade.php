@@ -6,7 +6,7 @@
     <style>
         @page {
             size: A5 landscape;
-            margin: 15mm;
+            margin: 12mm;
         }
         
         * {
@@ -16,32 +16,34 @@
         }
         
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
             font-size: 9px;
-            color: #000;
-            line-height: 1.3;
+            color: #2d3748;
+            line-height: 1.4;
+            margin: 0 10px;
         }
         
         /* Header */
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #000;
-            margin-bottom: 12px;
+            align-items: center;
+            padding: 12px 0;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #1a73e8;
         }
         
         .company-info h1 {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a73e8;
             letter-spacing: 0.5px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         
         .company-details {
             font-size: 7.5px;
-            color: #333;
+            color: #718096;
             line-height: 1.5;
         }
         
@@ -50,83 +52,45 @@
         }
         
         .invoice-title h2 {
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 4px;
+            font-size: 22px;
+            font-weight: 300;
+            color: #1a73e8;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
         }
         
         .invoice-meta {
             font-size: 8px;
-            line-height: 1.6;
+            line-height: 1.8;
+            color: #4a5568;
         }
         
         .invoice-meta strong {
-            font-weight: bold;
-        }
-        
-        /* Info Section */
-        .info-section {
-            margin-bottom: 12px;
-            display: flex;
-        }
-        
-        .info-box {
-            padding: 8px;
-            border: 1px solid #ddd;
-            background: #f9f9f9;
-            margin-bottom: 8px;
-        }
-        
-        .info-box:last-child {
-            margin-bottom: 0;
-        }
-        
-        .info-box h3 {
-            font-size: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 2px 0;
-            font-size: 8px;
-        }
-        
-        .info-label {
-            color: #555;
-        }
-        
-        .info-value {
-            font-weight: bold;
+            font-weight: 600;
+            color: #2d3748;
         }
         
         /* Items Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
-            font-size: 8px;
+            margin-bottom: 12px;
+            font-size: 8.5px;
         }
         
         .items-table thead {
-            background: #000;
+            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
             color: #fff;
         }
         
         .items-table th {
-            padding: 6px 5px;
+            padding: 8px 6px;
             text-align: left;
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
             font-size: 7px;
-            letter-spacing: 0.3px;
-            border: 1px solid #000;
+            letter-spacing: 0.5px;
+            border: none;
         }
         
         .items-table th.center {
@@ -138,16 +102,22 @@
         }
         
         .items-table tbody tr {
-            border: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
         }
         
         .items-table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #f7fafc;
+        }
+        
+        .items-table tbody tr:last-child {
+            border-bottom: 2px solid #1a73e8;
         }
         
         .items-table td {
-            padding: 5px;
-            border: 1px solid #e5e5e5;
+            padding: 7px 6px;
+            border: none;
+            color: #2d3748;
         }
         
         .items-table td.center {
@@ -159,27 +129,32 @@
         }
         
         .items-table td.bold {
-            font-weight: bold;
+            font-weight: 600;
+            color: #1a202c;
         }
         
         /* Summary */
         .summary-section {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         
         .summary-table {
-            width: 200px;
-            border: 1px solid #ddd;
+            width: 220px;
+            background: #f7fafc;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
         
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 4px 8px;
-            border-bottom: 1px solid #e5e5e5;
-            font-size: 8px;
+            padding: 6px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 8.5px;
+            color: #4a5568;
         }
         
         .summary-row:last-child {
@@ -187,15 +162,16 @@
         }
         
         .summary-label {
-            color: #555;
+            color: #718096;
+            font-weight: 500;
         }
         
         .summary-row.total {
-            background: #000;
+            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
             color: #fff;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 10px;
-            padding: 6px 8px;
+            padding: 8px 12px;
         }
         
         .summary-row.total .summary-label {
@@ -204,32 +180,39 @@
         
         /* Notes */
         .notes {
-            padding: 6px 8px;
-            border: 1px solid #ddd;
-            border-left: 3px solid #000;
-            margin-bottom: 8px;
+            padding: 8px 10px;
+            background: #f7fafc;
+            border-left: 3px solid #1a73e8;
+            border-radius: 4px;
+            margin-bottom: 10px;
             font-size: 8px;
+            color: #4a5568;
+            line-height: 1.5;
         }
         
         .notes strong {
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             font-size: 8px;
+            color: #1a73e8;
+            font-weight: 600;
         }
         
         /* Footer */
         .footer {
             text-align: center;
-            padding-top: 8px;
-            border-top: 1px solid #ddd;
+            padding: 12px 0 8px;
+            border-top: 1px solid #e2e8f0;
             font-size: 7.5px;
-            color: #555;
-            line-height: 1.5;
+            color: #718096;
+            line-height: 1.6;
         }
         
         .footer strong {
-            color: #000;
+            color: #1a73e8;
             font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -255,47 +238,15 @@
         </div>
     </div>
 
-    <!-- Info Section -->
-    <div class="info-section">
-        <div class="info-box">
-            <h3>Informasi Produksi</h3>
-            <div class="info-row">
-                <span class="info-label">Branch:</span>
-                <span class="info-value">{{ $row['branch'] ?? '-' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">No. Ref:</span>
-                <span class="info-value">{{ $row['no_ref'] ?? '-' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Branch:</span>
-                <span class="info-value">{{ $row['branch'] ?? '-' }}</span>
-            </div>
-        </div>
-        <div class="info-box">
-            <h3>Detail Produksi</h3>
-            <div class="info-row">
-                <span class="info-label">Tanggal Dibuat:</span>
-                <span class="info-value">{{ $row['created_at'] ?? '-' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Jumlah Item:</span>
-                <span class="info-value">{{ $row['items_count'] ?? 0 }} item</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Tanggal Selesai:</span>
-                <span class="info-value">{{ $row['updated_at'] ?? '-' }}</span>
-            </div>
-        </div>
-    </div>
+    <!-- Info Section - Removed -->
 
     <!-- Items Table -->
     <table class="items-table">
         <thead>
             <tr>
                 <th class="center" width="5%">No</th>
-                <th width="35%">Jenis Produksi</th>
-                <th width="30%">Nama Bahan</th>
+                <th width="38%">Jenis Produksi</th>
+                <th width="27%">Nama Bahan</th>
                 <th class="center" width="12%">Jumlah</th>
                 <th class="right" width="18%">Harga</th>
             </tr>
@@ -313,7 +264,7 @@
                 @endforeach
             @else
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 15px; color: #999;">
+                    <td colspan="5" style="text-align: center; padding: 20px; color: #a0aec0;">
                         Tidak ada item produksi
                     </td>
                 </tr>
@@ -322,7 +273,7 @@
     </table>
 
     <!-- Summary -->
-    <div class="summary-section">
+    <div class="summary-section" style="float: right;">
         <div class="summary-table">
             <div class="summary-row">
                 <span class="summary-label">Subtotal</span>

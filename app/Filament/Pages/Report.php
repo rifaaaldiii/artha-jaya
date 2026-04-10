@@ -431,7 +431,7 @@ class Report extends Page implements HasForms
         ]);
     }
 
-    public function downloadInvoiceSingleByNumber(string $number)
+    public function previewInvoiceSingleByNumber(string $number)
     {
         $this->downloadingNumbers[$number . '_invoice'] = true;
         
@@ -457,7 +457,6 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
-            $filename = "invoice-produksi-{$number}.pdf";
         } else {
             $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) return;
@@ -482,13 +481,13 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
-            $filename = "invoice-jasa-{$number}.pdf";
         }
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
-        }, $filename, [
+        }, 'invoice-preview.pdf', [
             'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="invoice-preview.pdf"',
         ]);
     }
 

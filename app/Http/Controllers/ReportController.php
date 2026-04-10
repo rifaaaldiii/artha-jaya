@@ -15,37 +15,95 @@ class ReportController extends Controller
         $singleNumber = $request->query('single_number');
         $format = $request->query('format', 'report');
         $preview = $request->query('preview', false);
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
 
-        if (!$singleNumber) {
-            abort(404, 'No report number provided');
+        // If single number is provided, generate single report
+        if ($singleNumber) {
+            $reportData = $this->loadReportData($reportType, $singleNumber);
+
+            if (!$reportData) {
+                abort(404, 'Report data not found');
+            }
+
+            $viewPath = $format === 'invoice' 
+                ? "reports/pdf/{$reportType}-invoice"
+                : "reports/pdf/{$reportType}";
+
+            $data = [
+                'row' => $reportData,
+                'generatedAt' => now(),
+                'filters' => [],
+                'summary' => [
+                    'total' => 1,
+                    'date_range' => now()->format('d/m/Y'),
+                ],
+                'rows' => [$reportData],
+            ];
+
+            $pdf = Pdf::loadView($viewPath, $data);
+
+            $filename = $format === 'invoice'
+                ? "{$reportType}-invoice-{$singleNumber}.pdf"
+                : "{$reportType}-{$singleNumber}.pdf";
+
+            if ($preview) {
+                return $pdf->stream($filename);
+            }
+
+            return $pdf->download($filename);
         }
 
-        $reportData = $this->loadReportData($reportType, $singleNumber);
+        // Otherwise, generate report for date range
+        $query = $reportType === 'produksi' 
+            ? \App\Models\Produksi::with(['team', 'items'])
+            : \App\Models\Jasa::with(['pelanggan', 'petugas', 'items']);
 
-        if (!$reportData) {
-            abort(404, 'Report data not found');
+        if (!empty($startDate)) {
+            $query->whereDate('createdAt', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('createdAt', '<=', $endDate);
         }
 
-        $viewPath = $format === 'invoice' 
+        $items = $query->orderBy('createdAt', 'desc')->get();
+        
+        $viewPath = $format === 'invoice'
             ? "reports/pdf/{$reportType}-invoice"
             : "reports/pdf/{$reportType}";
-
+            
         $data = [
-            'row' => $reportData,
-            'generatedAt' => now(),
-            'filters' => [],
+            'rows' => $items->map(function ($item) use ($reportType) {
+                if ($reportType === 'produksi') {
+                    return [
+                        'number' => $item->no_produksi,
+                        'no_ref' => $item->no_ref ?? '-',
+                        'team' => $item->team?->nama ?? '-',
+                        'total_harga' => $item->items->sum('harga'),
+                        'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
+                    ];
+                } else {
+                    return [
+                        'number' => $item->no_jasa,
+                        'no_ref' => $item->no_ref ?? '-',
+                        'customer' => $item->pelanggan?->nama ?? '-',
+                        'total_harga' => $item->items->sum('harga'),
+                        'created_at' => $item->createdAt?->format('d/m/Y H:i') ?? '-',
+                    ];
+                }
+            })->toArray(),
             'summary' => [
-                'total' => 1,
-                'date_range' => now()->format('d/m/Y'),
+                'total' => $items->count(),
+                'date_range' => ($startDate ?? 'Awal') . ' - ' . ($endDate ?? 'Akhir'),
             ],
-            'rows' => [$reportData],
+            'generatedAt' => now(),
         ];
 
         $pdf = Pdf::loadView($viewPath, $data);
-
+        
         $filename = $format === 'invoice'
-            ? "{$reportType}-invoice-{$singleNumber}.pdf"
-            : "{$reportType}-{$singleNumber}.pdf";
+            ? "invoice-{$reportType}-" . now()->format('Y-m-d') . ".pdf"
+            : "report-{$reportType}-" . now()->format('Y-m-d') . ".pdf";
 
         if ($preview) {
             return $pdf->stream($filename);
