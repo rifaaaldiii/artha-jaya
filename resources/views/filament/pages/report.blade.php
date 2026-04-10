@@ -349,6 +349,218 @@
         .whitespace-nowrap {
             white-space: nowrap;
         }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .report-table th,
+            .report-table td {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            .report-actions {
+                flex-direction: column;
+            }
+
+            .report-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .report-page {
+                gap: 16px;
+            }
+
+            .report-card,
+            .report-table-card {
+                padding: 16px;
+                border-radius: 6px;
+            }
+
+            .report-card-title {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .report-table-header {
+                padding: 16px;
+            }
+
+            .report-table-title {
+                font-size: 18px;
+            }
+
+            .report-table-subtitle {
+                font-size: 13px;
+            }
+
+            .report-table-container {
+                margin: 0 -16px;
+                padding: 0 16px;
+            }
+
+            .report-table {
+                min-width: 800px;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .pagination-wrapper {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .pagination-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn-invoice {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .btn-invoice svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .report-card {
+                padding: 12px;
+            }
+
+            .report-table-card {
+                padding: 0;
+            }
+
+            .report-table-header {
+                padding: 12px;
+            }
+
+            .report-table-title {
+                font-size: 16px;
+            }
+
+            .report-table-subtitle {
+                font-size: 12px;
+            }
+
+            .report-table-container {
+                margin: 0;
+                padding: 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .empty-state {
+                padding: 32px 16px;
+            }
+
+            .empty-state-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .empty-state-text {
+                font-size: 16px;
+            }
+
+            .empty-state-hint {
+                font-size: 12px;
+            }
+
+            .pagination-section {
+                padding: 12px;
+            }
+
+            .pagination-info {
+                font-size: 12px;
+                text-align: center;
+            }
+        }
+
+        /* Smooth scrolling for mobile */
+        .report-table-container {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        /* Better touch targets for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-invoice {
+                padding: 8px 12px;
+                min-height: 44px;
+            }
+
+            .btn-pagination {
+                min-height: 44px;
+                padding: 8px 16px;
+            }
+        }
+
+        /* Search Input Styles */
+        .search-input {
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .clear-search-btn {
+            transition: all 0.2s ease;
+        }
+
+        .clear-search-btn:hover {
+            background: #e5e7eb;
+        }
+
+        @media (max-width: 768px) {
+            .search-input {
+                font-size: 13px;
+                padding: 8px 10px 8px 36px;
+            }
+
+            .clear-search-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .per-page-select {
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+        }
+        
+        /* Per Page Select */
+        .per-page-select {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .per-page-select:hover {
+            border-color: #9ca3af;
+        }
+        
+        .per-page-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
     </style>
 
     <div class="report-page">
@@ -373,20 +585,43 @@
         {{-- Table Section --}}
         <div class="report-table-card">
             <div class="report-table-header">
-                <div>
-                    <h2 class="report-table-title">
-                        @if($filters['report_type'] === 'jasa')
-                            Data Jasa & Layanan
-                        @else
-                            Data Produksi
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <h2 class="report-table-title">
+                            @if($filters['report_type'] === 'jasa')
+                                Data Jasa & Layanan
+                            @else
+                                Data Produksi
+                            @endif
+                        </h2>
+                        <p class="report-table-subtitle">
+                            Total: {{ $resultCount }} record
+                            @if($filters['start_date'] || $filters['end_date'])
+                                | Periode: {{ $filters['start_date'] ?? 'Awal' }} - {{ $filters['end_date'] ?? 'Akhir' }}
+                            @endif
+                        </p>
+                    </div>
+                    
+                    {{-- Search Input --}}
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="flex: 1; position: relative;">
+                            <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <input type="text"
+                                   wire:model.live.debounce.300ms="searchQuery"
+                                   placeholder="Cari no, pelanggan, status..."
+                                   style="width: 100%; padding: 10px 12px 10px 40px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white; color: #111827;"
+                                   class="search-input">
+                        </div>
+                        @if(!empty($searchQuery))
+                        <button wire:click="$set('searchQuery', ''); loadPreviewData()"
+                                style="padding: 10px 16px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 14px; color: #374151; white-space: nowrap;"
+                                class="clear-search-btn">
+                            Clear
+                        </button>
                         @endif
-                    </h2>
-                    <p class="report-table-subtitle">
-                        Total: {{ $resultCount }} record
-                        @if($filters['start_date'] || $filters['end_date'])
-                            | Periode: {{ $filters['start_date'] ?? 'Awal' }} - {{ $filters['end_date'] ?? 'Akhir' }}
-                        @endif
-                    </p>
+                    </div>
                 </div>
             </div>
 
@@ -482,13 +717,14 @@
                             </td>
                             
                             <td class="whitespace-nowrap text-center">
-                                <button onclick="window.openInvoice('{{ $row['number'] }}', '{{ $filters['report_type'] }}')"
-                                        class="btn-invoice">
+                                <a href="/admin/report/preview-invoice?number={{ urlencode($row['number']) }}&type={{ urlencode($filters['report_type']) }}"
+                                   target="_blank"
+                                   class="btn-invoice">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
                                     Invoice
-                                </button>
+                                </a>
                             </td>
                         </tr>
                         @endforeach
@@ -504,8 +740,19 @@
             @if($totalPages > 1)
             <div class="pagination-section">
                 <div class="pagination-wrapper">
-                    <div class="pagination-info">
-                        Menampilkan {{ (($currentPage - 1) * $perPage) + 1 }} - {{ min($currentPage * $perPage, $resultCount) }} dari {{ $resultCount }} data
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="pagination-info">
+                            Menampilkan {{ (($currentPage - 1) * $perPage) + 1 }} - {{ min($currentPage * $perPage, $resultCount) }} dari {{ $resultCount }} data
+                        </div>
+                        
+                        <select wire:change="$set('perPage', parseInt($event.target.value)); $wire.currentPage = 1; $wire.loadPreviewData()"
+                                style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white; color: #374151; cursor: pointer;"
+                                class="per-page-select">
+                            <option value="10" {{ $perPage === 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ $perPage === 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ $perPage === 50 ? 'selected' : '' }}>50 per halaman</option>
+                            <option value="100" {{ $perPage === 100 ? 'selected' : '' }}>100 per halaman</option>
+                        </select>
                     </div>
                     
                     <div class="pagination-buttons">
@@ -540,11 +787,4 @@
             @endif
         </div>
     </div>
-
-    <script>
-        window.openInvoice = function(number, type) {
-            const url = `/admin/report/download-invoice?number=${encodeURIComponent(number)}&type=${encodeURIComponent(type)}`;
-            window.open(url, '_blank');
-        };
-    </script>
 </x-filament-panels::page>

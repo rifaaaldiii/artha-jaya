@@ -46,6 +46,7 @@ class Report extends Page implements HasForms
     public int $currentPage = 1;
     public int $perPage = 10;
     public array $downloadingNumbers = [];
+    public string $searchQuery = '';
 
     public static function getNavigationGroup(): ?string
     {
@@ -152,6 +153,32 @@ class Report extends Page implements HasForms
         }
         if (!empty($this->filters['end_date'])) {
             $query->whereDate('createdAt', '<=', $this->filters['end_date']);
+        }
+
+        // Apply search filter
+        if (!empty($this->searchQuery)) {
+            $searchTerm = '%' . $this->searchQuery . '%';
+            
+            if ($this->filters['report_type'] === 'produksi') {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('no_produksi', 'like', $searchTerm)
+                      ->orWhere('no_ref', 'like', $searchTerm)
+                      ->orWhere('branch', 'like', $searchTerm)
+                      ->orWhere('status', 'like', $searchTerm);
+                });
+            } else {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('no_jasa', 'like', $searchTerm)
+                      ->orWhere('no_ref', 'like', $searchTerm)
+                      ->orWhere('status', 'like', $searchTerm)
+                      ->orWhereHas('pelanggan', function($q) use ($searchTerm) {
+                          $q->where('nama', 'like', $searchTerm);
+                      })
+                      ->orWhereHas('petugasMany', function($q) use ($searchTerm) {
+                          $q->where('nama', 'like', $searchTerm);
+                      });
+                });
+            }
         }
 
         // Get total count
@@ -329,6 +356,78 @@ class Report extends Page implements HasForms
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $filename . '"',
         ]);
+    }
+
+    public function previewInvoice(string $number, ?string $type = null)
+    {
+        // Gunakan type dari parameter atau dari filters
+        $reportType = $type ?? $this->filters['report_type'];
+        
+        // Generate invoice PDF untuk preview inline
+        if ($reportType === 'produksi') {
+            $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $number)->first();
+            if (!$produksi) {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            $data = [
+                'row' => [
+                    'number' => $produksi->no_produksi,
+                    'no_ref' => $produksi->no_ref,
+                    'branch' => $produksi->branch,
+                    'status' => $produksi->status,
+                    'team' => $produksi->team?->nama ?? '-',
+                    'catatan' => $produksi->catatan,
+                    'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
+                    'items_count' => $produksi->items->count(),
+                    'total_harga' => $produksi->items->sum('harga'),
+                    'items' => $produksi->items->toArray(),
+                ],
+                'generatedAt' => now(),
+            ];
+
+            $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
+            $filename = "invoice-produksi-{$number}.pdf";
+        } else {
+            $jasa = Jasa::with(['pelanggan', 'petugasMany', 'items'])->where('no_jasa', $number)->first();
+            if (!$jasa) {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            $data = [
+                'row' => [
+                    'number' => $jasa->no_jasa,
+                    'no_ref' => $jasa->no_ref,
+                    'branch' => $jasa->branch,
+                    'status' => $jasa->status,
+                    'pelanggan' => $jasa->pelanggan?->nama ?? '-',
+                    'petugas' => $jasa->petugasMany->isNotEmpty() 
+                        ? $jasa->petugasMany->pluck('nama')->join(', ') 
+                        : '-',
+                    'scheduled_at' => $jasa->jadwal_petugas?->format('d/m/Y H:i') ?? '-',
+                    'catatan' => $jasa->catatan,
+                    'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
+                    'items_count' => $jasa->items->count(),
+                    'total_harga' => $jasa->items->sum('harga'),
+                    'items' => $jasa->items->toArray(),
+                ],
+                'generatedAt' => now(),
+            ];
+
+            $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
+            $filename = "invoice-jasa-{$number}.pdf";
+        }
+
+        // Output PDF inline untuk preview di browser
+        return $pdf->stream($filename);
     }
 
     public function downloadFilteredPdf()
