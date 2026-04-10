@@ -66,16 +66,6 @@ class JasaForm
                         $component->state($prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT));
                     }
                 }),
-            // Select::make("jenis_layanan")
-            //     ->label("Jenis Jasa & Layanan")
-            //     ->required()
-            //     ->searchable()
-            //     ->preload()
-            //     ->options(fn () => JenisJasa::query()
-            //         ->orderBy('nama')
-            //         ->pluck('nama', 'nama')
-            //         ->toArray()
-            //     ),
 
             TextInput::make("no_ref")
                 ->label("No. Ref")
@@ -96,7 +86,7 @@ class JasaForm
                 ->disabled(fn () => Auth::user()->branch !== null),
             
             Select::make('pelanggan_id')
-                ->label('Pilih Pelanggan')
+                ->label('Pilih Customer')
                 ->options(function () {
                     return Pelanggan::query()
                         ->orderBy('nama')
@@ -162,60 +152,9 @@ class JasaForm
                     }
                 }),
             
-            Repeater::make('items')
-                ->relationship('items')
-                ->schema([
-                    Select::make("jenis_layanan")
-                        ->label("Jenis Jasa & Layanan")
-                        ->required()
-                        ->searchable()
-                        ->preload()
-                        ->options(fn () => JenisJasa::query()
-                            ->orderBy('nama')
-                            ->pluck('nama', 'nama')
-                            ->toArray()
-                        )
-                        ->reactive()
-                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                            if ($state) {
-                                $jenisJasa = JenisJasa::where('nama', $state)->first();
-                                if ($jenisJasa && $jenisJasa->harga) {
-                                    $jumlah = $get('jumlah') ?? 1;
-                                    $set('harga', $jenisJasa->harga * $jumlah);
-                                }
-                            }
-                        }),
-                    TextInput::make("jumlah")
-                        ->label("Jumlah")
-                        ->numeric()
-                        ->required()
-                        ->default(1)
-                        ->reactive()
-                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                            $jenisLayanan = $get('jenis_layanan');
-                            if ($jenisLayanan && $state) {
-                                $jenisJasa = JenisJasa::where('nama', $jenisLayanan)->first();
-                                if ($jenisJasa && $jenisJasa->harga) {
-                                    $set('harga', $jenisJasa->harga * $state);
-                                }
-                            }
-                        }),
-                    TextInput::make("harga")
-                        ->label("Harga")
-                        ->numeric()
-                        ->prefix('Rp')
-                        ->required()
-                        ->disabled()
-                        ->dehydrated(true),
-                ])
-                ->columns(3)
-                ->addActionLabel('+ Tambah Item')
-                ->required()
-                ->minItems(1),
-            
             
             TextInput::make('edit_pelanggan_nama')
-                ->label('Nama Pelanggan')
+                ->label('Nama Customer')
                 ->required()
                 ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
                 ->dehydrated(true)
@@ -333,7 +272,7 @@ class JasaForm
                 ]),
             
             TextInput::make('new_pelanggan_nama')
-                ->label('Nama Pelanggan')
+                ->label('Nama Customer')
                 ->required(fn ($get) => $get('create_new_pelanggan'))
                 ->visible(fn ($get, $record) => !$record && $get('create_new_pelanggan'))
                 ->dehydrated(fn ($get) => $get('create_new_pelanggan'))
@@ -397,7 +336,56 @@ class JasaForm
                         };
                     },
                 ]),
-            
+            Repeater::make('items')
+                ->relationship('items')
+                ->schema([
+                    Select::make("jenis_layanan")
+                        ->label("Jenis Jasa & Layanan")
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->options(fn () => JenisJasa::query()
+                            ->orderBy('nama')
+                            ->pluck('nama', 'nama')
+                            ->toArray()
+                        )
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            if ($state) {
+                                $jenisJasa = JenisJasa::where('nama', $state)->first();
+                                if ($jenisJasa && $jenisJasa->harga) {
+                                    $jumlah = $get('jumlah') ?? 1;
+                                    $set('harga', $jenisJasa->harga * $jumlah);
+                                }
+                            }
+                        }),
+                    TextInput::make("jumlah")
+                        ->label("Jumlah")
+                        ->numeric()
+                        ->required()
+                        ->default(1)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            $jenisLayanan = $get('jenis_layanan');
+                            if ($jenisLayanan && $state) {
+                                $jenisJasa = JenisJasa::where('nama', $jenisLayanan)->first();
+                                if ($jenisJasa && $jenisJasa->harga) {
+                                    $set('harga', $jenisJasa->harga * $state);
+                                }
+                            }
+                        }),
+                    TextInput::make("harga")
+                        ->label("Harga")
+                        ->numeric()
+                        ->prefix('Rp')
+                        ->required()
+                        ->disabled()
+                        ->dehydrated(true),
+                ])
+                ->columns(3)
+                ->addActionLabel('+ Tambah Item')
+                ->required()
+                ->minItems(1),
             // Switch/Toggle untuk menggunakan alamat pelanggan
             Toggle::make('use_pelanggan_alamat')
                 ->label('Gunakan alamat pelanggan sebagai alamat jasa')
