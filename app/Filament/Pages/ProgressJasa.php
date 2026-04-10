@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ProgressJasa extends Page implements HasForms
 {
@@ -36,95 +35,19 @@ class ProgressJasa extends Page implements HasForms
     protected static ?int $navigationSort = 3;
 
     public ?int $selectedJasaId = null;
-    
     public ?Jasa $record = null;
-
     public ?string $updateStatusValue = null;
-
-    public ?string $jasaSearch = '';
-
     public ?string $jadwalPetugas = null;
-    
     public array $petugasIds = [];
+    public bool $isUploading = false;
+    public array $imageData = [];
+    public array $terjadwalData = [];
+    public array $data = [];
 
     public static function getNavigationGroup(): ?string
     {
         return 'Jasa & Layanan';
     }
-
-    #[On('aj-refresh-jasa')]
-    public function handleExternalRefresh(): void
-    {
-        $this->loadRecord();
-        $this->dispatch('$refresh');
-    }
-
-    protected function loadRecord(): void
-    {
-        if ($this->selectedJasaId) {
-            $this->record = Jasa::with(['petugas', 'petugasMany.petugas', 'pelanggan', 'items'])->find($this->selectedJasaId);
-            
-            if ($this->record) {
-                // Cache petugas IDs to avoid repeated queries
-                $this->petugasIds = $this->record->petugasMany->pluck('petugas_id')->toArray();
-                if ($this->record->jadwal_petugas) {
-                    $this->jadwalPetugas = $this->record->jadwal_petugas->format('Y-m-d H:i:s');
-                }
-            }
-        } else {
-            $this->record = null;
-            $this->petugasIds = [];
-            $this->jadwalPetugas = null;
-        }
-    }
-
-    public function refresh(): void
-    {
-        if ($this->record) {
-            $this->record->refresh();
-        }
-    }
-
-    public function mount(): void
-    {
-        $selectedJasaId = request()->query('selectedJasaId');
-        
-        if ($selectedJasaId) {
-            $this->selectedJasaId = (int) $selectedJasaId;
-            $this->loadRecord();
-        } else {
-            // Only load ID, not full record initially - faster
-            $firstJasaId = Jasa::orderBy('createdAt', 'desc')->value('id');
-            if ($firstJasaId) {
-                $this->selectedJasaId = $firstJasaId;
-                $this->loadRecord();
-            }
-        }
-
-        $this->jasaForm->fill([
-            'selectedJasaId' => $this->selectedJasaId,
-        ]);
-
-        if ($this->record) {
-            // Use cached petugasIds instead of querying again
-            $this->terjadwalForm->fill([
-                'jadwalPetugas' => $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s'),
-                'petugasIds' => $this->petugasIds,
-            ]);
-        }
-        
-        // Initialize image upload form
-        $this->imageUploadForm->fill([
-            'progressImages' => [],
-        ]);
-        
-        // Initialize imageData with proper structure
-        $this->imageData = [
-            'progressImages' => [],
-        ];
-    }
-
-    public array $data = [];
 
     protected function getForms(): array
     {
@@ -135,6 +58,69 @@ class ProgressJasa extends Page implements HasForms
         ];
     }
 
+    #[On('aj-refresh-jasa')]
+    public function handleExternalRefresh(): void
+    {
+        $this->loadRecord();
+        $this->dispatch('$refresh');
+    }
+
+    #[On('uploading-status-changed')]
+    public function setUploadingStatus(bool $status): void
+    {
+        $this->isUploading = $status;
+    }
+
+    protected function loadRecord(): void
+    {
+        if ($this->selectedJasaId) {
+            $this->record = Jasa::with([
+                'pelanggan',
+                'petugasMany',
+                'items'
+            ])->find($this->selectedJasaId);
+            
+            if ($this->record) {
+                $this->petugasIds = $this->record->petugasMany->pluck('id')->toArray();
+                $this->jadwalPetugas = $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s');
+                
+                $this->terjadwalForm->fill([
+                    'jadwalPetugas' => $this->jadwalPetugas,
+                    'petugasIds' => $this->petugasIds,
+                ]);
+            }
+        } else {
+            $this->record = null;
+            $this->petugasIds = [];
+            $this->jadwalPetugas = null;
+        }
+    }
+
+    public function mount(): void
+    {
+        $selectedJasaId = request()->query('selectedJasaId');
+        
+        if ($selectedJasaId) {
+            $this->selectedJasaId = (int) $selectedJasaId;
+        } else {
+            $this->selectedJasaId = Jasa::orderBy('createdAt', 'desc')->value('id');
+        }
+
+        $this->loadRecord();
+
+        $this->jasaForm->fill([
+            'selectedJasaId' => $this->selectedJasaId,
+        ]);
+
+        $this->imageUploadForm->fill([
+            'progressImages' => [],
+        ]);
+
+        $this->imageData = [
+            'progressImages' => [],
+        ];
+    }
+
     public function jasaForm($form)
     {
         return $form
@@ -142,45 +128,26 @@ class ProgressJasa extends Page implements HasForms
                 Select::make('selectedJasaId')
                     ->label('Cari & Pilih Jasa')
                     ->options(function () {
-                        // Use lazy loading - only load minimal data for dropdown
                         return Jasa::query()
                             ->select('id', 'no_jasa', 'no_ref')
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
-                            ->get()
-                            ->mapWithKeys(function ($jasa) {
-                                return [
-                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref
-                                ];
-                            })
+                            ->pluck('no_jasa', 'id')
                             ->toArray();
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
-                        // Optimized search with lazy loading
                         return Jasa::query()
                             ->select('id', 'no_jasa', 'no_ref')
-                            ->where(function ($query) use ($search) {
-                                $searchTerm = '%' . trim($search) . '%';
-                                $query->where('no_jasa', 'like', $searchTerm)
-                                    ->orWhere('no_ref', 'like', $searchTerm);
-                            })
+                            ->where('no_jasa', 'like', '%' . $search . '%')
+                            ->orWhere('no_ref', 'like', '%' . $search . '%')
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
-                            ->get()
-                            ->mapWithKeys(function ($jasa) {
-                                return [
-                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref
-                                ];
-                            })
+                            ->pluck('no_jasa', 'id')
                             ->toArray();
                     })
-                    ->preload()
                     ->getOptionLabelUsing(function ($value): ?string {
-                        $jasa = Jasa::select('id', 'no_jasa', 'no_ref')->find($value);
-                        if (!$jasa) return null;
-                        
-                        return $jasa->no_jasa . ' | ' . $jasa->no_ref;
+                        return Jasa::where('id', $value)->value('no_jasa');
                     })
                     ->live()
                     ->afterStateUpdated(function ($state) {
@@ -189,6 +156,34 @@ class ProgressJasa extends Page implements HasForms
                     }),
             ])
             ->statePath('data');
+    }
+
+    public function terjadwalForm($form)
+    {
+        return $form
+            ->schema([
+                DateTimePicker::make('jadwalPetugas')
+                    ->label('Jadwal Petugas')
+                    ->required()
+                    ->native(false)
+                    ->displayFormat('d F Y, H:i')
+                    ->timezone('Asia/Jakarta'),
+                
+                Select::make('petugasIds')
+                    ->label('Pilih Petugas')
+                    ->multiple()
+                    ->required()
+                    ->options(function () {
+                        return Petugas::query()
+                            ->select('id', 'nama', 'kontak')
+                            ->orderBy('nama')
+                            ->pluck('nama', 'id')
+                            ->toArray();
+                    })
+                    ->searchable()
+                    ->preload(),
+            ])
+            ->statePath('terjadwalData');
     }
 
     public function imageUploadForm($form)
@@ -205,195 +200,68 @@ class ProgressJasa extends Page implements HasForms
                     ->maxSize(2048)
                     ->maxFiles(10)
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
-                    ->helperText('Upload foto progress untuk dokumentasi perubahan status. Maksimal 2MB.')
                     ->downloadable()
                     ->openable(),
             ])
             ->statePath('imageData');
     }
 
-    public array $imageData = [];
-
-    public array $terjadwalData = [];
-
-    public bool $isUploading = false;
-
-    public function terjadwalForm($form)
-    {
-        return $form
-            ->schema([
-                DateTimePicker::make('jadwalPetugas')
-                    ->label('Jadwal Petugas')
-                    ->required()
-                    ->native(false)
-                    ->displayFormat('d F Y, H:i')
-                    ->timezone('Asia/Jakarta')
-                    ->helperText('Pilih tanggal dan waktu untuk petugas melaksanakan jasa ini.'),
-                
-                Select::make('petugasIds')
-                    ->label('Pilih Petugas')
-                    ->multiple()
-                    ->required()
-                    ->options(function () {
-                        // Cache current petugas IDs
-                        $currentPetugasIds = $this->petugasIds;
-                        
-                        // Optimized query - only select needed columns
-                        return Petugas::query()
-                            ->select('id', 'nama', 'kontak', 'status')
-                            ->where(function ($query) use ($currentPetugasIds) {
-                                $query->where('status', 'ready');
-                                if (!empty($currentPetugasIds)) {
-                                    $query->orWhereIn('id', $currentPetugasIds);
-                                }
-                            })
-                            ->orderBy('nama')
-                            ->get()
-                            ->mapWithKeys(function ($petugas) use ($currentPetugasIds) {
-                                $statusLabel = in_array($petugas->id, $currentPetugasIds) ? ' (Sedang dipilih)' : ' - Ready';
-                                return [
-                                    $petugas->id => $petugas->nama . ' (' . $petugas->kontak . ')' . $statusLabel
-                                ];
-                            })
-                            ->toArray();
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->helperText('Pilih satu atau lebih petugas yang akan menangani jasa ini. Disarankan memilih petugas dengan status Ready.'),
-            ])
-            ->statePath('terjadwalData');
-    }
-
-    public function updatedSelectedJasaId(): void
-    {
-        $this->loadRecord();
-        
-        if ($this->record) {
-            // Use cached petugasIds instead of querying again
-            $this->terjadwalForm->fill([
-                'jadwalPetugas' => $this->record->jadwal_petugas?->format('Y-m-d\TH:i:s'),
-                'petugasIds' => $this->petugasIds,
-            ]);
-        }
-    }
-
-    #[On('uploading-status-changed')]
-    public function setUploadingStatus(bool $status): void
-    {
-        $this->isUploading = $status;
-    }
-
-    /**
-     * Copy uploaded file from storage to public directory
-     */
     protected function copyToPublic(string $storagePath): string
     {
         $sourcePath = storage_path('app/public/' . $storagePath);
         $publicPath = public_path($storagePath);
         
-        // Create directory if it doesn't exist
         $publicDir = dirname($publicPath);
         if (!file_exists($publicDir)) {
             mkdir($publicDir, 0755, true);
         }
         
-        // Copy file to public directory
         if (file_exists($sourcePath)) {
             copy($sourcePath, $publicPath);
-            \Log::info('File copied to public (Jasa):', [
-                'from' => $sourcePath,
-                'to' => $publicPath,
-            ]);
         }
         
         return $storagePath;
     }
 
-    public function canUpdateJasaStatus($jasaId): bool
-    {
-        $jasa = Jasa::find($jasaId);
-        if (!$jasa || $jasa->status === 'selesai') {
-            return false;
-        }
-
-        $allowedStatuses = $this->getAllowedStatusesForRole();
-        $currentStatus = $jasa->status;
-        $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
-        
-        if ($currentIndex === false) {
-            return false;
-        }
-
-        $nextStatus = self::STATUS_FLOW[$currentIndex + 1] ?? null;
-        
-        return $nextStatus && in_array($nextStatus, $allowedStatuses, true);
-    }
-
     public function updateStatus(): void
     {
-        if (! $this->record) {
+        if (!$this->record) {
             Notification::make()
                 ->title('Data jasa tidak ditemukan')
                 ->danger()
-                ->body('Silakan pilih jasa terlebih dahulu.')
                 ->send();
             return;
         }
 
-        // Check if images are still uploading
         if ($this->isUploading) {
             Notification::make()
                 ->title('Upload Belum Selesai')
                 ->warning()
-                ->body('Mohon tunggu hingga semua gambar selesai diupload sebelum memperbarui status.')
+                ->body('Mohon tunggu hingga semua gambar selesai diupload.')
                 ->send();
             return;
         }
 
-        $nextStatus = $this->nextSequentialStatus;
+        $nextStatus = $this->getNextSequentialStatusProperty();
 
-        if (! $nextStatus) {
+        if (!$nextStatus) {
             Notification::make()
                 ->title('Tidak ada status lanjutan')
                 ->warning()
-                ->body('Jasa ini telah berada pada status akhir atau tidak memiliki langkah berikutnya.')
                 ->send();
             return;
-        }
-
-        if (empty($this->updateStatusValue) && $nextStatus === 'terjadwal') {
-            $normalizedRole = Auth::user()?->role ? str_replace(' ', '_', strtolower(Auth::user()->role)) : null;
-            if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'admin_toko','administrator'], true)) {
-                $this->updateStatusValue = 'terjadwal';
-            }
         }
 
         if (empty($this->updateStatusValue)) {
-            Notification::make()
-                ->title('Gagal Memperbarui Status')
-                ->danger()
-                ->body('Gagal memperbarui status jasa. Silakan pilih status terlebih dahulu.')
-                ->send();
-            return;
+            $this->updateStatusValue = $nextStatus;
         }
 
-        $allowedStatuses = $this->allowedStatuses;
+        $allowedStatuses = $this->getAllowedStatusesForRole();
 
-        if (! in_array($this->updateStatusValue, $allowedStatuses, true)) {
+        if (!in_array($this->updateStatusValue, $allowedStatuses, true)) {
             Notification::make()
                 ->title('Status tidak diizinkan')
                 ->danger()
-                ->body('Anda tidak memiliki izin untuk mengubah status ke pilihan tersebut.')
-                ->send();
-            $this->updateStatusValue = null;
-            return;
-        }
-
-        if ($this->record->status === $this->updateStatusValue) {
-            Notification::make()
-                ->title('Tidak ada perubahan')
-                ->warning()
-                ->body('Status jasa sudah berada pada posisi tersebut.')
                 ->send();
             return;
         }
@@ -403,34 +271,15 @@ class ProgressJasa extends Page implements HasForms
             $formData = $this->imageUploadForm->getState();
             $progressImages = $formData['progressImages'] ?? [];
             
-            \Log::info('=== JASA IMAGE UPLOAD DEBUG ===');
-            \Log::info('Form data:', $formData);
-            \Log::info('Progress images count:', ['count' => is_array($progressImages) ? count($progressImages) : 0]);
-            \Log::info('Progress images:', $progressImages);
-            
             if (!empty($progressImages) && is_array($progressImages)) {
-                // Get existing images or initialize empty array
                 $existingImages = $this->record->progress_images ?? [];
                 if (!is_array($existingImages)) {
                     $existingImages = [];
                 }
                 
-                \Log::info('Existing images before update:', ['count' => count($existingImages)]);
-                
-                // Add each new image to array
                 foreach ($progressImages as $imagePath) {
                     if ($imagePath) {
-                        // Copy file from storage to public directory
                         $this->copyToPublic($imagePath);
-                        
-                        $publicPath = public_path($imagePath);
-                        $fileExists = file_exists($publicPath);
-                        
-                        \Log::info('Processing image:', [
-                            'path' => $imagePath,
-                            'public_path' => $publicPath,
-                            'exists' => $fileExists,
-                        ]);
                         
                         $existingImages[] = [
                             'path' => $imagePath,
@@ -442,29 +291,20 @@ class ProgressJasa extends Page implements HasForms
                     }
                 }
                 
-                // Update record with new images array
                 $this->record->progress_images = $existingImages;
-                
-                \Log::info('Total images after update:', ['count' => count($existingImages)]);
-            } else {
-                \Log::warning('No images uploaded or invalid format');
             }
         } catch (\Exception $e) {
-            \Log::error('Image upload error:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            
             Notification::make()
                 ->title('Error Upload Gambar')
                 ->danger()
-                ->body('Terjadi kesalahan saat mengupload gambar: ' . $e->getMessage())
+                ->body($e->getMessage())
                 ->send();
             return;
         }
 
+        // Handle terjadwal status
         if ($this->updateStatusValue === 'terjadwal') {
-            $normalizedRole = Auth::user()?->role ? str_replace(' ', '_', strtolower(Auth::user()->role)) : null;
+            $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
             
             if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'administrator'], true)) {
                 try {
@@ -473,22 +313,19 @@ class ProgressJasa extends Page implements HasForms
                     $terjadwalData = [];
                 }
                 
-                $jadwalPetugasForm = $terjadwalData['jadwalPetugas'] ?? null;
-                $petugasIdsForm = $terjadwalData['petugasIds'] ?? [];
-
-                $jadwalPetugas = $jadwalPetugasForm ?: $this->jadwalPetugas;
-                $petugasIds = !empty($petugasIdsForm) ? $petugasIdsForm : $this->petugasIds;
+                $jadwalPetugas = $terjadwalData['jadwalPetugas'] ?? null;
+                $petugasIds = $terjadwalData['petugasIds'] ?? [];
 
                 if (empty($petugasIds) || !$jadwalPetugas) {
                     Notification::make()
                         ->title('Form terjadwal belum lengkap')
                         ->danger()
-                        ->body('Silakan isi jadwal petugas dan pilih petugas yang akan menangani jasa ini.')
+                        ->body('Silakan isi jadwal dan pilih petugas.')
                         ->send();
                     return;
                 }
 
-                $oldPetugasIds = $this->record->petugasMany()->pluck('petugas_id')->toArray();
+                $oldPetugasIds = $this->record->petugasMany->pluck('id')->toArray();
 
                 $this->record->jadwal_petugas = \Carbon\Carbon::parse($jadwalPetugas);
                 $this->record->status = $this->updateStatusValue;
@@ -502,113 +339,65 @@ class ProgressJasa extends Page implements HasForms
 
                 if (!empty($oldPetugasIds)) {
                     $petugasToReset = array_diff($oldPetugasIds, $petugasIds);
-                    if (!empty($petugasToReset)) {
-                        foreach ($petugasToReset as $petugasId) {
-                            $hasActiveJasa = Jasa::query()
-                                ->whereHas('petugasMany', function ($query) use ($petugasId) {
-                                    $query->where('petugas_id', $petugasId);
-                                })
-                                ->where('id', '!=', $this->record->id)
-                                ->where('status', '!=', 'selesai')
-                                ->exists();
+                    foreach ($petugasToReset as $petugasId) {
+                        $hasActiveJasa = Jasa::query()
+                            ->whereHas('petugasMany', function ($query) use ($petugasId) {
+                                $query->where('petugas_id', $petugasId);
+                            })
+                            ->where('id', '!=', $this->record->id)
+                            ->where('status', '!=', 'selesai')
+                            ->exists();
 
-                            if (!$hasActiveJasa) {
-                                Petugas::where('id', $petugasId)->update(['status' => 'ready']);
-                            }
+                        if (!$hasActiveJasa) {
+                            Petugas::where('id', $petugasId)->update(['status' => 'ready']);
                         }
                     }
                 }
 
-                $this->record->refresh();
-                $this->loadRecord();
-
                 Notification::make()
                     ->title('Success')
                     ->success()
-                    ->body('Status jasa berhasil diperbarui menjadi Terjadwal. Petugas yang dipilih telah dijadwalkan.')
+                    ->body('Status berhasil diperbarui menjadi Terjadwal.')
                     ->send();
 
-                
-                $this->jadwalPetugas = null;
-                $this->petugasIds = [];
-                $this->updateStatusValue = null;
-                $this->terjadwalForm->fill([
-                    'jadwalPetugas' => null,
-                    'petugasIds' => [],
-                ]);
-                
-                // Reset form - Clear all uploaded images
-                \Log::info('[JASA] Resetting image data...');
-                $this->imageData = ['progressImages' => []];
-                \Log::info('[JASA] Image data after reset:', $this->imageData);
-                
-                \Log::info('[JASA] Dispatching page reload...');
-                // Use JavaScript to force page reload instead of Livewire refresh
                 $this->js('window.location.reload();');
-                \Log::info('[JASA] === UPDATE COMPLETE ===');
                 return;
             }
         }
 
         $this->record->status = $this->updateStatusValue;
         $this->record->save();
-        $this->record->refresh();
 
         Notification::make()
             ->title('Success')
             ->success()
-            ->body('Status jasa berhasil diperbarui menjadi '.ucwords($this->updateStatusValue).'.')
+            ->body('Status berhasil diperbarui menjadi ' . ucwords($this->updateStatusValue) . '.')
             ->send();
-        $this->updateStatusValue = null;
-        
-        // Reset form - Clear all uploaded images
-        \Log::info('[JASA] Resetting image data...');
-        $this->imageData = ['progressImages' => []];
-        \Log::info('[JASA] Image data after reset:', $this->imageData);
-        
-        \Log::info('[JASA] Dispatching page reload...');
-        // Use JavaScript to force page reload instead of Livewire refresh
+
         $this->js('window.location.reload();');
-        \Log::info('[JASA] === UPDATE COMPLETE ===');
     }
 
     protected function getAllowedStatusesForRole(): array
     {
-        $role = Auth::user()?->role;
-        $normalizedRole = $role ? str_replace(' ', '_', strtolower($role)) : null;
-
-        $allStatuses = self::STATUS_FLOW;
+        $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
 
         $roleStatusMap = [
             'admin_toko' => ['jasa baru', 'selesai'],
             'kepala_teknisi_lapangan' => ['terjadwal'],
             'petugas' => ['selesai dikerjakan'],
+            'administrator' => self::STATUS_FLOW,
         ];
 
-        if (in_array($normalizedRole, ['administrator'], true)) {
-            return $allStatuses;
-        }
-
-        if ($normalizedRole && array_key_exists($normalizedRole, $roleStatusMap)) {
-            return $roleStatusMap[$normalizedRole];
-        }
-
-        return [];
-    }
-
-    public function getAllowedStatusesProperty(): array
-    {
-        return $this->getAllowedStatusesForRole();
+        return $roleStatusMap[$normalizedRole] ?? [];
     }
 
     public function getNextSequentialStatusProperty(): ?string
     {
-        if (! $this->record) {
+        if (!$this->record) {
             return null;
         }
 
-        $currentStatus = $this->record->status;
-        $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
+        $currentIndex = array_search($this->record->status, self::STATUS_FLOW, true);
 
         if ($currentIndex === false) {
             return null;
@@ -620,44 +409,12 @@ class ProgressJasa extends Page implements HasForms
     public static function shouldRegisterNavigation(): bool
     {
         $user = Auth::user();
-
-        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
+        return in_array($user?->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
     }
 
     public static function getNavigationBadge(): ?string
     {
-        $user = Auth::user();
-        if (!$user) {
-            return null;
-        }
-
-        $role = $user->role ?? null;
-        $normalizedRole = $role ? str_replace(' ', '_', strtolower($role)) : null;
-        $statusFlow = self::STATUS_FLOW;
-
-        $roleStatusMap = [
-            'admin_toko' => ['jasa baru', 'selesai'],
-            'kepala_teknisi_lapangan' => ['terjadwal'],
-            'petugas' => ['selesai dikerjakan'],
-        ];
-
-        if (in_array($normalizedRole, ['administrator'], true)) {
-            $allowedStatuses = $statusFlow;
-        } elseif ($normalizedRole && array_key_exists($normalizedRole, $roleStatusMap)) {
-            $allowedStatuses = $roleStatusMap[$normalizedRole];
-        } else {
-            $allowedStatuses = [];
-        }
-
-        if (empty($allowedStatuses)) {
-            return null;
-        }
-
-        // Optimized query - use database-level counting instead of loading all records
-        $count = Jasa::query()
-            ->whereNotIn('status', ['selesai'])
-            ->count();
-
+        $count = Jasa::where('status', '!=', 'selesai')->count();
         return $count > 0 ? (string) $count : null;
     }
 
@@ -672,26 +429,10 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
-        // Load image directly from public directory
-        try {
-            // Remove leading slash if present
-            $cleanPath = ltrim($imagePath, '/');
-            
-            // Build URL directly to public file
-            $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
-            $url = $baseUrl . '/' . $cleanPath;
-            
-            // Fix double slashes in URL
-            return preg_replace('#([^:])//+#', '$1/', $url);
-        } catch (\Exception $e) {
-            // Fallback to storage URL if direct public fails
-            try {
-                $url = Storage::disk('public')->url($imagePath);
-                return preg_replace('#([^:])//+#', '$1/', $url);
-            } catch (\Exception $e2) {
-                return null;
-            }
-        }
+        $cleanPath = ltrim($imagePath, '/');
+        $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+        $url = $baseUrl . '/' . $cleanPath;
+        
+        return preg_replace('#([^:])//+#', '$1/', $url);
     }
-
 }
