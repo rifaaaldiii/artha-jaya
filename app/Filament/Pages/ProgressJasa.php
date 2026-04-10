@@ -13,6 +13,7 @@ use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Support\Facades\Storage;
 
 class ProgressJasa extends Page implements HasForms
 {
@@ -668,11 +669,14 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
-        // Get the current request URL to dynamically build the storage URL
-        $requestUrl = request()->getSchemeAndHttpHost();
-        
-        // Build the full URL: {current_host}/storage/progress/jasa/{filename}
-        return $requestUrl . '/storage/' . $imagePath;
+        // Use Storage facade to get the URL - works better on hosting environments
+        try {
+            return Storage::disk('public')->url($imagePath);
+        } catch (\Exception $e) {
+            // Fallback to manual URL construction
+            $requestUrl = request()->getSchemeAndHttpHost();
+            return $requestUrl . '/storage/' . $imagePath;
+        }
     }
 
 }

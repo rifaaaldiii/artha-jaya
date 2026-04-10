@@ -11,6 +11,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Support\Facades\Storage;
 
 class Progress extends Page implements HasForms
 {
@@ -564,10 +565,13 @@ class Progress extends Page implements HasForms
             return null;
         }
 
-        // Get the current request URL to dynamically build the storage URL
-        $requestUrl = request()->getSchemeAndHttpHost();
-        
-        // Build the full URL: {current_host}/storage/progress/produksi/{filename}
-        return $requestUrl . '/storage/' . $imagePath;
+        // Use Storage facade to get the URL - works better on hosting environments
+        try {
+            return Storage::disk('public')->url($imagePath);
+        } catch (\Exception $e) {
+            // Fallback to manual URL construction
+            $requestUrl = request()->getSchemeAndHttpHost();
+            return $requestUrl . '/storage/' . $imagePath;
+        }
     }
 }

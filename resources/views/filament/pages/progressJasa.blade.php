@@ -1337,13 +1337,22 @@
             return;
         }
 
-        Livewire.onError((statusCode) => {
-            if (statusCode === 419) {
-                window.location.reload();
-
-                return false;
-            }
-        });
+        // Livewire v3 uses different error handling API
+        if (typeof Livewire.onError === 'function') {
+            Livewire.onError((statusCode) => {
+                if (statusCode === 419) {
+                    window.location.reload();
+                    return false;
+                }
+            });
+        } else if (Livewire.hook) {
+            // Alternative for Livewire v3
+            Livewire.hook('request.failed', ({ statusCode }) => {
+                if (statusCode === 419) {
+                    window.location.reload();
+                }
+            });
+        }
     };
 
     document.addEventListener('livewire:initialized', registerLivewireErrorHandler);
