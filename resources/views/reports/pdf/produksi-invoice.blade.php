@@ -170,7 +170,7 @@
         /* Signature */
         .signature-section {
             width: 100%;
-            margin-top: 10mm;
+            margin-top: 20mm;
             font-size: 7.5pt;
         }
         
