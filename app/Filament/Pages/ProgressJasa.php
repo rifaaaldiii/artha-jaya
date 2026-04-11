@@ -121,6 +121,12 @@ class ProgressJasa extends Page implements HasForms
         $this->imageData = [
             'progressImages' => [],
         ];
+
+        // Auto-set status value if next status is terjadwal
+        $nextStatus = $this->getNextSequentialStatusProperty();
+        if ($nextStatus === 'terjadwal') {
+            $this->updateStatusValue = 'terjadwal';
+        }
     }
 
     public function jasaForm($form)

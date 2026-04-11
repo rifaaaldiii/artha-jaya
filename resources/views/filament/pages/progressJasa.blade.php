@@ -1029,7 +1029,8 @@
                             @if($canProceedNext)
                                 <div class="update-status-body">
                                     <div class="image-upload-wrapper">
-                                        <!-- Status Update Field -->
+                                        <!-- Status Update Field (Hidden for Terjadwal) -->
+                                        @if($nextStatus !== 'terjadwal')
                                         <div class="update-status-field" style="flex: 1; min-width: 200px;">
                                             <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
                                             <div class="update-status-actions">
@@ -1045,15 +1046,16 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        @endif
 
                                         <!-- Form Terjadwal (Date/Time & Multi-select Petugas) -->
                                         @if($nextStatus === 'terjadwal')
-                                        <div class="update-status-field" style="flex: 1; min-width: 300px;">
+                                        <div class="update-status-field" style="flex: 1; min-width: 400px;">
                                             <div style="display: flex; flex-direction: column; gap: 15px;">
                                                 <!-- Input Tanggal dan Waktu -->
                                                 <div>
                                                     <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                        Tanggal & Waktu Pelaksanaan
+                                                        Tanggal & Waktu Pelaksanaan <span style="color: #dc2626;">*</span>
                                                     </label>
                                                     <input type="datetime-local"
                                                            wire:model.defer="jadwalPetugas"
@@ -1065,11 +1067,11 @@
                                                 <!-- Multi-select Petugas with Tags -->
                                                 <div>
                                                     <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                        Petugas Pelaksana
+                                                        Petugas Pelaksana <span style="color: #dc2626;">*</span>
                                                     </label>
                                                     
                                                     <!-- Custom Multi-Select with Tags -->
-                                                    <div x-data="{ open: false, search: '', selected: @entangle('selectedPetugasIds').defer, available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak])), get selectedPetugas() { return this.available.filter(p => this.selected.includes(p.id)); }, get filteredPetugas() { if (!this.search) return this.available; return this.available.filter(p => p.nama.toLowerCase().includes(this.search.toLowerCase()) || (p.kontak && p.kontak.toLowerCase().includes(this.search.toLowerCase()))); }, toggle(id) { const index = this.selected.indexOf(id); if (index > -1) { this.selected.splice(index, 1); } else { this.selected.push(id); } }, remove(id) { const index = this.selected.indexOf(id); if (index > -1) { this.selected.splice(index, 1); } } }" @click.away="open = false">
+                                                    <div x-data="petugasMultiSelect()" @click.away="open = false">
                                                         <!-- Selected Tags Display -->
                                                         <div style="width: 100%; min-height: 45px; padding: 8px 10px; border: 1px solid var(--aj-select-border); border-radius: 10px; background: var(--aj-select-bg); cursor: pointer; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
                                                              :style="open ? 'border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15)' : ''"
@@ -1149,7 +1151,7 @@
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px; flex-shrink: 0;">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                                                         </svg>
-                                                        <span>Klik untuk memilih petugas. Petugas yang dipilih akan muncul sebagai tag di atas.</span>
+                                                        <span>Klik petugas untuk memilih. Petugas terpilih akan muncul sebagai tag di atas dan bisa dihapus dengan klik tombol ×.</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1478,4 +1480,42 @@
 
     document.addEventListener('livewire:initialized', registerLivewireErrorHandler);
     document.addEventListener('livewire:init', registerLivewireErrorHandler);
+
+    // Alpine.js component for petugas multi-select
+    function petugasMultiSelect() {
+        return {
+            open: false,
+            search: '',
+            selected: @entangle('selectedPetugasIds').defer,
+            available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak])),
+            
+            get selectedPetugas() {
+                return this.available.filter(p => this.selected.includes(p.id));
+            },
+            
+            get filteredPetugas() {
+                if (!this.search) return this.available;
+                return this.available.filter(p => 
+                    p.nama.toLowerCase().includes(this.search.toLowerCase()) || 
+                    (p.kontak && p.kontak.toLowerCase().includes(this.search.toLowerCase()))
+                );
+            },
+            
+            toggle(id) {
+                const index = this.selected.indexOf(id);
+                if (index > -1) {
+                    this.selected.splice(index, 1);
+                } else {
+                    this.selected.push(id);
+                }
+            },
+            
+            remove(id) {
+                const index = this.selected.indexOf(id);
+                if (index > -1) {
+                    this.selected.splice(index, 1);
+                }
+            }
+        };
+    }
 </script>
