@@ -25,6 +25,7 @@
         .page {
             width: 100%;
             max-width: 210mm;
+            padding: 2mm;
         }
         
         /* Header */
@@ -52,7 +53,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 3mm 0;
+            margin: 5mm 0 3mm 0;
         }
         
         .title {
