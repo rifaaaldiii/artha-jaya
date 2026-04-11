@@ -655,11 +655,11 @@
             box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
         }
         .petugas-select-box:hover {
-            border-color: #93c5fd;
+            border-color: #86efac;
         }
         .petugas-select-box.active {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
         }
         .petugas-tags-container {
             display: flex;
@@ -672,11 +672,11 @@
             align-items: center;
             gap: 6px;
             padding: 4px 10px;
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border: 1px solid #93c5fd;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 1px solid #86efac;
             border-radius: 20px;
             font-size: 13px;
-            color: #1e40af;
+            color: #166534;
             font-weight: 500;
         }
         .petugas-tag-remove {
@@ -686,7 +686,7 @@
             width: 16px;
             height: 16px;
             border: none;
-            background: #1e40af;
+            background: #166534;
             color: white;
             border-radius: 50%;
             cursor: pointer;
@@ -696,7 +696,7 @@
             transition: all 0.15s ease;
         }
         .petugas-tag-remove:hover {
-            background: #1e3a8a;
+            background: #14532d;
             transform: scale(1.1);
         }
         .petugas-placeholder {
@@ -704,91 +704,137 @@
             font-size: 14px;
         }
         .petugas-dropdown {
-            position: absolute;
-            z-index: 50;
-            margin-top: 6px;
+            position: fixed !important;
+            z-index: 9999 !important;
             width: 100%;
-            max-height: 280px;
+            max-width: 500px;
+            max-height: 350px;
             background: #ffffff;
             border: 1px solid var(--aj-select-border);
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .petugas-dropdown-search {
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #e5e7eb;
             background: #f9fafb;
+            flex-shrink: 0;
         }
         .petugas-dropdown-search input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 14px;
             background: #ffffff;
             color: #111827;
+            transition: all 0.2s ease;
         }
         .petugas-dropdown-search input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59,130,246,0.1);
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+        }
+        .petugas-dropdown-search input::placeholder {
+            color: #9ca3af;
         }
         .petugas-dropdown-list {
-            max-height: 220px;
+            max-height: 280px;
             overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .petugas-dropdown-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .petugas-dropdown-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .petugas-dropdown-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .petugas-dropdown-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
         .petugas-dropdown-item {
-            padding: 10px 12px;
+            padding: 12px 14px;
             cursor: pointer;
             transition: all 0.15s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             border-bottom: 1px solid #f3f4f6;
         }
+        .petugas-dropdown-item:last-child {
+            border-bottom: none;
+        }
         .petugas-dropdown-item:hover {
-            background: #f0f9ff;
+            background: #f0fdf4;
         }
         .petugas-dropdown-item.selected {
-            background: #f0f9ff;
+            background: #f0fdf4;
         }
         .petugas-checkbox {
             width: 20px;
             height: 20px;
-            border: 2px solid #93c5fd;
-            border-radius: 4px;
+            border: 2px solid #86efac;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
             background: #ffffff;
         }
         .petugas-checkbox.checked {
-            background: #3b82f6;
-            border-color: #3b82f6;
+            background: #22c55e;
+            border-color: #22c55e;
+            transform: scale(1.05);
         }
         .petugas-checkbox svg {
             width: 14px;
             height: 14px;
             color: white;
         }
+        .petugas-dropdown-item-info {
+            flex: 1;
+            min-width: 0;
+        }
         .petugas-dropdown-item-name {
             font-size: 14px;
             font-weight: 500;
             color: #111827;
+            margin-bottom: 2px;
         }
         .petugas-dropdown-item-contact {
             font-size: 12px;
             color: #6b7280;
-            margin-top: 2px;
         }
         .petugas-dropdown-empty {
-            padding: 20px;
+            padding: 30px 20px;
             text-align: center;
             color: #9ca3af;
-            font-size: 13px;
+            font-size: 14px;
+        }
+        .petugas-dropdown-loading {
+            padding: 30px 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .petugas-dropdown-loading svg {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         .petugas-helper {
             margin-top: 6px;
@@ -1236,11 +1282,15 @@
                                                     </label>
                                                     
                                                     <!-- Custom Multi-Select with Tags -->
-                                                    <div x-data="petugasMultiSelectComponent" @click.away="open = false" class="petugas-multiselect">
+                                                    <div x-data="petugasMultiSelectComponent" 
+                                                         x-init="init()"
+                                                         @click.away="open = false" 
+                                                         class="petugas-multiselect">
                                                         <!-- Selected Tags Display -->
                                                         <div class="petugas-select-box"
                                                              :class="{ 'active': open }"
-                                                             @click="open = !open">
+                                                             @click="toggleDropdown()"
+                                                             id="petugasSelectBox">
                                                             <div class="petugas-tags-container">
                                                                 <template x-for="petugas in selectedPetugas" :key="petugas.id">
                                                                     <span class="petugas-tag">
@@ -1265,20 +1315,33 @@
                                                              x-transition:leave="transition ease-in duration-150"
                                                              x-transition:leave-start="opacity-100 transform translate-y-0"
                                                              x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                                             class="petugas-dropdown">
+                                                             class="petugas-dropdown"
+                                                             :style="dropdownStyle"
+                                                             @click.stop>
                                                             
                                                             <!-- Search Input -->
                                                             <div class="petugas-dropdown-search">
                                                                 <input type="text"
                                                                        x-model="search"
-                                                                       placeholder="Cari petugas..."
+                                                                       @input="debounceSearch()"
+                                                                       placeholder="Ketik untuk mencari petugas..."
                                                                        @click.stop
+                                                                       id="petugasSearchInput"
+                                                                       autocomplete="off"
                                                                 />
                                                             </div>
 
+                                                            <!-- Loading State -->
+                                                            <div x-show="loading" class="petugas-dropdown-loading">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px;">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+                                                                </svg>
+                                                                <span>Mencari...</span>
+                                                            </div>
+
                                                             <!-- Petugas List -->
-                                                            <div class="petugas-dropdown-list">
-                                                                <template x-for="petugas in availablePetugas" :key="petugas.id">
+                                                            <div x-show="!loading" class="petugas-dropdown-list">
+                                                                <template x-for="petugas in filteredPetugas" :key="petugas.id">
                                                                     <div @click="toggle(petugas.id)"
                                                                          class="petugas-dropdown-item"
                                                                          :class="{ 'selected': selected && selected.includes(petugas.id) }">
@@ -1292,14 +1355,17 @@
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                                                             </svg>
                                                                         </div>
-                                                                        <div style="flex: 1;">
+                                                                        <div class="petugas-dropdown-item-info">
                                                                             <div class="petugas-dropdown-item-name" x-text="petugas.nama"></div>
                                                                             <div x-show="petugas.kontak" class="petugas-dropdown-item-contact" x-text="petugas.kontak"></div>
                                                                         </div>
                                                                     </div>
                                                                 </template>
-                                                                <div x-show="availablePetugas.length === 0" class="petugas-dropdown-empty">
-                                                                    Tidak ada petugas ditemukan
+                                                                <div x-show="!loading && filteredPetugas.length === 0" class="petugas-dropdown-empty">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                                    </svg>
+                                                                    <div>Tidak ada petugas ditemukan</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1645,16 +1711,25 @@
         Alpine.data('petugasMultiSelectComponent', () => ({
             open: false,
             search: '',
+            loading: false,
+            dropdownStyle: '',
+            searchTimeout: null,
             selected: @entangle('selectedPetugasIds').live,
             available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak, 'status' => $p->status]) ?? []),
+            
+            init() {
+                // Listen for scroll and resize to update dropdown position
+                window.addEventListener('scroll', () => this.updateDropdownPosition(), true);
+                window.addEventListener('resize', () => this.updateDropdownPosition());
+            },
             
             get selectedPetugas() {
                 if (!this.selected || !Array.isArray(this.selected)) return [];
                 return this.available.filter(p => this.selected.includes(p.id));
             },
             
-            // Filter petugas: hide selected ones and apply search filter
-            get availablePetugas() {
+            // Filter petugas with search
+            get filteredPetugas() {
                 let filtered = this.available;
                 
                 // Hide selected petugas from dropdown
@@ -1672,6 +1747,53 @@
                 }
                 
                 return filtered;
+            },
+            
+            toggleDropdown() {
+                this.open = !this.open;
+                if (this.open) {
+                    this.$nextTick(() => {
+                        this.updateDropdownPosition();
+                        // Focus search input
+                        const searchInput = document.getElementById('petugasSearchInput');
+                        if (searchInput) {
+                            setTimeout(() => searchInput.focus(), 100);
+                        }
+                    });
+                } else {
+                    this.search = ''; // Clear search when closing
+                }
+            },
+            
+            updateDropdownPosition() {
+                if (!this.open) return;
+                
+                const selectBox = document.getElementById('petugasSelectBox');
+                if (!selectBox) return;
+                
+                const rect = selectBox.getBoundingClientRect();
+                const dropdownWidth = Math.min(rect.width, 500); // Max 500px
+                
+                this.dropdownStyle = `
+                    top: ${rect.bottom + 6}px;
+                    left: ${rect.left}px;
+                    width: ${dropdownWidth}px;
+                `;
+            },
+            
+            debounceSearch() {
+                // Clear previous timeout
+                if (this.searchTimeout) {
+                    clearTimeout(this.searchTimeout);
+                }
+                
+                // Show loading
+                this.loading = true;
+                
+                // Debounce search with 300ms delay
+                this.searchTimeout = setTimeout(() => {
+                    this.loading = false;
+                }, 300);
             },
             
             toggle(id) {
