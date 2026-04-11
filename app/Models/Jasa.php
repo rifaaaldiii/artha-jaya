@@ -146,6 +146,7 @@ class Jasa extends Model
 
         static::deleted(function (Jasa $jasa): void {
             // Saat jasa dihapus, update semua petugas terkait menjadi 'ready'
+            // Gunakan getOriginal untuk mendapatkan data sebelum dihapus
             $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
             
             if (!empty($petugasIds)) {
@@ -155,11 +156,16 @@ class Jasa extends Model
                         ->whereHas('petugasMany', function ($query) use ($petugasId) {
                             $query->where('petugas_id', $petugasId);
                         })
-                        ->where('status', '!=', 'selesai')
+                        ->where('id', '!=', $jasa->id) // Exclude the deleted jasa
+                        ->where('status', '!=', 'selesai') // Only count non-selesai jobs
                         ->exists();
 
+                    // Jika tidak ada jasa aktif lain, update status menjadi 'ready'
                     if (!$hasActiveJasa) {
-                        Petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                        Petugas::where('id', $petugasId)->update([
+                            'status' => 'ready',
+                            'updateAt' => now(),
+                        ]);
                     }
                 }
             }
