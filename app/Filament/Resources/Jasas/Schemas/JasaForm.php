@@ -83,7 +83,8 @@ class JasaForm
                 ->preload()
                 ->required()
                 ->default(fn () => Auth::user()->branch ?? null)
-                ->disabled(fn () => Auth::user()->branch !== null),
+                ->disabled(fn () => Auth::user()->branch !== null)
+                ->dehydrated(true),
             
             Select::make('pelanggan_id')
                 ->label('Pilih Customer')
