@@ -150,20 +150,6 @@
             font-size: 9pt;
         }
         
-        /* Notes */
-        .notes {
-            clear: both;
-            border: 0.5pt solid #000;
-            padding: 2mm;
-            margin-bottom: 3mm;
-            font-size: 7pt;
-        }
-        
-        .notes-title {
-            font-weight: bold;
-            margin-bottom: 1mm;
-        }
-        
         /* Footer */
         .footer {
             text-align: center;
@@ -182,14 +168,23 @@
         
         /* Signature */
         .signature-section {
-            display: flex;
-            justify-content: space-between;
+            width: 100%;
             margin-top: 6mm;
             font-size: 7.5pt;
         }
         
+        .signature-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .signature-section td {
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
+        }
+        
         .signature-box {
-            width: 60mm;
             text-align: center;
         }
         
@@ -201,6 +196,8 @@
         .signature-line {
             border-top: 0.5pt solid #000;
             padding-top: 1mm;
+            display: inline-block;
+            width: 80%;
         }
     </style>
 </head>
@@ -280,24 +277,24 @@
             </div>
         </div>
         
-        <!-- Notes -->
-        @if(!empty($row['note']))
-        <div class="notes">
-            <div class="notes-title">Catatan:</div>
-            <div>{{ $row['note'] }}</div>
-        </div>
-        @endif
-        
         <!-- Signature -->
         <div class="signature-section">
-            <div class="signature-box">
-                <div class="signature-title">Pemberi Kerja</div>
-                <div class="signature-line">( ......................... )</div>
-            </div>
-            <div class="signature-box">
-                <div class="signature-title">PT. Artha Jaya Mas</div>
-                <div class="signature-line">( ......................... )</div>
-            </div>
+            <table>
+                <tr>
+                    <td>
+                        <div class="signature-box">
+                            <div class="signature-title">Pemberi Kerja</div>
+                            <div class="signature-line">( ......................... )</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="signature-box">
+                            <div class="signature-title">PT. Artha Jaya Mas</div>
+                            <div class="signature-line">( ......................... )</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
         
         <!-- Footer -->
