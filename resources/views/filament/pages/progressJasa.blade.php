@@ -638,6 +638,171 @@
                 align-items: flex-start;
             }
         }
+
+        /* Multi-select Petugas Styles */
+        .petugas-multiselect {
+            position: relative;
+        }
+        .petugas-select-box {
+            width: 100%;
+            min-height: 45px;
+            padding: 8px 10px;
+            border: 1px solid var(--aj-select-border);
+            border-radius: 10px;
+            background: var(--aj-select-bg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
+        }
+        .petugas-select-box:hover {
+            border-color: #93c5fd;
+        }
+        .petugas-select-box.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .petugas-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .petugas-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 1px solid #93c5fd;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #1e40af;
+            font-weight: 500;
+        }
+        .petugas-tag-remove {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: none;
+            background: #1e40af;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 11px;
+            line-height: 1;
+            padding: 0;
+            transition: all 0.15s ease;
+        }
+        .petugas-tag-remove:hover {
+            background: #1e3a8a;
+            transform: scale(1.1);
+        }
+        .petugas-placeholder {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .petugas-dropdown {
+            position: absolute;
+            z-index: 50;
+            margin-top: 6px;
+            width: 100%;
+            max-height: 280px;
+            background: #ffffff;
+            border: 1px solid var(--aj-select-border);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .petugas-dropdown-search {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        .petugas-dropdown-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #ffffff;
+            color: #111827;
+        }
+        .petugas-dropdown-search input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.1);
+        }
+        .petugas-dropdown-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .petugas-dropdown-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .petugas-dropdown-item:hover {
+            background: #f0f9ff;
+        }
+        .petugas-dropdown-item.selected {
+            background: #f0f9ff;
+        }
+        .petugas-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #93c5fd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+            background: #ffffff;
+        }
+        .petugas-checkbox.checked {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .petugas-checkbox svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+        }
+        .petugas-dropdown-item-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #111827;
+        }
+        .petugas-dropdown-item-contact {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        .petugas-dropdown-empty {
+            padding: 20px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+        .petugas-helper {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--aj-status-subtitle);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .petugas-helper svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
     </style>
 
     <!-- Pilih Jasa -->
@@ -1071,26 +1236,24 @@
                                                     </label>
                                                     
                                                     <!-- Custom Multi-Select with Tags -->
-                                                    <div x-data="petugasMultiSelectComponent" @click.away="open = false">
+                                                    <div x-data="petugasMultiSelectComponent" @click.away="open = false" class="petugas-multiselect">
                                                         <!-- Selected Tags Display -->
-                                                        <div style="width: 100%; min-height: 45px; padding: 8px 10px; border: 1px solid var(--aj-select-border); border-radius: 10px; background: var(--aj-select-bg); cursor: pointer; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
-                                                             :style="open ? 'border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15)' : ''"
+                                                        <div class="petugas-select-box"
+                                                             :class="{ 'active': open }"
                                                              @click="open = !open">
-                                                            <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                                                            <div class="petugas-tags-container">
                                                                 <template x-for="petugas in selectedPetugas" :key="petugas.id">
-                                                                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 1px solid #93c5fd; border-radius: 20px; font-size: 13px; color: #1e40af; font-weight: 500;">
+                                                                    <span class="petugas-tag">
                                                                         <span x-text="petugas.nama"></span>
                                                                         <button type="button" 
                                                                                 @click.stop="remove(petugas.id)"
-                                                                                style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border: none; background: #1e40af; color: white; border-radius: 50%; cursor: pointer; font-size: 11px; line-height: 1; padding: 0; transition: all 0.15s ease;"
-                                                                                onmouseover="this.style.background='#1e3a8a'; this.style.transform='scale(1.1)'"
-                                                                                onmouseout="this.style.background='#1e40af'; this.style.transform='scale(1)'"
+                                                                                class="petugas-tag-remove"
                                                                                 title="Hapus petugas">
                                                                             &times;
                                                                         </button>
                                                                     </span>
                                                                 </template>
-                                                                <span x-show="!selected || selected.length === 0" style="color: #9ca3af; font-size: 14px;">Pilih petugas...</span>
+                                                                <span x-show="!selected || selected.length === 0" class="petugas-placeholder">Pilih petugas...</span>
                                                             </div>
                                                         </div>
 
@@ -1102,30 +1265,26 @@
                                                              x-transition:leave="transition ease-in duration-150"
                                                              x-transition:leave-start="opacity-100 transform translate-y-0"
                                                              x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                                             style="position: absolute; z-index: 50; margin-top: 6px; width: 100%; max-height: 280px; background: #ffffff; border: 1px solid var(--aj-select-border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden;">
+                                                             class="petugas-dropdown">
                                                             
                                                             <!-- Search Input -->
-                                                            <div style="padding: 10px; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+                                                            <div class="petugas-dropdown-search">
                                                                 <input type="text"
                                                                        x-model="search"
                                                                        placeholder="Cari petugas..."
-                                                                       style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #ffffff; color: #111827;"
                                                                        @click.stop
                                                                 />
                                                             </div>
 
                                                             <!-- Petugas List -->
-                                                            <div style="max-height: 220px; overflow-y: auto;">
-                                                                <template x-for="petugas in filteredPetugas" :key="petugas.id">
+                                                            <div class="petugas-dropdown-list">
+                                                                <template x-for="petugas in availablePetugas" :key="petugas.id">
                                                                     <div @click="toggle(petugas.id)"
-                                                                         style="padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f3f4f6;"
-                                                                         onmouseover="this.style.background='#f0f9ff'"
-                                                                         onmouseout="this.style.background='#ffffff'"
-                                                                         :style="selected.includes(petugas.id) ? 'background: #f0f9ff;' : ''">
-                                                                        <div style="width: 20px; height: 20px; border: 2px solid #93c5fd; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s ease;"
-                                                                             :style="selected.includes(petugas.id) ? 'background: #3b82f6; border-color: #3b82f6;' : 'background: #ffffff;'">
-                                                                            <svg x-show="selected.includes(petugas.id)" 
-                                                                                 style="width: 14px; height: 14px; color: white;" 
+                                                                         class="petugas-dropdown-item"
+                                                                         :class="{ 'selected': selected && selected.includes(petugas.id) }">
+                                                                        <div class="petugas-checkbox"
+                                                                             :class="{ 'checked': selected && selected.includes(petugas.id) }">
+                                                                            <svg x-show="selected && selected.includes(petugas.id)" 
                                                                                  fill="none" 
                                                                                  viewBox="0 0 24 24" 
                                                                                  stroke="currentColor" 
@@ -1134,12 +1293,12 @@
                                                                             </svg>
                                                                         </div>
                                                                         <div style="flex: 1;">
-                                                                            <div style="font-size: 14px; font-weight: 500; color: #111827;" x-text="petugas.nama"></div>
-                                                                            <div x-show="petugas.kontak" style="font-size: 12px; color: #6b7280; margin-top: 2px;" x-text="petugas.kontak"></div>
+                                                                            <div class="petugas-dropdown-item-name" x-text="petugas.nama"></div>
+                                                                            <div x-show="petugas.kontak" class="petugas-dropdown-item-contact" x-text="petugas.kontak"></div>
                                                                         </div>
                                                                     </div>
                                                                 </template>
-                                                                <div x-show="filteredPetugas.length === 0" style="padding: 20px; text-align: center; color: #9ca3af; font-size: 13px;">
+                                                                <div x-show="availablePetugas.length === 0" class="petugas-dropdown-empty">
                                                                     Tidak ada petugas ditemukan
                                                                 </div>
                                                             </div>
@@ -1147,8 +1306,8 @@
                                                     </div>
 
                                                     <!-- Helper Text -->
-                                                    <div style="margin-top: 6px; font-size: 12px; color: var(--aj-status-subtitle); display: flex; align-items: center; gap: 6px;">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px; flex-shrink: 0;">
+                                                    <div class="petugas-helper">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                                                         </svg>
                                                         <span>Klik petugas untuk memilih. Petugas terpilih akan muncul sebagai tag di atas dan bisa dihapus dengan klik tombol ×.</span>
@@ -1487,19 +1646,32 @@
             open: false,
             search: '',
             selected: @entangle('selectedPetugasIds').live,
-            available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak]) ?? []),
+            available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak, 'status' => $p->status]) ?? []),
             
             get selectedPetugas() {
                 if (!this.selected || !Array.isArray(this.selected)) return [];
                 return this.available.filter(p => this.selected.includes(p.id));
             },
             
-            get filteredPetugas() {
-                if (!this.search) return this.available;
-                return this.available.filter(p => 
-                    p.nama.toLowerCase().includes(this.search.toLowerCase()) || 
-                    (p.kontak && p.kontak.toLowerCase().includes(this.search.toLowerCase()))
-                );
+            // Filter petugas: hide selected ones and apply search filter
+            get availablePetugas() {
+                let filtered = this.available;
+                
+                // Hide selected petugas from dropdown
+                if (this.selected && Array.isArray(this.selected)) {
+                    filtered = filtered.filter(p => !this.selected.includes(p.id));
+                }
+                
+                // Apply search filter
+                if (this.search) {
+                    const searchLower = this.search.toLowerCase();
+                    filtered = filtered.filter(p => 
+                        p.nama.toLowerCase().includes(searchLower) || 
+                        (p.kontak && p.kontak.toLowerCase().includes(searchLower))
+                    );
+                }
+                
+                return filtered;
             },
             
             toggle(id) {

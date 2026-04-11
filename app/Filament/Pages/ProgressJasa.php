@@ -440,7 +440,8 @@ class ProgressJasa extends Page implements HasForms
     public function getAvailablePetugasProperty()
     {
         return Petugas::query()
-            ->select('id', 'nama', 'kontak')
+            ->select('id', 'nama', 'kontak', 'status')
+            ->where('status', 'ready')
             ->orderBy('nama')
             ->get();
     }
