@@ -849,7 +849,7 @@
                                     <div class="item-card-body">
                                         <div class="item-row">
                                             <span class="item-label">Jenis Jasa</span>
-                                            <span class="item-value">{{ $item->nama_jasa }}</span>
+                                            <span class="item-value">{{ $item->jenis_layanan }}</span>
                                         </div>
                                         <div class="item-row">
                                             <span class="item-label">Jumlah</span>
@@ -1049,7 +1049,6 @@
                                         <!-- Form Terjadwal (Date/Time & Multi-select Petugas) -->
                                         @if($nextStatus === 'terjadwal')
                                         <div class="update-status-field" style="flex: 1; min-width: 300px;">
-                                            <label class="update-status-label">Form Penjadwalan</label>
                                             <div style="display: flex; flex-direction: column; gap: 15px;">
                                                 <!-- Input Tanggal dan Waktu -->
                                                 <div>
@@ -1070,36 +1069,7 @@
                                                     </label>
                                                     
                                                     <!-- Custom Multi-Select with Tags -->
-                                                    <div x-data="{
-                                                        open: false,
-                                                        search: '',
-                                                        selected: @entangle('selectedPetugasIds').defer,
-                                                        available: @json($this->availablePetugas->map(function($p) { return ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak]; })),
-                                                        get selectedPetugas() {
-                                                            return this.available.filter(p => this.selected.includes(p.id));
-                                                        },
-                                                        get filteredPetugas() {
-                                                            if (!this.search) return this.available;
-                                                            return this.available.filter(p => 
-                                                                p.nama.toLowerCase().includes(this.search.toLowerCase()) ||
-                                                                (p.kontak && p.kontak.toLowerCase().includes(this.search.toLowerCase()))
-                                                            );
-                                                        },
-                                                        toggle(id) {
-                                                            const index = this.selected.indexOf(id);
-                                                            if (index > -1) {
-                                                                this.selected.splice(index, 1);
-                                                            } else {
-                                                                this.selected.push(id);
-                                                            }
-                                                        },
-                                                        remove(id) {
-                                                            const index = this.selected.indexOf(id);
-                                                            if (index > -1) {
-                                                                this.selected.splice(index, 1);
-                                                            }
-                                                        }
-                                                    }" @click.away="open = false">
+                                                    <div x-data="{ open: false, search: '', selected: @entangle('selectedPetugasIds').defer, available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak])), get selectedPetugas() { return this.available.filter(p => this.selected.includes(p.id)); }, get filteredPetugas() { if (!this.search) return this.available; return this.available.filter(p => p.nama.toLowerCase().includes(this.search.toLowerCase()) || (p.kontak && p.kontak.toLowerCase().includes(this.search.toLowerCase()))); }, toggle(id) { const index = this.selected.indexOf(id); if (index > -1) { this.selected.splice(index, 1); } else { this.selected.push(id); } }, remove(id) { const index = this.selected.indexOf(id); if (index > -1) { this.selected.splice(index, 1); } } }" @click.away="open = false">
                                                         <!-- Selected Tags Display -->
                                                         <div style="width: 100%; min-height: 45px; padding: 8px 10px; border: 1px solid var(--aj-select-border); border-radius: 10px; background: var(--aj-select-bg); cursor: pointer; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
                                                              :style="open ? 'border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15)' : ''"
