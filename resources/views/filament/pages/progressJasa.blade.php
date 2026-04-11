@@ -1071,7 +1071,7 @@
                                                     </label>
                                                     
                                                     <!-- Custom Multi-Select with Tags -->
-                                                    <div x-data="petugasMultiSelect()" @click.away="open = false">
+                                                    <div x-data="petugasMultiSelectComponent" @click.away="open = false">
                                                         <!-- Selected Tags Display -->
                                                         <div style="width: 100%; min-height: 45px; padding: 8px 10px; border: 1px solid var(--aj-select-border); border-radius: 10px; background: var(--aj-select-bg); cursor: pointer; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
                                                              :style="open ? 'border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15)' : ''"
@@ -1090,7 +1090,7 @@
                                                                         </button>
                                                                     </span>
                                                                 </template>
-                                                                <span x-show="selected.length === 0" style="color: #9ca3af; font-size: 14px;">Pilih petugas...</span>
+                                                                <span x-show="!selected || selected.length === 0" style="color: #9ca3af; font-size: 14px;">Pilih petugas...</span>
                                                             </div>
                                                         </div>
 
@@ -1481,15 +1481,16 @@
     document.addEventListener('livewire:initialized', registerLivewireErrorHandler);
     document.addEventListener('livewire:init', registerLivewireErrorHandler);
 
-    // Alpine.js component for petugas multi-select
-    function petugasMultiSelect() {
-        return {
+    // Register Alpine component for petugas multi-select
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('petugasMultiSelectComponent', () => ({
             open: false,
             search: '',
-            selected: @entangle('selectedPetugasIds').defer,
-            available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak])),
+            selected: @entangle('selectedPetugasIds').live,
+            available: @js($this->availablePetugas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak]) ?? []),
             
             get selectedPetugas() {
+                if (!this.selected || !Array.isArray(this.selected)) return [];
                 return this.available.filter(p => this.selected.includes(p.id));
             },
             
@@ -1502,6 +1503,7 @@
             },
             
             toggle(id) {
+                if (!this.selected || !Array.isArray(this.selected)) this.selected = [];
                 const index = this.selected.indexOf(id);
                 if (index > -1) {
                     this.selected.splice(index, 1);
@@ -1511,11 +1513,12 @@
             },
             
             remove(id) {
+                if (!this.selected || !Array.isArray(this.selected)) return;
                 const index = this.selected.indexOf(id);
                 if (index > -1) {
                     this.selected.splice(index, 1);
                 }
             }
-        };
-    }
+        }));
+    });
 </script>
