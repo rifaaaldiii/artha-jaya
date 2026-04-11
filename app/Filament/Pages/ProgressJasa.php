@@ -196,8 +196,8 @@ class ProgressJasa extends Page implements HasForms
                     ->label('Upload Foto Progress')
                     ->image()
                     ->multiple()
-                    ->disk('public')
-                    ->directory('progress/jasa')
+                    ->disk('public_html_progress')
+                    ->directory('jasa')
                     ->visibility('public')
                     ->maxSize(2048)
                     ->maxFiles(10)
@@ -206,23 +206,6 @@ class ProgressJasa extends Page implements HasForms
                     ->openable(),
             ])
             ->statePath('imageData');
-    }
-
-    protected function copyToPublic(string $storagePath): string
-    {
-        $sourcePath = storage_path('app/public/' . $storagePath);
-        $publicPath = public_path($storagePath);
-        
-        $publicDir = dirname($publicPath);
-        if (!file_exists($publicDir)) {
-            mkdir($publicDir, 0755, true);
-        }
-        
-        if (file_exists($sourcePath)) {
-            copy($sourcePath, $publicPath);
-        }
-        
-        return $storagePath;
     }
 
     public function updateStatus(): void
@@ -281,8 +264,7 @@ class ProgressJasa extends Page implements HasForms
                 
                 foreach ($progressImages as $imagePath) {
                     if ($imagePath) {
-                        $this->copyToPublic($imagePath);
-                        
+                        // Image is already uploaded to public_html/progress/jasa
                         $existingImages[] = [
                             'path' => $imagePath,
                             'uploaded_at' => now()->format('Y-m-d H:i:s'),
@@ -433,11 +415,19 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
-        $cleanPath = ltrim($imagePath, '/');
-        $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
-        $url = $baseUrl . '/' . $cleanPath;
-        
-        return preg_replace('#([^:])//+#', '$1/', $url);
+        try {
+            // Remove leading slash if present
+            $cleanPath = ltrim($imagePath, '/');
+            
+            // Build URL directly from public_html/progress
+            $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+            $url = $baseUrl . '/progress/' . $cleanPath;
+            
+            // Fix double slashes in URL
+            return preg_replace('#([^:])//+#', '$1/', $url);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     // Getter untuk available petugas (digunakan di blade untuk multi-select)

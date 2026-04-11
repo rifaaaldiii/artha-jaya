@@ -57,6 +57,16 @@ return [
             'report' => false,
         ],
 
+        'public_html_progress' => [
+            'driver' => 'local',
+            'root' => base_path('../public_html/progress'),
+            'url' => env('APP_URL').'/progress',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+            'directory_visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

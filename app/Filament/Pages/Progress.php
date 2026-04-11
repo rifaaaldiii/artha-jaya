@@ -194,8 +194,8 @@ class Progress extends Page implements HasForms
                     ->label('Upload Foto Progress')
                     ->image()
                     ->multiple()
-                    ->disk('public')
-                    ->directory('progress/produksi')
+                    ->disk('public_html_progress')
+                    ->directory('produksi')
                     ->visibility('public')
                     ->maxSize(2048)
                     ->maxFiles(10)
@@ -220,32 +220,6 @@ class Progress extends Page implements HasForms
     public function setUploadingStatus(bool $status): void
     {
         $this->isUploading = $status;
-    }
-
-    /**
-     * Copy uploaded file from storage to public directory
-     */
-    protected function copyToPublic(string $storagePath): string
-    {
-        $sourcePath = storage_path('app/public/' . $storagePath);
-        $publicPath = public_path($storagePath);
-        
-        // Create directory if it doesn't exist
-        $publicDir = dirname($publicPath);
-        if (!file_exists($publicDir)) {
-            mkdir($publicDir, 0755, true);
-        }
-        
-        // Copy file to public directory
-        if (file_exists($sourcePath)) {
-            copy($sourcePath, $publicPath);
-            \Log::info('File copied to public:', [
-                'from' => $sourcePath,
-                'to' => $publicPath,
-            ]);
-        }
-        
-        return $storagePath;
     }
 
     public function getProduksiOptions(): array
@@ -414,16 +388,9 @@ class Progress extends Page implements HasForms
                 // Add each new image to array
                 foreach ($progressImages as $imagePath) {
                     if ($imagePath) {
-                        // Copy file from storage to public directory
-                        $this->copyToPublic($imagePath);
-                        
-                        $publicPath = public_path($imagePath);
-                        $fileExists = file_exists($publicPath);
-                        
+                        // Image is already uploaded to public_html/progress/produksi
                         \Log::info('Processing image:', [
                             'path' => $imagePath,
-                            'public_path' => $publicPath,
-                            'exists' => $fileExists,
                         ]);
                         
                         $existingImages[] = [
@@ -590,31 +557,27 @@ class Progress extends Page implements HasForms
         return 'danger';
     }
 
+    /**
+     * Get image URL from public_html/progress directory
+     */
     public function getImageUrl(?string $imagePath): ?string
     {
         if (!$imagePath) {
             return null;
         }
 
-        // Load image directly from public directory
         try {
             // Remove leading slash if present
             $cleanPath = ltrim($imagePath, '/');
             
-            // Build URL directly to public file
+            // Build URL directly from public_html/progress
             $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
-            $url = $baseUrl . '/' . $cleanPath;
+            $url = $baseUrl . '/progress/' . $cleanPath;
             
             // Fix double slashes in URL
             return preg_replace('#([^:])//+#', '$1/', $url);
         } catch (\Exception $e) {
-            // Fallback to storage URL if direct public fails
-            try {
-                $url = Storage::disk('public')->url($imagePath);
-                return preg_replace('#([^:])//+#', '$1/', $url);
-            } catch (\Exception $e2) {
-                return null;
-            }
+            return null;
         }
     }
 }
