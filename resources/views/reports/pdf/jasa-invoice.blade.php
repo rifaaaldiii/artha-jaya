@@ -131,7 +131,7 @@
             width: 65mm;
             border: 0.5pt solid #000;
             padding: 2mm;
-            margin-bottom: 3mm;
+            margin: 0 8mm 3mm 0;
             font-size: 7.5pt;
         }
         
@@ -144,7 +144,7 @@
         .summary-row.total {
             border-top: 0.5pt solid #000;
             padding-top: 1mm;
-            margin-top: 1mm;
+            margin: 1mm 3mm 0 0;
             font-weight: bold;
             font-size: 9pt;
         }
