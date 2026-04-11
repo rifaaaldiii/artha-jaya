@@ -144,20 +144,27 @@ class Jasa extends Model
             }
         });
 
-        static::deleted(function (Jasa $jasa): void {
-            // Saat jasa dihapus, update semua petugas terkait menjadi 'ready'
-            // Gunakan getOriginal untuk mendapatkan data sebelum dihapus
+        static::deleting(function (Jasa $jasa): void {
+            // IMPORTANT: Use 'deleting' event (before delete) because pivot table has cascade delete
+            // If we use 'deleted' event, the pivot records are already gone
             $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+            
+            // Store in variable for use in deleted event
+            $jasa->setAttribute('_petugas_ids_before_delete', $petugasIds);
+        });
+
+        static::deleted(function (Jasa $jasa): void {
+            // Get petugas IDs that were stored before delete
+            $petugasIds = $jasa->getAttribute('_petugas_ids_before_delete') ?? [];
             
             if (!empty($petugasIds)) {
                 foreach ($petugasIds as $petugasId) {
-                    // Cek apakah petugas masih memiliki jasa aktif selain yang dihapus
+                    // Cek apakah petugas masih memiliki jasa aktif lainnya
                     $hasActiveJasa = static::query()
                         ->whereHas('petugasMany', function ($query) use ($petugasId) {
                             $query->where('petugas_id', $petugasId);
                         })
-                        ->where('id', '!=', $jasa->id) // Exclude the deleted jasa
-                        ->where('status', '!=', 'selesai') // Only count non-selesai jobs
+                        ->where('status', '!=', 'selesai')
                         ->exists();
 
                     // Jika tidak ada jasa aktif lain, update status menjadi 'ready'
