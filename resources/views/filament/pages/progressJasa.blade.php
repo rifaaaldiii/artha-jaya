@@ -639,6 +639,95 @@
             }
         }
 
+        /* Responsive Terjadwal Form */
+        .terjadwal-form-container {
+            flex: 1;
+            min-width: 400px;
+        }
+        .terjadwal-form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .terjadwal-field {
+            width: 100%;
+        }
+        .terjadwal-datetime-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--aj-select-border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--aj-select-bg);
+            color: var(--aj-select-text);
+            box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
+            transition: all 0.2s ease;
+        }
+        .terjadwal-datetime-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+        }
+        .terjadwal-datetime-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .terjadwal-submit-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        /* Tablet Responsive */
+        @media (max-width: 1024px) {
+            .terjadwal-form-container {
+                min-width: 350px;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .terjadwal-form-container {
+                min-width: 100%;
+                width: 100%;
+            }
+            .terjadwal-form-fields {
+                gap: 12px;
+            }
+            .terjadwal-datetime-input {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .terjadwal-form-container {
+                min-width: 100%;
+            }
+            .terjadwal-submit-container {
+                justify-content: stretch;
+            }
+            .terjadwal-submit-container button {
+                width: 100%;
+            }
+            .petugas-dropdown {
+                max-width: 100% !important;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .terjadwal-form-fields {
+                gap: 10px;
+            }
+            .update-status-label {
+                font-size: 11px;
+            }
+            .petugas-helper {
+                font-size: 11px;
+            }
+        }
+
         /* Multi-select Petugas Styles */
         .petugas-multiselect {
             position: relative;
@@ -1261,22 +1350,22 @@
 
                                         <!-- Form Terjadwal (Date/Time & Multi-select Petugas) -->
                                         @if($nextStatus === 'terjadwal')
-                                        <div class="update-status-field" style="flex: 1; min-width: 400px;">
-                                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                        <div class="terjadwal-form-container">
+                                            <div class="terjadwal-form-fields">
                                                 <!-- Input Tanggal dan Waktu -->
-                                                <div>
+                                                <div class="terjadwal-field">
                                                     <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
                                                         Tanggal & Waktu Pelaksanaan <span style="color: #dc2626;">*</span>
                                                     </label>
                                                     <input type="datetime-local"
                                                            wire:model.defer="jadwalPetugas"
                                                            wire:loading.attr="disabled"
-                                                           style="width: 100%; padding: 10px 12px; border: 1px solid var(--aj-select-border); border-radius: 10px; font-size: 14px; background: var(--aj-select-bg); color: var(--aj-select-text); box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
+                                                           class="terjadwal-datetime-input"
                                                     />
                                                 </div>
 
                                                 <!-- Multi-select Petugas with Tags -->
-                                                <div>
+                                                <div class="terjadwal-field">
                                                     <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
                                                         Petugas Pelaksana <span style="color: #dc2626;">*</span>
                                                     </label>
@@ -1379,6 +1468,20 @@
                                                         <span>Klik petugas untuk memilih. Petugas terpilih akan muncul sebagai tag di atas dan bisa dihapus dengan klik tombol ×.</span>
                                                     </div>
                                                 </div>
+
+                                                <!-- Submit Button for Terjadwal status -->
+                                                <div class="terjadwal-submit-container">
+                                                    <x-filament::button
+                                                        color="success"
+                                                        icon="heroicon-m-check-badge"
+                                                        wire:click="updateStatus"
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="updateStatus"
+                                                        :disabled="$this->isUploading"
+                                                    >
+                                                        Simpan Status
+                                                    </x-filament::button>
+                                                </div>
                                             </div>
                                         </div>
                                         @endif
@@ -1391,22 +1494,6 @@
                                                 {{ $this->imageUploadForm }}
                                             </div>
 
-                                            <x-filament::button
-                                                color="success"
-                                                icon="heroicon-m-check-badge"
-                                                wire:click="updateStatus"
-                                                wire:loading.attr="disabled"
-                                                wire:target="updateStatus"
-                                                :disabled="$this->isUploading"
-                                            >
-                                                Simpan Status
-                                            </x-filament::button>
-                                        </div>
-                                        @endif
-
-                                        <!-- Submit Button for Terjadwal status -->
-                                        @if($nextStatus === 'terjadwal')
-                                        <div class="image-upload-section" style="flex: 0 0 auto;">
                                             <x-filament::button
                                                 color="success"
                                                 icon="heroicon-m-check-badge"
