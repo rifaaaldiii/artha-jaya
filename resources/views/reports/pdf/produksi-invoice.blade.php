@@ -26,7 +26,7 @@
             width: 100%;
             max-width: 210mm;
             padding: 2mm;
-            margin-right: 4mm;
+            margin-right: 8mm;
         }
         
         /* Header */
