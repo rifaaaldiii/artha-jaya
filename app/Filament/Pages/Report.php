@@ -309,6 +309,7 @@ class Report extends Page implements HasForms
                     'items_count' => $produksi->items->count(),
                     'total_harga' => $produksi->items->sum('harga'),
                     'items' => $produksi->items->toArray(),
+                    'note' => $produksi->catatan,
                 ],
                 'generatedAt' => now(),
             ];
@@ -341,6 +342,7 @@ class Report extends Page implements HasForms
                     'items_count' => $jasa->items->count(),
                     'total_harga' => $jasa->items->sum('harga'),
                     'items' => $jasa->items->toArray(),
+                    'note' => $jasa->catatan,
                 ],
                 'generatedAt' => now(),
             ];
@@ -386,6 +388,7 @@ class Report extends Page implements HasForms
                     'items_count' => $produksi->items->count(),
                     'total_harga' => $produksi->items->sum('harga'),
                     'items' => $produksi->items->toArray(),
+                    'note' => $produksi->catatan,
                 ],
                 'generatedAt' => now(),
             ];
@@ -418,6 +421,7 @@ class Report extends Page implements HasForms
                     'items_count' => $jasa->items->count(),
                     'total_harga' => $jasa->items->sum('harga'),
                     'items' => $jasa->items->toArray(),
+                    'note' => $jasa->catatan,
                 ],
                 'generatedAt' => now(),
             ];
