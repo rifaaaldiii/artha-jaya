@@ -1057,57 +1057,129 @@
                                                         Tanggal & Waktu Pelaksanaan
                                                     </label>
                                                     <input type="datetime-local"
-                                                           class="update-status-input"
                                                            wire:model.defer="jadwalPetugas"
                                                            wire:loading.attr="disabled"
-                                                           style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card-bg); color: var(--text-primary);"
+                                                           style="width: 100%; padding: 10px 12px; border: 1px solid var(--aj-select-border); border-radius: 10px; font-size: 14px; background: var(--aj-select-bg); color: var(--aj-select-text); box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
                                                     />
                                                 </div>
 
-                                                <!-- Multi-select Petugas -->
+                                                <!-- Multi-select Petugas with Tags -->
                                                 <div>
                                                     <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                        Petugas Pelaksana (Multi-select)
+                                                        Petugas Pelaksana
                                                     </label>
-                                                    <div x-data="{ open: false }" class="multi-select-wrapper">
-                                                        <button type="button"
-                                                                @click="open = !open"
-                                                                class="multi-select-trigger"
-                                                                wire:loading.attr="disabled"
-                                                                style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card-bg); color: var(--text-primary); text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
-                                                        >
-                                                            <span>
-                                                                @if(count($selectedPetugasIds) > 0)
-                                                                    {{ count($selectedPetugasIds) }} petugas dipilih
-                                                                @else
-                                                                    Pilih petugas
-                                                                @endif
-                                                            </span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                                            </svg>
-                                                        </button>
-
-                                                        <div x-show="open"
-                                                             @click.away="open = false"
-                                                             x-transition
-                                                             style="position: absolute; z-index: 50; margin-top: 5px; width: 100%; max-height: 250px; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
-                                                        >
-                                                            @foreach($this->availablePetugas as $petugas)
-                                                                <label class="multi-select-option"
-                                                                       style="display: flex; align-items: center; padding: 10px 12px; cursor: pointer; transition: background 0.15s ease;"
-                                                                       onmouseover="this.style.background='var(--hover)'"
-                                                                       onmouseout="this.style.background='transparent'"
-                                                                >
-                                                                    <input type="checkbox"
-                                                                           value="{{ $petugas->id }}"
-                                                                           wire:model.defer="selectedPetugasIds"
-                                                                           style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;"
-                                                                    />
-                                                                    <span style="font-size: 14px;">{{ $petugas->nama }}</span>
-                                                                </label>
-                                                            @endforeach
+                                                    
+                                                    <!-- Custom Multi-Select with Tags -->
+                                                    <div x-data="{
+                                                        open: false,
+                                                        search: '',
+                                                        selected: @entangle('selectedPetugasIds').defer,
+                                                        available: @json($this->availablePetugas->map(function($p) { return ['id' => $p->id, 'nama' => $p->nama, 'kontak' => $p->kontak]; })),
+                                                        get selectedPetugas() {
+                                                            return this.available.filter(p => this.selected.includes(p.id));
+                                                        },
+                                                        get filteredPetugas() {
+                                                            if (!this.search) return this.available;
+                                                            return this.available.filter(p => 
+                                                                p.nama.toLowerCase().includes(this.search.toLowerCase()) ||
+                                                                (p.kontak && p.kontak.toLowerCase().includes(this.search.toLowerCase()))
+                                                            );
+                                                        },
+                                                        toggle(id) {
+                                                            const index = this.selected.indexOf(id);
+                                                            if (index > -1) {
+                                                                this.selected.splice(index, 1);
+                                                            } else {
+                                                                this.selected.push(id);
+                                                            }
+                                                        },
+                                                        remove(id) {
+                                                            const index = this.selected.indexOf(id);
+                                                            if (index > -1) {
+                                                                this.selected.splice(index, 1);
+                                                            }
+                                                        }
+                                                    }" @click.away="open = false">
+                                                        <!-- Selected Tags Display -->
+                                                        <div style="width: 100%; min-height: 45px; padding: 8px 10px; border: 1px solid var(--aj-select-border); border-radius: 10px; background: var(--aj-select-bg); cursor: pointer; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);"
+                                                             :style="open ? 'border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15)' : ''"
+                                                             @click="open = !open">
+                                                            <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                                                                <template x-for="petugas in selectedPetugas" :key="petugas.id">
+                                                                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 1px solid #93c5fd; border-radius: 20px; font-size: 13px; color: #1e40af; font-weight: 500;">
+                                                                        <span x-text="petugas.nama"></span>
+                                                                        <button type="button" 
+                                                                                @click.stop="remove(petugas.id)"
+                                                                                style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border: none; background: #1e40af; color: white; border-radius: 50%; cursor: pointer; font-size: 11px; line-height: 1; padding: 0; transition: all 0.15s ease;"
+                                                                                onmouseover="this.style.background='#1e3a8a'; this.style.transform='scale(1.1)'"
+                                                                                onmouseout="this.style.background='#1e40af'; this.style.transform='scale(1)'"
+                                                                                title="Hapus petugas">
+                                                                            &times;
+                                                                        </button>
+                                                                    </span>
+                                                                </template>
+                                                                <span x-show="selected.length === 0" style="color: #9ca3af; font-size: 14px;">Pilih petugas...</span>
+                                                            </div>
                                                         </div>
+
+                                                        <!-- Dropdown List -->
+                                                        <div x-show="open"
+                                                             x-transition:enter="transition ease-out duration-200"
+                                                             x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                                             x-transition:enter-end="opacity-100 transform translate-y-0"
+                                                             x-transition:leave="transition ease-in duration-150"
+                                                             x-transition:leave-start="opacity-100 transform translate-y-0"
+                                                             x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                                             style="position: absolute; z-index: 50; margin-top: 6px; width: 100%; max-height: 280px; background: #ffffff; border: 1px solid var(--aj-select-border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden;">
+                                                            
+                                                            <!-- Search Input -->
+                                                            <div style="padding: 10px; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+                                                                <input type="text"
+                                                                       x-model="search"
+                                                                       placeholder="Cari petugas..."
+                                                                       style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #ffffff; color: #111827;"
+                                                                       @click.stop
+                                                                />
+                                                            </div>
+
+                                                            <!-- Petugas List -->
+                                                            <div style="max-height: 220px; overflow-y: auto;">
+                                                                <template x-for="petugas in filteredPetugas" :key="petugas.id">
+                                                                    <div @click="toggle(petugas.id)"
+                                                                         style="padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f3f4f6;"
+                                                                         onmouseover="this.style.background='#f0f9ff'"
+                                                                         onmouseout="this.style.background='#ffffff'"
+                                                                         :style="selected.includes(petugas.id) ? 'background: #f0f9ff;' : ''">
+                                                                        <div style="width: 20px; height: 20px; border: 2px solid #93c5fd; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s ease;"
+                                                                             :style="selected.includes(petugas.id) ? 'background: #3b82f6; border-color: #3b82f6;' : 'background: #ffffff;'">
+                                                                            <svg x-show="selected.includes(petugas.id)" 
+                                                                                 style="width: 14px; height: 14px; color: white;" 
+                                                                                 fill="none" 
+                                                                                 viewBox="0 0 24 24" 
+                                                                                 stroke="currentColor" 
+                                                                                 stroke-width="3">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div style="flex: 1;">
+                                                                            <div style="font-size: 14px; font-weight: 500; color: #111827;" x-text="petugas.nama"></div>
+                                                                            <div x-show="petugas.kontak" style="font-size: 12px; color: #6b7280; margin-top: 2px;" x-text="petugas.kontak"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                                <div x-show="filteredPetugas.length === 0" style="padding: 20px; text-align: center; color: #9ca3af; font-size: 13px;">
+                                                                    Tidak ada petugas ditemukan
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Helper Text -->
+                                                    <div style="margin-top: 6px; font-size: 12px; color: var(--aj-status-subtitle); display: flex; align-items: center; gap: 6px;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px; flex-shrink: 0;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                                        </svg>
+                                                        <span>Klik untuk memilih petugas. Petugas yang dipilih akan muncul sebagai tag di atas.</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1121,11 +1193,7 @@
                                             <div>
                                                 {{ $this->imageUploadForm }}
                                             </div>
-                                        </div>
-                                        @endif
 
-                                        <!-- Submit Button -->
-                                        <div style="flex: 0 0 auto;">
                                             <x-filament::button
                                                 color="success"
                                                 icon="heroicon-m-check-badge"
@@ -1137,6 +1205,23 @@
                                                 Simpan Status
                                             </x-filament::button>
                                         </div>
+                                        @endif
+
+                                        <!-- Submit Button for Terjadwal status -->
+                                        @if($nextStatus === 'terjadwal')
+                                        <div class="image-upload-section" style="flex: 0 0 auto;">
+                                            <x-filament::button
+                                                color="success"
+                                                icon="heroicon-m-check-badge"
+                                                wire:click="updateStatus"
+                                                wire:loading.attr="disabled"
+                                                wire:target="updateStatus"
+                                                :disabled="$this->isUploading"
+                                            >
+                                                Simpan Status
+                                            </x-filament::button>
+                                        </div>
+                                        @endif
                                     </div>
                                     
                                     <div class="update-status-meta">
