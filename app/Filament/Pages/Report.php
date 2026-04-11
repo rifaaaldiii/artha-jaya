@@ -340,7 +340,11 @@ class Report extends Page implements HasForms
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
                     'items_count' => $jasa->items->count(),
                     'total_harga' => $jasa->items->sum('harga'),
-                    'items' => $jasa->items->toArray(),
+                    'items' => $jasa->items->map(function ($item) use ($jasa) {
+                        $itemArray = $item->toArray();
+                        $itemArray['branch'] = $jasa->branch;
+                        return $itemArray;
+                    })->toArray(),
                 ],
                 'generatedAt' => now(),
             ];
@@ -417,7 +421,11 @@ class Report extends Page implements HasForms
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
                     'items_count' => $jasa->items->count(),
                     'total_harga' => $jasa->items->sum('harga'),
-                    'items' => $jasa->items->toArray(),
+                    'items' => $jasa->items->map(function ($item) use ($jasa) {
+                        $itemArray = $item->toArray();
+                        $itemArray['branch'] = $jasa->branch;
+                        return $itemArray;
+                    })->toArray(),
                 ],
                 'generatedAt' => now(),
             ];
@@ -760,7 +768,11 @@ class Report extends Page implements HasForms
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
                     'items_count' => $jasa->items->count(),
                     'total_harga' => $jasa->items->sum('harga'),
-                    'items' => $jasa->items->toArray(),
+                    'items' => $jasa->items->map(function ($item) use ($jasa) {
+                        $itemArray = $item->toArray();
+                        $itemArray['branch'] = $jasa->branch;
+                        return $itemArray;
+                    })->toArray(),
                     'note' => $jasa->catatan,
                 ],
                 'generatedAt' => now(),
@@ -821,7 +833,11 @@ class Report extends Page implements HasForms
                     'created_at' => $jasa->createdAt?->format('d/m/Y H:i') ?? '-',
                     'items_count' => $jasa->items->count(),
                     'total_harga' => $jasa->items->sum('harga'),
-                    'items' => $jasa->items->toArray(),
+                    'items' => $jasa->items->map(function ($item) use ($jasa) {
+                        $itemArray = $item->toArray();
+                        $itemArray['branch'] = $jasa->branch;
+                        return $itemArray;
+                    })->toArray(),
                     'note' => $jasa->catatan,
                 ],
                 'generatedAt' => now(),
