@@ -25,7 +25,7 @@
         .page {
             width: 100%;
             max-width: 210mm;
-            padding: 2mm;
+            padding: 2mm 4mm;
         }
         
         /* Header */
@@ -132,7 +132,7 @@
             width: 65mm;
             border: 0.5pt solid #000;
             padding: 2mm;
-            margin: 0 8mm 3mm 0;
+            margin: 0 0 3mm 0;
             font-size: 7.5pt;
         }
         
@@ -145,7 +145,7 @@
         .summary-row.total {
             border-top: 0.5pt solid #000;
             padding-top: 1mm;
-            margin: 1mm 3mm 0 0;
+            margin: 1mm 1mm 0 0;
             font-weight: bold;
             font-size: 9pt;
         }
