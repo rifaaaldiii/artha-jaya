@@ -142,13 +142,13 @@ class JasaForm
                         }
                     }
                 })
-                ->afterStateHydrated(function ($state, $component, $record, $get) {
+                ->afterStateHydrated(function ($state, $component, $record, $get, $set) {
                     if ($record && $record->pelanggan_id) {
                         $pelanggan = Pelanggan::find($record->pelanggan_id);
                         if ($pelanggan) {
-                            $component->livewire->data['pelanggan_nama_info'] = $pelanggan->nama;
-                            $component->livewire->data['pelanggan_kontak_info'] = $pelanggan->kontak;
-                            $component->livewire->data['pelanggan_alamat_info'] = $pelanggan->alamat;
+                            $set('pelanggan_nama_info', $pelanggan->nama);
+                            $set('pelanggan_kontak_info', $pelanggan->kontak);
+                            $set('pelanggan_alamat_info', $pelanggan->alamat);
                         }
                     }
                 }),

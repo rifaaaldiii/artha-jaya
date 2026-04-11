@@ -52,7 +52,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 5mm 0 3mm 0;
+            margin: 5mm 3mm 0;
         }
         
         .title {
