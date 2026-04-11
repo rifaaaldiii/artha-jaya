@@ -169,7 +169,7 @@
         /* Signature */
         .signature-section {
             width: 100%;
-            margin-top: 6mm;
+            margin-top: 10mm;
             font-size: 7.5pt;
         }
         
