@@ -389,11 +389,11 @@ class JasaForm
                 ->minItems(1),
             // Switch/Toggle untuk menggunakan alamat pelanggan
             Toggle::make('use_pelanggan_alamat')
-                ->label('Gunakan alamat Customer sebagai alamat jasa')
+                ->label('Gunakan alamat customer sebagai alamat jasa')
                 ->default(true)
                 ->reactive()
                 ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama')))
-                ->helperText('Jika diaktifkan, alamat jasa akan mengikuti alamat Csutomer')
+                ->helperText('Jika diaktifkan, alamat jasa akan mengikuti alamat customer')
                 ->afterStateUpdated(function ($state, callable $set, callable $get) {
                     if ($state) {
                         // Get alamat from pelanggan
@@ -419,19 +419,19 @@ class JasaForm
             Section::make('Informasi Customer')
                 ->schema([
                     TextInput::make('pelanggan_nama_info')
-                        ->label('Nama Customer')
+                        ->label('Nama')
                         ->disabled()
                         ->dehydrated(false)
                         ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
                     
                     TextInput::make('pelanggan_kontak_info')
-                        ->label('Kontak Customer')
+                        ->label('Kontak')
                         ->disabled()
                         ->dehydrated(false)
                         ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
                     
                     Textarea::make('pelanggan_alamat_info')
-                        ->label('Alamat Customer')
+                        ->label('Alamat')
                         ->disabled()
                         ->dehydrated(false)
                         ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
