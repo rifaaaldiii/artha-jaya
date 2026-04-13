@@ -34,6 +34,7 @@
             border-bottom: 1.5pt solid #000;
             padding-bottom: 3mm;
             margin-bottom: 4mm;
+            width: 99%;
         }
         
         .company-name {
@@ -86,7 +87,7 @@
         
         /* Table */
         .items-table {
-            width: 100%;
+            width: 99%;
             border-collapse: collapse;
             margin-bottom: 3mm;
             font-size: 7.5pt;
@@ -157,6 +158,7 @@
             padding-top: 3mm;
             border-top: 0.5pt solid #000;
             font-size: 7pt;
+            width: 99%;
         }
         
         .thank-you {

@@ -68,18 +68,18 @@ class JasasTable
             ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id),
-                Action::make('print')
-                    ->label('Print')
-                    ->icon('heroicon-o-printer')
-                    ->color('success')
-                    ->url(fn ($record) => Report::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
-                    ->openUrlInNewTab()
-                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
+                // Action::make('print')
+                //     ->label('Print')
+                //     ->icon('heroicon-o-printer')
+                //     ->color('success')
+                //     ->url(fn ($record) => Report::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
+                //     ->openUrlInNewTab()
+                //     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon('heroicon-o-document-text')
                     ->color('primary')
-                    ->url(fn ($record) => Report::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa . '&format=invoice', true)
+                    ->url(fn ($record) => route('filament.admin.pages.report') . '/preview-invoice?number=' . urlencode($record->no_jasa) . '&type=jasa', true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()

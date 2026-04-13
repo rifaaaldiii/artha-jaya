@@ -24,6 +24,11 @@ class UserForm
                     ->label("Email")
                     ->required()
                     ->unique(ignoreRecord: true),
+                TextInput::make("kontak")
+                    ->label("Kontak")
+                    ->tel()
+                    ->placeholder("Contoh: 08123456789")
+                    ->nullable(),
                 Select::make("role")
                     ->label("Role")
                     ->options([

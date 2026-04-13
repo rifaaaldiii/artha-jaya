@@ -29,6 +29,7 @@ class UsersTable
                 TextColumn::make("name")->label('Nama')->sortable()->searchable(),
                 TextColumn::make("username")->label('Username')->sortable()->searchable(),
                 TextColumn::make("email")->label('Email')->sortable()->searchable(),
+                TextColumn::make("kontak")->label('Kontak')->sortable()->searchable(),
                 TextColumn::make("branch")->label('Branch')->sortable()->searchable(),
                 TextColumn::make("role")->label('Role')->sortable()->searchable(),
             ])

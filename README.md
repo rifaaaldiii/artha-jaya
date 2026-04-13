@@ -73,6 +73,8 @@ php artisan serve
 3. git push -u origin "nama branch" -----> tanpa petik
 
 composer dump-autoload
+
+php artisan optimize:clear
 php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
