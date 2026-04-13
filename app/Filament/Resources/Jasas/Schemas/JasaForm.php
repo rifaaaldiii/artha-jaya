@@ -389,11 +389,11 @@ class JasaForm
                 ->minItems(1),
             // Switch/Toggle untuk menggunakan alamat pelanggan
             Toggle::make('use_pelanggan_alamat')
-                ->label('Gunakan alamat pelanggan sebagai alamat jasa')
+                ->label('Gunakan alamat Customer sebagai alamat jasa')
                 ->default(true)
                 ->reactive()
                 ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama')))
-                ->helperText('Jika diaktifkan, alamat jasa akan mengikuti alamat pelanggan')
+                ->helperText('Jika diaktifkan, alamat jasa akan mengikuti alamat Csutomer')
                 ->afterStateUpdated(function ($state, callable $set, callable $get) {
                     if ($state) {
                         // Get alamat from pelanggan
@@ -416,22 +416,22 @@ class JasaForm
                 }),
             
             // Informasi Alamat Pelanggan (Read Only)
-            Section::make('Informasi Pelanggan')
+            Section::make('Informasi Customer')
                 ->schema([
                     TextInput::make('pelanggan_nama_info')
-                        ->label('Nama Pelanggan')
+                        ->label('Nama Customer')
                         ->disabled()
                         ->dehydrated(false)
                         ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
                     
                     TextInput::make('pelanggan_kontak_info')
-                        ->label('Kontak Pelanggan')
+                        ->label('Kontak Customer')
                         ->disabled()
                         ->dehydrated(false)
                         ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
                     
                     Textarea::make('pelanggan_alamat_info')
-                        ->label('Alamat Pelanggan')
+                        ->label('Alamat Customer')
                         ->disabled()
                         ->dehydrated(false)
                         ->visible(fn ($get) => filled($get('pelanggan_id')) || filled($get('edit_pelanggan_nama'))),
@@ -450,7 +450,8 @@ class JasaForm
                 ->helperText('Input alamat jasa secara manual jika berbeda dari alamat pelanggan'),
             
             DateTimePicker::make("jadwal")
-                ->label("Jadwal Pelanggan"),
+                ->label("Jadwal Customer")
+                ->required(),
                 
             Textarea::make("catatan")
                 ->label("Catatan"),
