@@ -661,12 +661,12 @@
             $statuses = [
                 'produksi baru' => [
                     'label' => 'Produksi Baru',
-                    'subtitle' => 'Pesanan baru masuk (CS)',
+                    'subtitle' => 'Pesanan baru masuk (CS / Admin Toko)',
                     'step' => 1,
                 ],
                 'siap produksi' => [
                     'label' => 'Siap Produksi',
-                    'subtitle' => 'Siap untuk diproses (Admin Toko/Gudang)',
+                    'subtitle' => 'Siap untuk diproses (Admin Gudang)',
                     'step' => 2,
                 ],
                 'dalam pengerjaan' => [
@@ -676,12 +676,12 @@
                 ],
                 'produksi siap diambil' => [
                     'label' => 'Produksi Siap Diambil',
-                    'subtitle' => 'Siap untuk diambil (Admin Toko/Gudang)',
+                    'subtitle' => 'Siap untuk diambil (Admin/Kepala Gudang)',
                     'step' => 4,
                 ],
                 'selesai' => [
                     'label' => 'Selesai',
-                    'subtitle' => 'Produksi selesai (CS)',
+                    'subtitle' => 'Produksi selesai (CS / Admin Toko)',
                     'step' => 5,
                 ],
             ];
@@ -999,10 +999,9 @@
                         if ($nextSequentialStatus) {
                             // Mapping from Progress.php
                             $roleStatusMap = [
-                                'cs' => ['produksi baru', 'selesai'],
-                                'admin_toko' => ['siap produksi', 'produksi siap diambil'],
+                                'admin_toko' => ['produksi baru', 'selesai'],
                                 'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-                                'kepala_gudang' => ['dalam pengerjaan'],
+                                'kepala_gudang' => ['dalam pengerjaan', 'produksi siap diambil'],
                             ];
                             foreach ($roleStatusMap as $role => $statusesForRole) {
                                 if (in_array($nextSequentialStatus, $statusesForRole, true)) {

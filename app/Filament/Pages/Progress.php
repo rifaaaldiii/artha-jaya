@@ -459,10 +459,9 @@ class Progress extends Page implements HasForms
         $allStatuses = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            'cs' => ['produksi baru', 'selesai'],
-            'admin_toko' => ['siap produksi', 'produksi siap diambil', 'selesai'],
+            'admin_toko' => ['produksi abru', 'selesai'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_teknisi_gudang' => ['dalam pengerjaan'],
+            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'produksi siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
@@ -516,10 +515,9 @@ class Progress extends Page implements HasForms
         $statusFlow = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            'cs' => ['produksi baru', 'selesai'],
-            'admin_toko' => ['siap produksi', 'produksi siap diambil', 'selesai'],
+            'admin_toko' => ['produksi abru', 'selesai'],
             'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_teknisi_gudang' => ['dalam pengerjaan'],
+            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'produksi siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
