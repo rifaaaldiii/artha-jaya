@@ -38,10 +38,10 @@ class WhatsAppNotificationHelper
     {
         return match ($eventType) {
             'produksi_created' => [
-                'administrator',
-                'admin_toko',
+                // 'administrator',
+                // 'admin_toko',
                 'admin_gudang',
-                'kepala_teknisi_gudang',
+                // 'kepala_teknisi_gudang',
             ],
             
             'produksi_status_updated' => match ($newStatus) {
@@ -54,8 +54,8 @@ class WhatsAppNotificationHelper
             },
 
             'jasa_created' => [
-                'administrator',
-                'admin_toko',
+                // 'administrator',
+                // 'admin_toko',
                 'kepala_teknisi_lapangan',
             ],
 
