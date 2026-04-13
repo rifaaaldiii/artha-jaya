@@ -143,6 +143,18 @@ class Report extends Page implements HasForms
 
     protected function loadPreviewData(): void
     {
+        // Security: Prevent admin_gudang from accessing Jasa reports
+        $user = Auth::user();
+        if ($user && $user->role === 'admin_gudang' && $this->filters['report_type'] === 'jasa') {
+            Notification::make()
+                ->title('Access Denied')
+                ->body('You do not have permission to view Jasa reports.')
+                ->danger()
+                ->send();
+            
+            $this->filters['report_type'] = 'produksi';
+        }
+
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['team', 'items'])
             : Jasa::with(['pelanggan', 'petugasMany', 'items']);
@@ -224,11 +236,32 @@ class Report extends Page implements HasForms
             ->schema([
                 Select::make('report_type')
                     ->label('Jenis Laporan')
-                    ->options([
-                        'produksi' => 'Produksi',
-                        'jasa' => 'Jasa',
-                    ])
-                    ->default('jasa')
+                    ->options(function () {
+                        $user = Auth::user();
+                        
+                        // admin_gudang hanya bisa melihat Produksi
+                        if ($user && $user->role === 'admin_gudang') {
+                            return [
+                                'produksi' => 'Produksi',
+                            ];
+                        }
+                        
+                        // Users lain bisa melihat semua
+                        return [
+                            'produksi' => 'Produksi',
+                            'jasa' => 'Jasa',
+                        ];
+                    })
+                    ->default(function () {
+                        $user = Auth::user();
+                        
+                        // admin_gudang default ke produksi
+                        if ($user && $user->role === 'admin_gudang') {
+                            return 'produksi';
+                        }
+                        
+                        return 'produksi';
+                    })
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->filters['report_type'] = $state;
