@@ -676,7 +676,7 @@
                 ],
                 'produksi siap diambil' => [
                     'label' => 'Produksi Siap Diambil',
-                    'subtitle' => 'Siap untuk diambil (Admin/Kepala Gudang)',
+                    'subtitle' => 'Siap untuk diambil (Admin / Kepala Gudang)',
                     'step' => 4,
                 ],
                 'selesai' => [

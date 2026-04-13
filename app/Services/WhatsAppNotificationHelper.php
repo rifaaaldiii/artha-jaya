@@ -45,12 +45,12 @@ class WhatsAppNotificationHelper
             ],
             
             'produksi_status_updated' => match ($newStatus) {
-                'produksi baru' => ['administrator', 'admin_toko'],
-                'siap produksi' => ['administrator', 'admin_gudang', 'kepala_teknisi_gudang'],
-                'dalam pengerjaan' => ['administrator', 'kepala_teknisi_gudang'],
-                'produksi siap diambil' => ['administrator', 'admin_toko'],
-                'selesai' => ['administrator', 'admin_toko', 'admin_gudang'],
-                default => ['administrator', 'admin_toko'],
+                'produksi baru' => ['admin_gudang'],
+                'siap produksi' => ['kepala_teknisi_gudang'],
+                'dalam pengerjaan' => ['admin_gudang'],
+                'produksi siap diambil' => ['admin_gudang','admin_toko'],
+                'selesai' => ['admin_toko'],
+                default => ['admin_toko'],
             },
 
             'jasa_created' => [
@@ -60,11 +60,11 @@ class WhatsAppNotificationHelper
             ],
 
             'jasa_status_updated' => match ($newStatus) {
-                'jasa baru' => ['administrator', 'admin_toko'],
-                'terjadwal' => ['administrator', 'kepala_teknisi_lapangan', 'petugas'],
-                'selesai dikerjakan' => ['administrator', 'admin_toko'],
-                'selesai' => ['administrator', 'admin_toko', 'kepala_teknisi_lapangan'],
-                default => ['administrator', 'admin_toko'],
+                'jasa baru' => ['kepala_teknisi_lapangan'],
+                'terjadwal' => ['petugas'],
+                'selesai dikerjakan' => ['kepala_teknisi_lapangan'],
+                'selesai' => ['admin_toko'],
+                default => ['admin_toko'],
             },
 
             default => ['administrator'],
