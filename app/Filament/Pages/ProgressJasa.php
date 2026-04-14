@@ -296,7 +296,7 @@ class ProgressJasa extends Page implements HasForms
         if ($this->updateStatusValue === 'terjadwal') {
             $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
             
-            if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'administrator'], true)) {
+            if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'admin_toko'], true)) {
                 // Coba ambil dari Filament form terlebih dahulu, fallback ke blade form
                 try {
                     $terjadwalData = $this->terjadwalForm->getState();
@@ -374,7 +374,7 @@ class ProgressJasa extends Page implements HasForms
         $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
 
         $roleStatusMap = [
-            'admin_toko' => ['jasa baru', 'selesai'],
+            'admin_toko' => ['jasa baru', 'terjadwal', 'selesai'],
             'kepala_teknisi_lapangan' => ['terjadwal', 'selesai dikerjakan'],
             'petugas' => ['selesai dikerjakan'],
             'administrator' => self::STATUS_FLOW,
