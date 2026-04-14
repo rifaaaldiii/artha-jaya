@@ -1291,8 +1291,8 @@
 
                     {{-- Tombol dan Dropdown untuk Update Status --}}
                     @php
-                        $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
-                        $nextSequentialStatus = $this->nextSequentialStatus ?? null;
+                        $allowedStatuses = $this->getAllowedStatusesForRole();
+                        $nextSequentialStatus = $this->getNextSequentialStatusProperty();
                         $canProceedNext = $nextSequentialStatus && in_array($nextSequentialStatus, $allowedStatuses, true);
                         // Always enable: no validation
                         $isUpdateEnabled = true;
