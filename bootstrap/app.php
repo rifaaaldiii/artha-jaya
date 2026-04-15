@@ -14,6 +14,24 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Handle 404 Not Found - Redirect to custom 404 page
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $exception, \Illuminate\Http\Request $request) {
+            // Jika request dari Livewire, Polling, atau AJAX
+            if ($request->is('livewire/*') || $request->is('polling/*') || $request->header('X-Livewire') || $request->ajax()) {
+                return response()->json([
+                    'error' => 'Not Found',
+                    'message' => 'Halaman tidak ditemukan.',
+                    'not_found' => true,
+                    'redirect' => route('filament.admin.pages.dashboard'),
+                ], 404);
+            }
+            
+            // Untuk request biasa, redirect ke custom 404 page
+            return response()->view('errors.404', [
+                'exception' => $exception
+            ], 404);
+        });
+
         // Handle 419 CSRF Token Expired
         $exceptions->render(function (\Illuminate\Session\TokenMismatchException $exception, \Illuminate\Http\Request $request) {
             // Jika request dari Livewire atau AJAX

@@ -9,6 +9,11 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
+// Custom 404 page route
+Route::get('/404', function () {
+    return response()->view('errors.404', [], 404);
+})->name('errors.404');
+
 Route::middleware(['auth'])->get('/polling/triggers', PollingController::class)->name('polling.triggers');
 
 // Report PDF generation routes

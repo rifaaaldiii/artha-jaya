@@ -66,6 +66,17 @@
                         return;
                     }
 
+                    // Handle 404 Not Found - Page doesn't exist
+                    if (response.status === 404) {
+                        console.warn('Polling: Endpoint not found (404). Redirecting to 404 page...');
+                        
+                        // Redirect ke custom 404 page
+                        setTimeout(() => {
+                            window.location.href = '/404';
+                        }, 300);
+                        return;
+                    }
+
                     // Handle 419 CSRF Token Expired
                     if (response.status === 419) {
                         try {
@@ -204,11 +215,23 @@
             }
         }
 
-        // Global handler untuk Livewire errors (419, 401)
+        // Global handler untuk Livewire errors (419, 401, 404)
         document.addEventListener('livewire:init', () => {
             // Intercept Livewire errors
             window.Livewire.hook('request', ({ fail }) => {
                 fail(({ status, content, preventDefault }) => {
+                    // Handle 404 Not Found - Page doesn't exist, redirect to custom 404 page
+                    if (status === 404) {
+                        preventDefault();
+                        console.warn('Livewire: Page not found (404). Redirecting to 404 page...');
+                        
+                        // Redirect ke custom 404 page
+                        setTimeout(() => {
+                            window.location.href = '/404';
+                        }, 300);
+                        return;
+                    }
+                    
                     // Handle 419 CSRF Token Expired
                     if (status === 419) {
                         preventDefault();
@@ -296,6 +319,31 @@
                 });
             });
         });
+
+        // Global fetch interceptor untuk semua requests
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            return originalFetch.apply(this, args)
+                .then(response => {
+                    // Handle 404 responses
+                    if (response.status === 404) {
+                        const url = args[0];
+                        // Ignore untuk URL tertentu yang memang boleh 404
+                        if (typeof url === 'string' && 
+                            (url.includes('/livewire/') || url.includes('/polling/'))) {
+                            console.warn(`Fetch: Endpoint not found (404) - ${url}. Redirecting to 404 page...`);
+                            setTimeout(() => {
+                                window.location.href = '/404';
+                            }, 300);
+                        }
+                    }
+                    return response;
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    throw error;
+                });
+        };
     })();
 </script>
 
