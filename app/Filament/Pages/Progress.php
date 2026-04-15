@@ -92,6 +92,9 @@ class Progress extends Page implements HasForms
         $this->imageData = [
             'progressImages' => [],
         ];
+        
+        // Ensure isUploading is false on mount
+        $this->isUploading = false;
     }
 
     public array $data = [];

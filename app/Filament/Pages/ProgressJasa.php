@@ -121,6 +121,9 @@ class ProgressJasa extends Page implements HasForms
         $this->imageData = [
             'progressImages' => [],
         ];
+        
+        // Ensure isUploading is false on mount
+        $this->isUploading = false;
 
         // Auto-set status value if next status is terjadwal
         $nextStatus = $this->getNextSequentialStatusProperty();
