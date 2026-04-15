@@ -50,6 +50,49 @@
                         },
                     });
 
+                    // Handle 401 Unauthorized - Session expired
+                    if (response.status === 401) {
+                        try {
+                            const errorData = await response.json();
+                            
+                            if (errorData.logout === true || errorData.error === 'Unauthorized') {
+                                console.warn('Polling: Session expired (401). Auto logout...');
+                                this.handleAutoLogout(errorData.redirect || '/admin/login');
+                                return;
+                            }
+                        } catch (parseError) {
+                            console.error('Polling: Error parsing 401 response', parseError);
+                        }
+                        return;
+                    }
+
+                    // Handle 419 CSRF Token Expired
+                    if (response.status === 419) {
+                        try {
+                            const errorData = await response.json();
+                            
+                            // Session expired - Auto logout
+                            if (errorData.logout === true || errorData.error === 'Session expired') {
+                                console.warn('Polling: Session expired (419). Auto logout...');
+                                this.handleAutoLogout(errorData.redirect || '/admin/login');
+                                return;
+                            }
+                            
+                            // CSRF expired but session valid - Retry with new token
+                            if (errorData.retry === true && errorData.csrf_token) {
+                                console.info('Polling: CSRF token expired (419). Updating token and retrying...');
+                                this.updateCsrfToken(errorData.csrf_token);
+                                
+                                // Retry request setelah update token
+                                setTimeout(() => this.tick(), 500);
+                                return;
+                            }
+                        } catch (parseError) {
+                            console.error('Polling: Error parsing 419 response', parseError);
+                        }
+                        return;
+                    }
+
                     // Handle 403 errors dengan smart detection
                     if (response.status === 403) {
                         try {
@@ -57,14 +100,14 @@
                             
                             // Session expired - Auto logout
                             if (errorData.logout === true || errorData.error === 'Session expired') {
-                                console.warn('Polling: Session expired. Auto logout...');
+                                console.warn('Polling: Session expired (403). Auto logout...');
                                 this.handleAutoLogout(errorData.redirect || '/admin/login');
                                 return;
                             }
                             
                             // CSRF expired but session valid - Retry with new token
                             if (errorData.retry === true && errorData.csrf_token) {
-                                console.info('Polling: CSRF token expired. Updating token and retrying...');
+                                console.info('Polling: CSRF token expired (403). Updating token and retrying...');
                                 this.updateCsrfToken(errorData.csrf_token);
                                 
                                 // Retry request setelah update token
@@ -160,6 +203,99 @@
                 startPoller();
             }
         }
+
+        // Global handler untuk Livewire errors (419, 401)
+        document.addEventListener('livewire:init', () => {
+            // Intercept Livewire errors
+            window.Livewire.hook('request', ({ fail }) => {
+                fail(({ status, content, preventDefault }) => {
+                    // Handle 419 CSRF Token Expired
+                    if (status === 419) {
+                        preventDefault();
+                        
+                        try {
+                            const data = JSON.parse(content);
+                            
+                            // Session expired - redirect to login
+                            if (data.logout === true) {
+                                console.warn('Livewire: Session expired (419). Redirecting to login...');
+                                window.location.reload();
+                                return;
+                            }
+                            
+                            // CSRF expired but session valid - update token dan retry
+                            if (data.retry === true && data.csrf_token) {
+                                console.info('Livewire: CSRF token expired. Updating token...');
+                                
+                                // Update CSRF token
+                                const meta = document.querySelector('meta[name="csrf-token"]');
+                                if (meta) {
+                                    meta.setAttribute('content', data.csrf_token);
+                                }
+                                
+                                // Retry request setelah 500ms
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Livewire: Error parsing 419 response', e);
+                            window.location.reload();
+                        }
+                    }
+                    
+                    // Handle 401 Unauthorized
+                    if (status === 401) {
+                        preventDefault();
+                        
+                        try {
+                            const data = JSON.parse(content);
+                            
+                            if (data.logout === true || data.error === 'Unauthorized') {
+                                console.warn('Livewire: Session expired (401). Redirecting to login...');
+                                window.location.reload();
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Livewire: Error parsing 401 response', e);
+                            window.location.reload();
+                        }
+                    }
+                    
+                    // Handle 403 Forbidden
+                    if (status === 403) {
+                        preventDefault();
+                        
+                        try {
+                            const data = JSON.parse(content);
+                            
+                            if (data.logout === true) {
+                                console.warn('Livewire: Session expired (403). Redirecting to login...');
+                                window.location.reload();
+                                return;
+                            }
+                            
+                            if (data.retry === true && data.csrf_token) {
+                                console.info('Livewire: CSRF token expired. Updating token...');
+                                
+                                const meta = document.querySelector('meta[name="csrf-token"]');
+                                if (meta) {
+                                    meta.setAttribute('content', data.csrf_token);
+                                }
+                                
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Livewire: Error parsing 403 response', e);
+                        }
+                    }
+                });
+            });
+        });
     })();
 </script>
 

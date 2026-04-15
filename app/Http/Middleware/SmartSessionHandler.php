@@ -23,6 +23,11 @@ class SmartSessionHandler
     {
         $response = $next($request);
 
+        // Handle 419 (CSRF Token Mismatch) dan 401 (Unauthorized)
+        if (in_array($response->getStatusCode(), [419, 401])) {
+            return $this->handleAuthError($request, $response);
+        }
+
         // Hanya handle 403 errors untuk Livewire dan Polling
         if ($response->getStatusCode() === 403) {
             $isLivewire = $request->is('livewire/*') || $request->header('X-Livewire');
@@ -41,6 +46,28 @@ class SmartSessionHandler
                     return $this->handleCsrfExpired($request, $response, $isPolling);
                 }
             }
+        }
+
+        return $response;
+    }
+
+    /**
+     * Handle authentication errors (419, 401)
+     */
+    private function handleAuthError(Request $request, Response $response): Response
+    {
+        $isLivewire = $request->is('livewire/*') || $request->header('X-Livewire');
+        $isPolling = $request->is('polling/*');
+        $isAjax = $request->ajax();
+
+        // User tidak authenticated - Session expired
+        if (!Auth::check()) {
+            return $this->handleSessionExpired($request, $isPolling || $isLivewire || $isAjax);
+        }
+
+        // User masih authenticated, kemungkinan CSRF token expired (untuk 419)
+        if ($response->getStatusCode() === 419) {
+            return $this->handleCsrfExpired($request, $response, $isPolling || $isLivewire || $isAjax);
         }
 
         return $response;

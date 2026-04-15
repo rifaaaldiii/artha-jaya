@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT. Artha Jaya Mas - System Flow Presentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 80px 20px 60px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            font-weight: 300;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .header .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9em;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Section Cards */
+        .section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 50px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section:hover {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-description {
+            font-size: 1.1em;
+            color: var(--text-light);
+            line-height: 1.7;
+            max-width: 900px;
+        }
+
+        /* Status Flow */
+        .flow-container {
+            margin: 35px 0;
+        }
+
+        .flow-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .flow-steps {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            flex: 1;
+            min-width: 180px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .flow-step .step-number {
+            font-size: 0.75em;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .flow-step .step-name {
+            font-size: 1em;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .flow-step .step-role {
+            font-size: 0.8em;
+            opacity: 0.85;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        .flow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.8em;
+            color: var(--primary);
+            font-weight: 300;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 35px;
+        }
+
+        .feature-card {
+            background: var(--bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .feature-text {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: var(--primary);
+            color: white;
+        }
+
+        th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95em;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg);
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        /* Highlight Box */
+        .info-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--warning);
+            padding: 24px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .info-box-title {
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .info-box-text {
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .tech-tag {
+            background: white;
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .tech-tag:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        /* Benefits */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: var(--bg);
+            border-radius: 10px;
+        }
+
+        .benefit-check {
+            color: var(--success);
+            font-size: 1.5em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .benefit-content h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .benefit-content p {
+            color: var(--text-light);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .section {
+                padding: 35px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .header .subtitle {
+                font-size: 1.1em;
+            }
+
+            .section {
+                padding: 30px;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-step {
+                min-width: 100%;
+            }
+
+            .flow-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                top: 100%;
+                transform: translateX(50%);
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>PT. ARTHA JAYA MAS</h1>
+            <p class="subtitle">Sistem Manajemen Produksi & Jasa/Layanan</p>
+            <div class="version-badge">Version 1.0 • Multi-Item System</div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- PRODUKSI FLOW -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2 class="section-title">Flow Produksi (Production)</h2>
+                <p class="section-description">
+                    Modul untuk mengelola proses produksi item StepNosing dan Plint dari awal hingga selesai dengan tracking visual dan notifikasi real-time.
+                </p>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-label">Status Flow Sequence</div>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="step-number">Step 1</div>
+                        <div class="step-name">Produksi Baru</div>
+                        <div class="step-role">CS / Admin Toko</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 2</div>
+                        <div class="step-name">Siap Produksi</div>
+                        <div class="step-role">Admin Gudang</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 3</div>
+                        <div class="step-name">Dalam Pengerjaan</div>
+                        <div class="step-role">Kepala Gudang</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 4</div>
+                        <div class="step-name">Produksi Siap Diambil</div>
+                        <div class="step-role">Admin / Kepala Gudang</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 5</div>
+                        <div class="step-name">Selesai</div>
+                        <div class="step-role">Admin Toko</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3 class="feature-title">Multi-Item Support</h3>
+                    <p class="feature-text">Satu nomor produksi dapat memiliki multiple item dengan jenis produksi, bahan, jumlah, dan harga yang berbeda.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 class="feature-title">Role-Based Access</h3>
+                    <p class="feature-text">Setiap role memiliki akses status tertentu untuk memastikan workflow yang terstruktur dan aman.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3 class="feature-title">Progress Images</h3>
+                    <p class="feature-text">Upload foto progress produksi untuk dokumentasi dan tracking visual yang lebih baik.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">WhatsApp Notification</h3>
+                    <p class="feature-text">Notifikasi otomatis via WhatsApp saat produksi baru dibuat atau status diupdate.</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">💡 Key Feature</div>
+                <p class="info-box-text">Status bergerak secara sequential - tidak bisa skip ke status berikutnya tanpa menyelesaikan status saat ini.</p>
+            </div>
+        </div>
+
+        <!-- JASA FLOW -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2 class="section-title">Flow Jasa & Layanan (Service)</h2>
+                <p class="section-description">
+                    Modul untuk mengelola jasa layanan pemasangan StepNosing dan Plint di lokasi pelanggan dengan scheduling dan assignment petugas.
+                </p>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-label">Status Flow Sequence</div>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="step-number">Step 1</div>
+                        <div class="step-name">Jasa Baru</div>
+                        <div class="step-role">Admin Toko</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 2</div>
+                        <div class="step-name">Terjadwal</div>
+                        <div class="step-role">Admin Toko / Kepala Teknisi</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 3</div>
+                        <div class="step-name">Selesai Dikerjakan</div>
+                        <div class="step-role">Petugas / Kepala Teknisi</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">Step 4</div>
+                        <div class="step-name">Selesai</div>
+                        <div class="step-role">Admin Toko</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👤</div>
+                    <h3 class="feature-title">Customer Management</h3>
+                    <p class="feature-text">Integrasi dengan data pelanggan termasuk nama, kontak, dan alamat lokasi jasa.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3 class="feature-title">Scheduling System</h3>
+                    <p class="feature-text">Penjadwalan petugas dengan tanggal dan waktu pelaksanaan jasa di lokasi.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👷</div>
+                    <h3 class="feature-title">Petugas Assignment</h3>
+                    <p class="feature-text">Multi-select petugas yang akan melaksanakan jasa di lapangan.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3 class="feature-title">Progress Image</h3>
+                    <p class="feature-text">Upload foto before/after dan during progress pengerjaan jasa.</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">💡 Key Feature</div>
+                <p class="info-box-text">Petugas dapat update status "Selesai Dikerjakan", Admin Toko dapat finalisasi menjadi "Selesai".</p>
+            </div>
+        </div>
+
+        <!-- USER ROLES -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2 class="section-title">User Roles & Permissions</h2>
+                <p class="section-description">
+                    Sistem memiliki role-based access control untuk memastikan setiap user hanya dapat mengakses dan mengupdate status sesuai tanggung jawabnya.
+                </p>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Produksi Access</th>
+                            <th>Jasa Access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="role-badge">Administrator</span></td>
+                            <td>Semua Status</td>
+                            <td>Semua Status</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge">Admin Toko</span></td>
+                            <td>Produksi Baru → Selesai</td>
+                            <td>Jasa Baru → Terjadwal → Selesai</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge">Admin Gudang</span></td>
+                            <td>Siap Produksi → Produksi Siap Diambil</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge">Kepala Teknisi Gudang</span></td>
+                            <td>Dalam Pengerjaan → Produksi Siap Diambil</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge">Kepala Teknisi Lapangan</span></td>
+                            <td>—</td>
+                            <td>Terjadwal → Selesai Dikerjakan</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge">Petugas</span></td>
+                            <td>—</td>
+                            <td>Selesai Dikerjakan</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- WHATSAPP INTEGRATION -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <h2 class="section-title">WhatsApp Notification System</h2>
+                <p class="section-description">
+                    Integrasi WhatsApp API (Fonte) untuk notifikasi real-time ke team terkait dengan format pesan yang professional dan terstruktur.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3 class="feature-title">Produksi Baru</h3>
+                    <p class="feature-text">Notifikasi ke team saat produksi baru dibuat dengan detail item produksi lengkap.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-title">Update Status Produksi</h3>
+                    <p class="feature-text">Notifikasi saat status produksi berubah dengan informasi lengkap dan jelas.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <h3 class="feature-title">Jasa Baru</h3>
+                    <p class="feature-text">Notifikasi ke petugas saat ada jasa baru dengan detail pelanggan dan jadwal.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Update Status Jasa</h3>
+                    <p class="feature-text">Notifikasi saat status jasa diupdate oleh petugas atau admin.</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">📝 Message Format</div>
+                <p class="info-box-text">Professional formatting dengan sections, emoji, dan structured data untuk kemudahan pembacaan di WhatsApp.</p>
+            </div>
+        </div>
+
+        <!-- MULTI-ITEM SYSTEM -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <h2 class="section-title">Multi-Item System</h2>
+                <p class="section-description">
+                    Satu referensi nomor dapat memiliki multiple items untuk efisiensi dan organisasi data yang lebih baik.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🏭</div>
+                    <h3 class="feature-title">Produksi Items</h3>
+                    <p class="feature-text">Setiap item memiliki: Jenis Produksi, Nama Bahan, Jumlah, Harga</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <h3 class="feature-title">Jasa Items</h3>
+                    <p class="feature-text">Setiap item memiliki: Jenis Layanan, Jumlah, Harga</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">➕</div>
+                    <h3 class="feature-title">Dynamic Add/Remove</h3>
+                    <p class="feature-text">Items dapat ditambahkan atau dihapus saat edit tanpa membuat record baru.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3 class="feature-title">Cascade Delete</h3>
+                    <p class="feature-text">Menghapus parent record akan otomatis menghapus semua related items.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECH STACK -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">6</div>
+                <h2 class="section-title">Technology Stack</h2>
+                <p class="section-description">
+                    Dibangun dengan framework PHP modern dan tools untuk aplikasi yang robust dan scalable.
+                </p>
+            </div>
+
+            <div class="tech-grid">
+                <span class="tech-tag">Laravel 12</span>
+                <span class="tech-tag">Filament Admin Panel</span>
+                <span class="tech-tag">Livewire</span>
+                <span class="tech-tag">MySQL</span>
+                <span class="tech-tag">Fonte WhatsApp API</span>
+                <span class="tech-tag">DomPDF</span>
+                <span class="tech-tag">Vite</span>
+                <span class="tech-tag">Tailwind CSS</span>
+            </div>
+        </div>
+
+        <!-- KEY BENEFITS -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">7</div>
+                <h2 class="section-title">Key Benefits</h2>
+                <p class="section-description">
+                    Keuntungan utama sistem Artha Jaya untuk manajemen produksi dan jasa layanan.
+                </p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-check">✓</div>
+                    <div class="benefit-content">
+                        <h4>Better Organization</h4>
+                        <p>Satu referensi number untuk multiple related items</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-check">✓</div>
+                    <div class="benefit-content">
+                        <h4>Flexibility</h4>
+                        <p>Add/remove items tanpa membuat record baru</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-check">✓</div>
+                    <div class="benefit-content">
+                        <h4>Cleaner Database</h4>
+                        <p>Normalized structure dengan proper relationships</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-check">✓</div>
+                    <div class="benefit-content">
+                        <h4>Real-time Notification</h4>
+                        <p>WhatsApp integration untuk instant communication</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-check">✓</div>
+                    <div class="benefit-content">
+                        <h4>Role-Based Security</h4>
+                        <p>Access control berdasarkan role dan tanggung jawab</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-check">✓</div>
+                    <div class="benefit-content">
+                        <h4>Progress Tracking</h4>
+                        <p>Visual progress dengan image documentation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
