@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Halaman Tidak Ditemukan</title>
+    <title>404 - Halaman Tidak Ditemukan | System Artha Jaya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,31 +12,61 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #d1fae5;
+            --secondary: #64748b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--light);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+            z-index: 0;
         }
 
         .container {
             text-align: center;
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .error-card {
             background: white;
-            border-radius: 20px;
-            padding: 60px 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.6s ease-out;
+            border-radius: 24px;
+            padding: 60px 50px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        @keyframes slideUp {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -46,128 +77,215 @@
             }
         }
 
-        .error-icon {
-            font-size: 120px;
-            margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
+        /* Logo Section */
+        .logo-section {
+            margin-bottom: 40px;
         }
 
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        /* Error Code */
+        .error-code-container {
+            position: relative;
+            margin: 40px 0;
         }
 
         .error-code {
-            font-size: 72px;
+            font-size: 140px;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--primary);
+            line-height: 1;
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
-            line-height: 1;
         }
 
+        .error-code-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 180px;
+            font-weight: 800;
+            color: var(--primary-light);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .error-icon {
+            font-size: 60px;
+            margin: 20px 0;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* Typography */
         .error-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 15px;
+            color: var(--dark);
+            margin-bottom: 16px;
+            line-height: 1.2;
         }
 
         .error-message {
             font-size: 16px;
-            color: #64748b;
-            line-height: 1.6;
+            color: var(--secondary);
+            line-height: 1.7;
             margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
+        /* Buttons */
         .button-group {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 30px;
         }
 
         .btn {
             padding: 16px 32px;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             border: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-            border: 2px solid #e2e8f0;
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: #e2e8f0;
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
             transform: translateY(-2px);
         }
 
+        /* Info Box */
         .info-box {
             margin-top: 30px;
-            padding: 20px;
-            background: #f8fafc;
+            padding: 20px 24px;
+            background: var(--light);
             border-radius: 12px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--primary);
+            text-align: left;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .info-text {
             font-size: 14px;
-            color: #64748b;
+            color: var(--secondary);
             line-height: 1.6;
         }
 
-        .info-text strong {
-            color: #1e293b;
-        }
-
+        /* Countdown */
         .countdown {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-top: 20px;
+            font-size: 13px;
+            color: var(--secondary);
+            margin-top: 24px;
+            opacity: 0.8;
         }
 
+        .countdown span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 30px 0;
+        }
+
+        /* Responsive */
         @media (max-width: 640px) {
             .error-card {
-                padding: 40px 25px;
+                padding: 40px 30px;
             }
 
             .error-code {
-                font-size: 56px;
+                font-size: 100px;
+            }
+
+            .error-code-bg {
+                font-size: 130px;
             }
 
             .error-title {
-                font-size: 24px;
+                font-size: 26px;
             }
 
             .error-icon {
-                font-size: 80px;
+                font-size: 50px;
             }
 
             .button-group {
@@ -178,20 +296,55 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            .logo {
+                font-size: 20px;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="error-card">
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">🏢</div>
+                    <span>System Artha Jaya</span>
+                </div>
+            </div>
+
+            <!-- Error Code -->
+            <div class="error-code-container">
+                <div class="error-code-bg">404</div>
+                <div class="error-code">404</div>
+            </div>
+
+            <!-- Error Icon -->
             <div class="error-icon">🔍</div>
-            <div class="error-code">404</div>
+
+            <!-- Error Message -->
             <h1 class="error-title">Halaman Tidak Ditemukan</h1>
             <p class="error-message">
                 Maaf, halaman yang Anda cari tidak ditemukan atau telah dipindahkan. 
                 Silakan periksa kembali URL atau kembali ke dashboard.
             </p>
 
+            <!-- Action Buttons -->
             <div class="button-group">
                 <a href="/admin" class="btn btn-primary">
                     <span>🏠</span>
@@ -203,14 +356,21 @@
                 </button>
             </div>
 
+            <div class="divider"></div>
+
+            <!-- Info Box -->
             <div class="info-box">
+                <div class="info-title">
+                    <span>💡</span>
+                    <span>Tips</span>
+                </div>
                 <p class="info-text">
-                    <strong>💡 Tips:</strong> Jika Anda mengklik link dari halaman sebelumnya, 
-                    kemungkinan link tersebut sudah tidak valid. Anda bisa kembali ke dashboard 
-                    atau menggunakan navigasi menu.
+                    Jika Anda mengklik link dari halaman sebelumnya, kemungkinan link tersebut sudah tidak valid. 
+                    Anda bisa kembali ke dashboard atau menggunakan navigasi menu di sidebar.
                 </p>
             </div>
 
+            <!-- Countdown -->
             <div class="countdown">
                 Auto redirect ke dashboard dalam <span id="countdown">10</span> detik
             </div>
@@ -235,7 +395,13 @@
         // Stop timer if user interacts
         document.addEventListener('click', () => {
             clearInterval(timer);
-            document.querySelector('.countdown').style.display = 'none';
+            const countdownDiv = document.querySelector('.countdown');
+            if (countdownDiv) {
+                countdownDiv.style.opacity = '0';
+                setTimeout(() => {
+                    countdownDiv.style.display = 'none';
+                }, 300);
+            }
         });
     </script>
 </body>
