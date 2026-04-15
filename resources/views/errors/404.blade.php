@@ -91,18 +91,6 @@
             gap: 10px;
         }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-
         /* Error Code */
         .error-code-container {
             position: relative;
@@ -255,33 +243,11 @@
                 font-size: 20px;
             }
         }
-
-        /* Loading Animation */
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .loading {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="error-card">
-            <!-- Logo -->
-            <div class="logo-section">
-                <div class="logo">
-                    <div class="logo-icon">🏢</div>
-                    <span>System Artha Jaya</span>
-                </div>
-            </div>
-
             <!-- Error Code -->
             <div class="error-code-container">
                 <div class="error-code-bg">404</div>
@@ -304,10 +270,6 @@
                     <span>🏠</span>
                     <span>Kembali ke Dashboard</span>
                 </a>
-                <button onclick="history.back()" class="btn btn-secondary">
-                    <span>←</span>
-                    <span>Halaman Sebelumnya</span>
-                </button>
             </div>
         </div>
     </div>
