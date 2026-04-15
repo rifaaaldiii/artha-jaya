@@ -220,52 +220,6 @@
             transform: translateY(-2px);
         }
 
-        /* Info Box */
-        .info-box {
-            margin-top: 30px;
-            padding: 20px 24px;
-            background: var(--light);
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
-            text-align: left;
-        }
-
-        .info-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-text {
-            font-size: 14px;
-            color: var(--secondary);
-            line-height: 1.6;
-        }
-
-        /* Countdown */
-        .countdown {
-            font-size: 13px;
-            color: var(--secondary);
-            margin-top: 24px;
-            opacity: 0.8;
-        }
-
-        .countdown span {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        /* Divider */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 30px 0;
-        }
-
         /* Responsive */
         @media (max-width: 640px) {
             .error-card {
@@ -355,54 +309,7 @@
                     <span>Halaman Sebelumnya</span>
                 </button>
             </div>
-
-            <div class="divider"></div>
-
-            <!-- Info Box -->
-            <div class="info-box">
-                <div class="info-title">
-                    <span>💡</span>
-                    <span>Tips</span>
-                </div>
-                <p class="info-text">
-                    Jika Anda mengklik link dari halaman sebelumnya, kemungkinan link tersebut sudah tidak valid. 
-                    Anda bisa kembali ke dashboard atau menggunakan navigasi menu di sidebar.
-                </p>
-            </div>
-
-            <!-- Countdown -->
-            <div class="countdown">
-                Auto redirect ke dashboard dalam <span id="countdown">10</span> detik
-            </div>
         </div>
     </div>
-
-    <script>
-        // Countdown timer
-        let seconds = 10;
-        const countdownElement = document.getElementById('countdown');
-        
-        const timer = setInterval(() => {
-            seconds--;
-            countdownElement.textContent = seconds;
-            
-            if (seconds <= 0) {
-                clearInterval(timer);
-                window.location.href = '/admin';
-            }
-        }, 1000);
-
-        // Stop timer if user interacts
-        document.addEventListener('click', () => {
-            clearInterval(timer);
-            const countdownDiv = document.querySelector('.countdown');
-            if (countdownDiv) {
-                countdownDiv.style.opacity = '0';
-                setTimeout(() => {
-                    countdownDiv.style.display = 'none';
-                }, 300);
-            }
-        });
-    </script>
 </body>
 </html>
