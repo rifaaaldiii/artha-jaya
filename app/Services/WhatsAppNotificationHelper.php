@@ -38,7 +38,7 @@ class WhatsAppNotificationHelper
     {
         return match ($eventType) {
             'produksi_created' => [
-                'admin_toko',
+                'admin_gudang',
             ],
             
             'produksi_status_updated' => match ($newStatus) {
@@ -47,7 +47,7 @@ class WhatsAppNotificationHelper
                 'dalam pengerjaan' => ['admin_gudang'],
                 'produksi siap diambil' => ['admin_gudang','admin_toko'],
                 'selesai' => ['admin_toko'],
-                default => ['admin_toko'],
+                default => ['admin_gudang'],
             },
 
             'jasa_created' => [
@@ -59,7 +59,7 @@ class WhatsAppNotificationHelper
                 'terjadwal' => ['petugas'],
                 'selesai dikerjakan' => ['kepala_teknisi_lapangan'],
                 'selesai' => ['admin_toko'],
-                default => ['admin_toko'],
+                default => ['kepala_teknisi_lapangan'],
             },
 
             default => ['administrator'],

@@ -267,7 +267,6 @@
             <!-- Action Buttons -->
             <div class="button-group">
                 <a href="/admin" class="btn btn-primary">
-                    <span>🏠</span>
                     <span>Kembali ke Dashboard</span>
                 </a>
             </div>
