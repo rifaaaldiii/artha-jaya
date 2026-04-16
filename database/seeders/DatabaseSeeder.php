@@ -59,11 +59,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Kepala Teknisi Lapangan',
-            'email' => 'kepalateknisilapangan@artha-jaya.com',
+            'name' => 'Kepala Lapangan',
+            'email' => 'kepalalapangan@artha-jaya.com',
             'password' => bcrypt('password'),
-            'role' => 'kepala_teknisi_lapangan',
-            'username' => 'kepalateknisilapangan',
+            'role' => 'kepala_lapangan',
+            'username' => 'kepalalapangan',
             'createdAt' => now(),
         ]);
 
