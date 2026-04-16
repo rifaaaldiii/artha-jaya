@@ -1052,30 +1052,11 @@
                                         </div>
 
                                         <!-- Image Upload Field -->
-                                        <div class="image-upload-section" style="flex: 1; min-width: 250px;"
-                                             x-data="{ uploading: false, progress: 0 }"
-                                             x-on:livewire-upload-start="uploading = true; progress = 0"
-                                             x-on:livewire-upload-finish="uploading = false; progress = 100; setTimeout(() => { $wire.set('isUploading', false) }, 500)"
-                                             x-on:livewire-upload-error="uploading = false; progress = 0"
-                                             x-on:livewire-upload-progress="uploading = true; progress = $event.detail.progress">
+                                        <div class="image-upload-section" style="flex: 1; min-width: 250px;">
                                             <!-- <label class="image-upload-label">Upload Foto Progress</label> -->
                                             <div>
                                                 {{ $this->imageUploadForm }}
                                             </div>
-                                            
-                                            <!-- Upload Progress Indicator -->
-                                            <template x-if="uploading">
-                                                <div style="margin-top: 8px;">
-                                                    <div style="background: #e5e7eb; border-radius: 9999px; height: 8px; overflow: hidden;">
-                                                        <div x-bind:style="'width: ' + progress + '%'"
-                                                             style="background: linear-gradient(90deg, #3b82f6, #22c55e); height: 100%; transition: width 0.3s ease;">
-                                                        </div>
-                                                    </div>
-                                                    <p style="font-size: 12px; color: #6b7280; margin-top: 4px; text-align: center;">
-                                                        Uploading: <span x-text="progress"></span>%
-                                                    </p>
-                                                </div>
-                                            </template>
 
                                             <x-filament::button
                                                 color="success"
@@ -1083,7 +1064,6 @@
                                                 wire:click="updateStatus"
                                                 wire:loading.attr="disabled"
                                                 wire:target="updateStatus"
-                                                x-bind:disabled="uploading || $wire.isUploading"
                                             >
                                                 Simpan Status
                                             </x-filament::button>

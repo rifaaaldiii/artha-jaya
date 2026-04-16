@@ -40,7 +40,6 @@ class ProgressJasa extends Page implements HasForms
     public ?string $jadwalPetugas = null;
     public array $petugasIds = [];
     public array $selectedPetugasIds = []; // For multi-select in blade
-    public bool $isUploading = false;
     public array $imageData = [];
     public array $terjadwalData = [];
     public array $data = [];
@@ -64,12 +63,6 @@ class ProgressJasa extends Page implements HasForms
     {
         $this->loadRecord();
         $this->dispatch('$refresh');
-    }
-
-    #[On('uploading-status-changed')]
-    public function setUploadingStatus(bool $status): void
-    {
-        $this->isUploading = $status;
     }
 
     protected function loadRecord(): void
@@ -121,9 +114,6 @@ class ProgressJasa extends Page implements HasForms
         $this->imageData = [
             'progressImages' => [],
         ];
-        
-        // Ensure isUploading is false on mount
-        $this->isUploading = false;
 
         // Auto-set status value if next status is terjadwal
         $nextStatus = $this->getNextSequentialStatusProperty();
@@ -223,15 +213,6 @@ class ProgressJasa extends Page implements HasForms
             Notification::make()
                 ->title('Data jasa tidak ditemukan')
                 ->danger()
-                ->send();
-            return;
-        }
-
-        if ($this->isUploading) {
-            Notification::make()
-                ->title('Upload Belum Selesai')
-                ->warning()
-                ->body('Mohon tunggu hingga semua gambar selesai diupload.')
                 ->send();
             return;
         }

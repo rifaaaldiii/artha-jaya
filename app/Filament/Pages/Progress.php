@@ -92,9 +92,6 @@ class Progress extends Page implements HasForms
         $this->imageData = [
             'progressImages' => [],
         ];
-        
-        // Ensure isUploading is false on mount
-        $this->isUploading = false;
     }
 
     public array $data = [];
@@ -212,17 +209,9 @@ class Progress extends Page implements HasForms
 
     public array $imageData = [];
 
-    public bool $isUploading = false;
-
     public function updatedSelectedProduksiId(): void
     {
         $this->loadRecord();
-    }
-
-    #[On('uploading-status-changed')]
-    public function setUploadingStatus(bool $status): void
-    {
-        $this->isUploading = $status;
     }
 
     public function getProduksiOptions(): array
@@ -314,16 +303,6 @@ class Progress extends Page implements HasForms
                 ->title('Data produksi tidak ditemukan')
                 ->danger()
                 ->body('Silakan pilih produksi terlebih dahulu.')
-                ->send();
-            return;
-        }
-
-        // Check if images are still uploading
-        if ($this->isUploading) {
-            Notification::make()
-                ->title('Upload Belum Selesai')
-                ->warning()
-                ->body('Mohon tunggu hingga semua gambar selesai diupload sebelum memperbarui status.')
                 ->send();
             return;
         }
