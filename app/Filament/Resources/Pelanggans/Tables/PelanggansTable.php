@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Pelanggans\Tables;
 
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -58,10 +58,9 @@ class PelanggansTable
                     ->query(fn (Builder $query): Builder => $query->doesntHave('jasas')),
             ])
             ->actions([
-                Action::make('view_jasas')
+                ViewAction::make()
                     ->label('Lihat Jasa')
                     ->icon('heroicon-m-eye')
-                    ->color('info')
                     ->url(fn ($record) => route('filament.admin.resources.jasas.index', [
                         'tableFilters[pelanggan_id]' => $record->id,
                     ]))
