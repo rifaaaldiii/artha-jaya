@@ -1188,13 +1188,13 @@
                             </div>
                             <ul class="detail-list">
                                 <li class="detail-list-item">
-                                    <span class="detail-item-label">Tanggal Dibuat</span>
-                                    <span class="detail-item-value">{{ $this->record->createdAt ? $this->record->createdAt->format('d F Y, H:i') : '-' }} WIB</span>
+                                    <span class="detail-item-label">Jadwal Customer</span>
+                                    <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y, H:i') : '-' }} WIB</span>
                                 </li>
-                                @if($this->record->updateAt)
+                                @if($this->record->jadwal_petugas)
                                 <li class="detail-list-item">
-                                    <span class="detail-item-label">Terakhir Diupdate</span>
-                                    <span class="detail-item-value">{{ $this->record->updateAt->format('d F Y, H:i')}} WIB</span>
+                                    <span class="detail-item-label">Penjadwalan Petugas</span>
+                                    <span class="detail-item-value">{{ $this->record->jadwal_petugas->format('d F Y, H:i')}} WIB</span>
                                 </li>
                                 @endif
                                 <li class="detail-list-item">
