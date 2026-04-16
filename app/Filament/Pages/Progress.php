@@ -482,7 +482,7 @@ class Progress extends Page implements HasForms
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin', 'kepala_lapangan'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
     public static function getNavigationBadge(): ?string
     {
