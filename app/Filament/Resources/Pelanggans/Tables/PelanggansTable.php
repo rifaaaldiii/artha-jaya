@@ -68,15 +68,18 @@ class PelanggansTable
 
                 DeleteAction::make()
                     ->requiresConfirmation()
-                    ->modalTitle('Hapus Customer')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus customer ini? Semua data terkait juga akan terpengaruh.')
-                    ->modalSubmitActionLabel('Hapus'),
+                    ->heading('Hapus Customer')
+                    ->description('Apakah Anda yakin ingin menghapus customer ini? Semua data terkait juga akan terpengaruh.')
+                    ->action(function ($record) {
+                        $record->delete();
+                    })
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()
                     ->requiresConfirmation()
-                    ->modalTitle('Hapus Customer')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus customer yang dipilih?'),
+                    ->heading('Hapus Customer')
+                    ->description('Apakah Anda yakin ingin menghapus customer yang dipilih?'),
             ])
             ->defaultSort('createdAt', 'desc');
     }
