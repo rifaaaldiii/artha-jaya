@@ -1071,20 +1071,14 @@
                         </div>
                         <div class="detail-header-status">
                             @php
-                                // Sesuaikan badge untuk admin gudang: status 1 (siap Jasa & Layanan) hijau, status 2 (siap diambil) biru, selain itu default
-                                if(auth()->user() && auth()->user()->role === 'admin gudang') {
-                                    $badgeClass =
-                                        $currentStep === 1 ? 'status-badge status-green' :
-                                        ($currentStep === 2 ? 'status-badge status-blue' : 'status-badge status-bg-default');
-                                } else {
-                                    $badgeClass =
-                                        $currentStep === 1 ? 'status-badge status-red' :
-                                        ($currentStep === 2 ? 'status-badge status-blue' :
-                                        ($currentStep === 3 ? 'status-badge status-yellow' :
-                                        ($currentStep === 4 ? 'status-badge status-green' :
-                                        ($currentStep === 5 ? 'status-badge status-indigo' : 'status-badge status-bg-default'
-                                        ))));
-                                }
+                                // Badge styling based on current step
+                                $badgeClass =
+                                    $currentStep === 1 ? 'status-badge status-red' :
+                                    ($currentStep === 2 ? 'status-badge status-blue' :
+                                    ($currentStep === 3 ? 'status-badge status-yellow' :
+                                    ($currentStep === 4 ? 'status-badge status-green' :
+                                    ($currentStep === 5 ? 'status-badge status-indigo' : 'status-badge status-bg-default'
+                                    ))));
                             @endphp
                             <span class="{{ $badgeClass }}">{{ $statuses[$currentStatus]['label'] }}</span>
                         </div>
@@ -1302,9 +1296,9 @@
                         if ($nextSequentialStatus) {
                             // Mapping untuk Progress Jasa
                             $roleStatusMap = [
-                                'terjadwal' => 'kepala_teknisi_lapangan',
-                                'selesai dikerjakan' => 'petugas / kepala_teknisi_lapangan',
-                                'selesai' => 'admin_toko',
+                                'terjadwal' => 'superadmin',
+                                'selesai dikerjakan' => 'kepala_lapangan',
+                                'selesai' => 'superadmin',
                             ];
                             $nextSequentialStatusRole = $roleStatusMap[$nextSequentialStatus] ?? 'administrator';
                             

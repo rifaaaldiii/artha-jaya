@@ -51,15 +51,15 @@ class WhatsAppNotificationHelper
             },
 
             'jasa_created' => [
-                'kepala_lapangan',
+                'superadmin',
             ],
 
             'jasa_status_updated' => match ($newStatus) {
-                'jasa baru' => ['kepala_lapangan'],
-                'terjadwal' => ['admin_toko'],
-                'selesai dikerjakan' => ['kepala_lapangan'],
+                'jasa baru' => ['superadmin'],
+                'terjadwal' => ['kepala_lapangan'],
+                'selesai dikerjakan' => ['superadmin'],
                 'selesai' => ['admin_toko'],
-                default => ['kepala_lapangan'],
+                default => ['superadmin'],
             },
 
             default => ['administrator'],
