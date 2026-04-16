@@ -961,22 +961,22 @@
             $statuses = [
                 'jasa baru' => [
                     'label' => 'Jasa Baru',
-                    'subtitle' => 'Pesanan jasa baru masuk (Admin Toko)',
+                    'subtitle' => 'Pesanan jasa baru masuk (CS)',
                     'step' => 1,
                 ],
                 'terjadwal' => [
                     'label' => 'Terjadwal',
-                    'subtitle' => 'Sudah dijadwalkan (Kepala Teknisi)',
+                    'subtitle' => 'Sudah dijadwalkan (Admin)',
                     'step' => 2,
                 ],
                 'selesai dikerjakan' => [
                     'label' => 'Selesai Dikerjakan',
-                    'subtitle' => 'Petugas selesai mengerjakan (Petugas)',
+                    'subtitle' => 'Petugas selesai mengerjakan (Kepala Lapangan)',
                     'step' => 3,
                 ],
                 'selesai' => [
                     'label' => 'Selesai',
-                    'subtitle' => 'Jasa selesai (Admin Toko)',
+                    'subtitle' => 'Jasa selesai (CS)',
                     'step' => 4,
                 ],
             ];
