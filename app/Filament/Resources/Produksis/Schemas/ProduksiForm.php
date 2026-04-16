@@ -204,6 +204,6 @@ class ProduksiForm
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 }

@@ -56,7 +56,7 @@ class PetukangResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'superadmin'], true);
     }
 
     protected static ?int $navigationSort = 5;

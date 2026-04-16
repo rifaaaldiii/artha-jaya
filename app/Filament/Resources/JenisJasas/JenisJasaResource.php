@@ -58,8 +58,8 @@ class JenisJasaResource extends Resource
     protected static function canManage(): bool
     {
         $user = Auth::user();
-
-        return $user && in_array($user->role, ['administrator', 'admin_toko'], true);
+    
+        return $user && in_array($user->role, ['administrator', 'superadmin'], true);
     }
 
     public static function shouldRegisterNavigation(): bool

@@ -59,7 +59,7 @@ class JenisProduksiResource extends Resource
     {
         $user = Auth::user();
 
-        return $user && in_array($user->role, ['administrator', 'admin_toko'], true);
+        return $user && in_array($user->role, ['administrator', 'superadmin'], true);
     }
 
     public static function shouldRegisterNavigation(): bool
