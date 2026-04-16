@@ -122,7 +122,7 @@ class ProduksiResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_gudang', 'petukang', 'admin_gudang'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin', 'petukang'], true);
     }
 
     public static function getGlobalSearchResultActions(Model $record): array

@@ -114,7 +114,7 @@ class JasaResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_lapangan'], true);
     }
 
     public static function canCreate(): bool

@@ -63,7 +63,7 @@ class Report extends Page implements HasForms
     public static function shouldRegisterNavigation(): bool
     {
         $user = Auth::user();
-        return in_array($user->role, ['administrator', 'admin_toko', 'admin_gudang'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 
     public function mount(Request $request): void
@@ -143,9 +143,9 @@ class Report extends Page implements HasForms
 
     protected function loadPreviewData(): void
     {
-        // Security: Prevent admin_gudang from accessing Jasa reports
+        // Security: Prevent superadmin from accessing Jasa reports
         $user = Auth::user();
-        if ($user && $user->role === 'admin_gudang' && $this->filters['report_type'] === 'jasa') {
+        if ($user && $user->role === 'superadmin' && $this->filters['report_type'] === 'jasa') {
             Notification::make()
                 ->title('Access Denied')
                 ->body('You do not have permission to view Jasa reports.')
@@ -239,8 +239,8 @@ class Report extends Page implements HasForms
                     ->options(function () {
                         $user = Auth::user();
                         
-                        // admin_gudang hanya bisa melihat Produksi
-                        if ($user && $user->role === 'admin_gudang') {
+                        // superadmin hanya bisa melihat Produksi
+                        if ($user && $user->role === 'superadmin') {
                             return [
                                 'produksi' => 'Produksi',
                             ];
@@ -255,8 +255,8 @@ class Report extends Page implements HasForms
                     ->default(function () {
                         $user = Auth::user();
                         
-                        // admin_gudang default ke produksi
-                        if ($user && $user->role === 'admin_gudang') {
+                        // superadmin default ke produksi
+                        if ($user && $user->role === 'superadmin') {
                             return 'produksi';
                         }
                         

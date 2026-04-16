@@ -35,7 +35,7 @@ class Register extends BaseRegister
     {
         // Set default role if not provided
         if (!isset($data['role'])) {
-            $data['role'] = 'petugas'; // Default role
+            $data['role'] = 'admin_toko'; // Default role
         }
         
         return $data;

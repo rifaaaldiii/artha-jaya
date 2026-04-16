@@ -442,8 +442,8 @@ class Progress extends Page implements HasForms
 
         $roleStatusMap = [
             'admin_toko' => ['produksi abru', 'selesai'],
-            'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'produksi siap diambil'],
+            'superadmin' => ['siap produksi', 'produksi siap diambil'],
+            'kepala_lapangan' => ['dalam pengerjaan', 'produksi siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
@@ -482,7 +482,7 @@ class Progress extends Page implements HasForms
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko', 'admin_gudang', 'kepala_teknisi_gudang'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin', 'kepala_lapangan'], true);
     }
 
     public static function getNavigationBadge(): ?string
@@ -498,8 +498,8 @@ class Progress extends Page implements HasForms
 
         $roleStatusMap = [
             'admin_toko' => ['produksi abru', 'selesai'],
-            'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_teknisi_gudang' => ['dalam pengerjaan', 'produksi siap diambil'],
+            'superadmin' => ['siap produksi', 'produksi siap diambil'],
+            'kepala_lapangan' => ['dalam pengerjaan', 'produksi siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {

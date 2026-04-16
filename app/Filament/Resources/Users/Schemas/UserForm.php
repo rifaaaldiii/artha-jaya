@@ -33,11 +33,9 @@ class UserForm
                     ->label("Role")
                     ->options([
                         "administrator"=> "Administrator",
+                        "superadmin"=> "Superadmin",
                         "admin_toko"=> "Admin Toko",
-                        "admin_gudang"=> "Admin gudang",
-                        "kepala_teknisi_lapangan"=> "Kepala Teknisi Lapangan",
-                        "kepala_teknisi_gudang"=> "Kepala Teknisi Gudang",
-                        "petugas"=> "Petugas",
+                        "kepala_lapangan"=> "Kepala Lapangan",
                     ])
                     ->required(),
                 Select::make("branch")

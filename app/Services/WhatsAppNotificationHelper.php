@@ -38,28 +38,28 @@ class WhatsAppNotificationHelper
     {
         return match ($eventType) {
             'produksi_created' => [
-                'admin_gudang',
+                'superadmin',
             ],
             
             'produksi_status_updated' => match ($newStatus) {
-                'produksi baru' => ['admin_gudang'],
-                'siap produksi' => ['kepala_teknisi_gudang'],
-                'dalam pengerjaan' => ['admin_gudang'],
-                'produksi siap diambil' => ['admin_gudang','admin_toko'],
+                'produksi baru' => ['superadmin'],
+                'siap produksi' => ['kepala_lapangan'],
+                'dalam pengerjaan' => ['superadmin'],
+                'produksi siap diambil' => ['superadmin','admin_toko'],
                 'selesai' => ['admin_toko'],
-                default => ['admin_gudang'],
+                default => ['superadmin'],
             },
 
             'jasa_created' => [
-                'kepala_teknisi_lapangan',
+                'kepala_lapangan',
             ],
 
             'jasa_status_updated' => match ($newStatus) {
-                'jasa baru' => ['kepala_teknisi_lapangan'],
-                'terjadwal' => ['petugas'],
-                'selesai dikerjakan' => ['kepala_teknisi_lapangan'],
+                'jasa baru' => ['kepala_lapangan'],
+                'terjadwal' => ['admin_toko'],
+                'selesai dikerjakan' => ['kepala_lapangan'],
                 'selesai' => ['admin_toko'],
-                default => ['kepala_teknisi_lapangan'],
+                default => ['kepala_lapangan'],
             },
 
             default => ['administrator'],

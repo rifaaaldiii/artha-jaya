@@ -280,7 +280,7 @@ class ProgressJasa extends Page implements HasForms
         if ($this->updateStatusValue === 'terjadwal') {
             $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
             
-            if (in_array($normalizedRole, ['kepala_teknisi_lapangan', 'admin_toko'], true)) {
+            if (in_array($normalizedRole, ['kepala_lapangan', 'admin_toko'], true)) {
                 // Coba ambil dari Filament form terlebih dahulu, fallback ke blade form
                 try {
                     $terjadwalData = $this->terjadwalForm->getState();
@@ -359,8 +359,7 @@ class ProgressJasa extends Page implements HasForms
 
         $roleStatusMap = [
             'admin_toko' => ['jasa baru', 'terjadwal', 'selesai'],
-            'kepala_teknisi_lapangan' => ['terjadwal', 'selesai dikerjakan'],
-            'petugas' => ['selesai dikerjakan'],
+            'kepala_lapangan' => ['terjadwal', 'selesai dikerjakan'],
             'administrator' => self::STATUS_FLOW,
         ];
 
@@ -385,7 +384,7 @@ class ProgressJasa extends Page implements HasForms
     public static function shouldRegisterNavigation(): bool
     {
         $user = Auth::user();
-        return in_array($user?->role, ['administrator', 'admin_toko', 'kepala_teknisi_lapangan', 'petugas'], true);
+        return in_array($user?->role, ['administrator', 'admin_toko', 'kepala_lapangan'], true);
     }
 
     public static function getNavigationBadge(): ?string
