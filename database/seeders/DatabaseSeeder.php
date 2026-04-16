@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@artha-jaya.com',
             'password' => bcrypt('password'),
             'role' => 'administrator',
-            'username' => 'admin',
+            'username' => 'administrator',
             'createdAt' => now(),
         ]);
 
