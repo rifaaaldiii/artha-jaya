@@ -50,11 +50,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Admin Gudang',
-            'email' => 'admingudang@artha-jaya.com',
+            'name' => 'Superadmin',
+            'email' => 'superadmin@artha-jaya.com',
             'password' => bcrypt('password'),
-            'role' => 'admin_gudang',
-            'username' => 'admingudang',
+            'role' => 'superadmin',
+            'username' => 'admin',
             'createdAt' => now(),
         ]);
 
