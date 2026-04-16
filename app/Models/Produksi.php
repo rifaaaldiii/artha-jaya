@@ -30,6 +30,10 @@ class Produksi extends Model
         'progress_images' => 'array',
     ];
 
+    protected $rules = [
+        'no_ref' => 'required|string|unique:produksis,no_ref',
+    ];
+
     /**
      * Get the team for this produksi.
      */

@@ -67,29 +67,10 @@ class DatabaseSeeder extends Seeder
             'createdAt' => now(),
         ]);
 
-        User::create([
-            'name' => 'Kepala Teknisi Gudang',
-            'email' => 'kepalateknisigudang@artha-jaya.com',
-            'password' => bcrypt('password'),
-            'role' => 'kepala_teknisi_gudang',
-            'username' => 'kepalateknisigudang',
-            'createdAt' => now(),
-        ]);
-
-        User::create([
-            'name' => 'Petugas',
-            'email' => 'petugas@artha-jaya.com',
-            'password' => bcrypt('password'),
-            'role' => 'petugas',
-            'username' => 'petugas',
-            'createdAt' => now(),
-        ]);
-
         // Team seeding - directly create
         $teams = [
-            ['nama' => 'Team A', 'status' => 'ready'],
-            ['nama' => 'Team B', 'status' => 'ready'],
-            ['nama' => 'Team C', 'status' => 'ready'],
+            ['nama' => 'Team DC', 'status' => 'ready'],
+            ['nama' => 'Team AJR', 'status' => 'ready'],
         ];
 
         foreach ($teams as $teamData) {
@@ -98,11 +79,9 @@ class DatabaseSeeder extends Seeder
 
         // Petukang seeding - directly create
         $petukangs = [
-            ['nama' => 'Petukang 1', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
-            ['nama' => 'Petukang 2', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
-            ['nama' => 'Petukang 3', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 2],
-            ['nama' => 'Petukang 4', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 2],
-            ['nama' => 'Petukang 5', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 3],
+            ['nama' => 'Aji', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
+            ['nama' => 'Samsul', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
+            ['nama' => 'Fauzan', 'status' => 'ready', 'kontak' => '082123609953', 'team_id' => 1],
         ];
 
         foreach ($petukangs as $petukangData) {
@@ -110,11 +89,10 @@ class DatabaseSeeder extends Seeder
         }
 
         $petugas = [
-            ['nama' => 'Petugas 1', 'status' => 'ready', 'kontak' => '082123609953'],
-            ['nama' => 'Petugas 2', 'status' => 'ready', 'kontak' => '082123609953'],
-            ['nama' => 'Petugas 3', 'status' => 'ready', 'kontak' => '082123609953'],
-            ['nama' => 'Petugas 4', 'status' => 'ready', 'kontak' => '082123609953'],
-            ['nama' => 'Petugas 5', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Bada', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Rian', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Yuda', 'status' => 'ready', 'kontak' => '082123609953'],
+            ['nama' => 'Rifki', 'status' => 'ready', 'kontak' => '082123609953'],
         ];
 
         foreach ($petugas as $petugasData) {

@@ -27,6 +27,7 @@ class ProduksiForm
                                 TextInput::make("no_ref")
                                     ->label("No. Ref")
                                     ->required()
+                                    ->unique(table: 'produksis', column: 'no_ref', ignorable: fn ($record) => $record)
                                     ->columnSpan(1),
 
                                 Select::make("branch")

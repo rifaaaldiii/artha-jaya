@@ -69,7 +69,8 @@ class JasaForm
 
             TextInput::make("no_ref")
                 ->label("No. Ref")
-                ->required(),
+                ->required()
+                ->unique(table: 'jasas', column: 'no_ref', ignorable: fn ($record) => $record),
             
             Select::make("branch")
                 ->label("Branch")

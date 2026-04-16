@@ -37,6 +37,10 @@ class Jasa extends Model
         'progress_images' => 'array',
     ];
 
+    protected $rules = [
+        'no_ref' => 'required|string|unique:jasas,no_ref',
+    ];
+
     /**
      * Get the petugas for this jasa (legacy single petugas relation).
      */
