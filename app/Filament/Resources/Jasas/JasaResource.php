@@ -114,31 +114,31 @@ class JasaResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_lapangan'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'kepala_lapangan', 'superadmin'], true);
     }
 
     public static function canCreate(): bool
     {
         $user = Auth::user();
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 
     public static function canEdit(Model $record): bool
     {
         $user = Auth::user();
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 
     public static function canDelete(Model $record): bool
     {
         $user = Auth::user();
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 
     public static function canDeleteAny(): bool
     {
         $user = Auth::user();
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 
     public static function mutateFormDataBeforeCreate(array $data): array
