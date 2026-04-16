@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Pelanggans\Tables;
 
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
