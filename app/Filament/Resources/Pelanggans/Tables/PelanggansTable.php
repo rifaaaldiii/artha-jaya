@@ -46,7 +46,7 @@ class PelanggansTable
                     ->label('Tanggal Dibuat')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHidden: true),
+                    ->toggleable(),
             ])
             ->filters([
                 Filter::make('has_jasa')
