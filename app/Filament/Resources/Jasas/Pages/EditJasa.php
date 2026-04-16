@@ -15,7 +15,7 @@ class EditJasa extends EditRecord
     public static function canAccess(array $parameters = []): bool
     {
         $user = Auth::user();
-        return in_array($user->role, ['administrator', 'admin_toko'], true);
+        return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
     }
 
     protected function getHeaderActions(): array
