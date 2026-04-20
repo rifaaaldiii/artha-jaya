@@ -4,7 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Jasa;
 use App\Models\Produksi;
-use App\Models\Team;
+use App\Models\Pelanggan;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
@@ -22,10 +22,14 @@ class ProductOverview extends StatsOverviewWidget
         $scheduledJasa = Jasa::where('status', '!=', 'selesai')->count();
         $completedJasa = Jasa::where('status', 'selesai')->count();
 
-        // Perbaikan untuk team
-        $totalTeam = Team::count();
-        $activeTeam = Team::where('status', 'ready')->count();
-        $inactiveTeam = Team::where('status', '!=', 'ready')->count();
+        // Customer statistics
+        $totalPelanggan = Pelanggan::count();
+        $activePelanggan = Pelanggan::whereHas('jasas', function($query) {
+            $query->where('status', '!=', 'selesai');
+        })->orWhereHas('produksis', function($query) {
+            $query->where('status', '!=', 'selesai');
+        })->count();
+        $inactivePelanggan = $totalPelanggan - $activePelanggan;
 
         return [
             Stat::make('Produksi', number_format($totalProduksi, 0, ',', '.'))
@@ -38,10 +42,10 @@ class ProductOverview extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-queue-list')
                 ->chart($this->buildMonthlyChart('jasa'))
                 ->color('success'),
-            Stat::make('Team', number_format($totalTeam, 0, ',', '.'))
-                ->description("{$activeTeam} Ready • {$inactiveTeam} Busy")
+            Stat::make('Customers', number_format($totalPelanggan, 0, ',', '.'))
+                ->description("{$totalProduksi} Produksi • {$totalJasa} Jasa")
                 ->descriptionIcon('heroicon-m-user-group')
-                ->chart($this->buildMonthlyChart('team'))
+                ->chart($this->buildMonthlyChart('pelanggan'))
                 ->color('success'),
         ];
     }
@@ -53,7 +57,7 @@ class ProductOverview extends StatsOverviewWidget
     }
 
     /**
-     * @param 'produksi'|'jasa'|'team' $model
+     * @param 'produksi'|'jasa'|'pelanggan' $model
      */
     protected function buildMonthlyChart(string $model): array
     {
@@ -63,8 +67,8 @@ class ProductOverview extends StatsOverviewWidget
         } elseif ($model === 'jasa') {
             $class = Jasa::class;
             $column = 'createdAt';
-        } elseif ($model === 'team') {
-            $class = Team::class;
+        } elseif ($model === 'pelanggan') {
+            $class = Pelanggan::class;
             $column = 'createdAt';
         } else {
             return [];

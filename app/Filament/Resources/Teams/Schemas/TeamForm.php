@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Teams\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 
 class TeamForm
@@ -16,10 +15,11 @@ class TeamForm
                     ->label("Nama Team")
                     ->required()
                     ->unique(ignoreRecord: true),
-                Select::make("status")->label("Status")->required()->options([
-                    "ready"=> "Ready",
-                    "busy"=> "Busy",
-                ]),
+                TextInput::make("order")
+                    ->label("Urutan Tampilan")
+                    ->numeric()
+                    ->default(0)
+                    ->helperText("Semakin kecil angka, semakin tinggi posisinya"),
             ]);
     }
 }

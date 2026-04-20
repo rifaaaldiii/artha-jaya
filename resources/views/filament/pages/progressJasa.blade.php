@@ -1361,7 +1361,7 @@
                                                 <!-- Multi-select Petugas with Tags -->
                                                 <div class="terjadwal-field">
                                                     <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                        Petugas Pelaksana <span style="color: #dc2626;">*</span>
+                                                        Petugas Jasa <span style="color: #dc2626;">*</span>
                                                     </label>
                                                     
                                                     <!-- Custom Multi-Select with Tags -->

@@ -696,15 +696,28 @@
                                         'terjadwal' => 'status-blue',
                                         'selesai dikerjakan' => 'status-yellow',
                                         'selesai' => 'status-green',
+                                        'baru' => 'status-gray',
                                         'produksi baru' => 'status-gray',
-                                        'siap produksi' => 'status-blue',
+                                        'proses' => 'status-yellow',
+                                        'siap produksi' => 'status-yellow',
                                         'dalam pengerjaan' => 'status-yellow',
+                                        'siap diambil' => 'status-purple',
                                         'produksi siap diambil' => 'status-purple',
                                     ];
+                                    
+                                    $statusLabels = [
+                                        'produksi baru' => 'Baru',
+                                        'siap produksi' => 'Proses',
+                                        'dalam pengerjaan' => 'Proses',
+                                        'produksi siap diambil' => 'Siap Diambil',
+                                        'selesai dikerjakan' => 'Selesai',
+                                    ];
+                                    
                                     $statusClass = $statusColors[$row['status']] ?? 'status-gray';
+                                    $displayStatus = $statusLabels[$row['status']] ?? $row['status'];
                                 @endphp
                                 <span class="status-badge {{ $statusClass }}">
-                                    {{ ucwords($row['status']) }}
+                                    {{ $displayStatus }}
                                 </span>
                             </td>
                             

@@ -34,7 +34,7 @@ class JasasTable
                     ->searchable()
                     ->placeholder('-'),
                 \Filament\Tables\Columns\TextColumn::make('pelanggan.nama')
-                    ->label('Pelanggan')
+                    ->label('Customer')
                     ->sortable()
                     ->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('items_count')

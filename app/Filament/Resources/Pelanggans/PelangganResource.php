@@ -91,7 +91,21 @@ class PelangganResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'superadmin'], true);
+        // Check if user has permission
+        if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+            return false;
+        }
+
+        // Check if customer has any Jasa or Produksi records
+        $hasJasa = $record->jasas()->exists();
+        $hasProduksi = $record->produksis()->exists();
+
+        // Cannot delete if customer has any records
+        if ($hasJasa || $hasProduksi) {
+            return false;
+        }
+
+        return true;
     }
 
     public static function canDeleteAny(): bool

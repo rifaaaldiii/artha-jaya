@@ -69,8 +69,8 @@ class DatabaseSeeder extends Seeder
 
         // Team seeding - directly create
         $teams = [
-            ['nama' => 'Team DC', 'status' => 'ready'],
-            ['nama' => 'Team AJR', 'status' => 'ready'],
+            ['nama' => 'Team DC', 'order' => '0'],
+            ['nama' => 'Team AJR', 'order' => '0'],
         ];
 
         foreach ($teams as $teamData) {

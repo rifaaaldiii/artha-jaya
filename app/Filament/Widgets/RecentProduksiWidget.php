@@ -62,10 +62,18 @@ class RecentProduksiWidget extends BaseWidget
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'selesai' => 'success',
-                        'dalam pengerjaan' => 'warning',
-                        'produksi baru' => 'gray',
+                        'selesai', 'selesai dikerjakan' => 'success',
+                        'proses', 'dalam pengerjaan' => 'warning',
+                        'baru', 'produksi baru' => 'gray',
                         default => 'info',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'produksi baru' => 'Baru',
+                        'siap produksi' => 'Proses',
+                        'dalam pengerjaan' => 'Proses',
+                        'produksi siap diambil' => 'Siap Diambil',
+                        'selesai dikerjakan' => 'Selesai',
+                        default => ucfirst($state),
                     }),
                 \Filament\Tables\Columns\TextColumn::make('team.nama')
                     ->label('Team')

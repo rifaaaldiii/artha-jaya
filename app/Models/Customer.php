@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Pelanggan extends Model
+class Customer extends Model
 {
     protected $table = 'pelanggans';
 
@@ -25,7 +25,7 @@ class Pelanggan extends Model
     ];
 
     /**
-     * Get the team for this pelanggan.
+     * Get the team for this customer.
      */
     public function team(): BelongsTo
     {
@@ -33,7 +33,7 @@ class Pelanggan extends Model
     }
 
     /**
-     * Get all jasas for this pelanggan.
+     * Get all jasas for this customer.
      */
     public function jasas()
     {
@@ -41,7 +41,7 @@ class Pelanggan extends Model
     }
 
     /**
-     * Get all produksis for this pelanggan.
+     * Get all produksis for this customer.
      */
     public function produksis()
     {
@@ -50,14 +50,14 @@ class Pelanggan extends Model
 
     protected static function booted(): void
     {
-        static::creating(function (Pelanggan $pelanggan): void {
-            if (blank($pelanggan->createdAt)) {
-                $pelanggan->createdAt = now();
+        static::creating(function (Customer $customer): void {
+            if (blank($customer->createdAt)) {
+                $customer->createdAt = now();
             }
         });
 
-        static::updating(function (Pelanggan $pelanggan): void {
-            $pelanggan->UpdateAt = now();
+        static::updating(function (Customer $customer): void {
+            $customer->UpdateAt = now();
         });
     }
 }

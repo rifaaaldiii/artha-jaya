@@ -42,12 +42,11 @@ class WhatsAppNotificationHelper
             ],
             
             'produksi_status_updated' => match ($newStatus) {
-                'produksi baru' => ['superadmin'],
-                'siap produksi' => ['kepala_lapangan'],
-                'dalam pengerjaan' => ['superadmin'],
-                'produksi siap diambil' => ['superadmin','admin_toko'],
-                'selesai' => ['admin_toko'],
-                default => ['superadmin'],
+                'baru', 'produksi baru' => ['administrator'],
+                'proses', 'siap produksi', 'dalam pengerjaan' => ['admin_toko'],
+                'siap diambil', 'produksi siap diambil' => ['admin_toko'],
+                'selesai', 'selesai dikerjakan' => [],
+                default => [],
             },
 
             'jasa_created' => [

@@ -18,6 +18,9 @@ class Produksi extends Model
         'catatan',
         'progress_images',
         'team_id',
+        'pelanggan_id',
+        'alamat',
+        'jadwal',
         'createdAt',
         'updateAt',
     ];
@@ -27,6 +30,7 @@ class Produksi extends Model
     protected $casts = [
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
+        'jadwal' => 'datetime',
         'progress_images' => 'array',
     ];
 
@@ -40,6 +44,14 @@ class Produksi extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'team_id');
+    }
+
+    /**
+     * Get the pelanggan for this produksi.
+     */
+    public function pelanggan(): BelongsTo
+    {
+        return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
     /**
@@ -82,58 +94,18 @@ class Produksi extends Model
         });
 
         static::created(function (Produksi $produksi): void {
-            if ($produksi->team_id) {
-                Team::where('id', $produksi->team_id)->update(['status' => 'busy']);
-                Petukang::where('team_id', $produksi->team_id)->update(['status' => 'busy']);
-            }
+            // Team can now handle multiple produksis, no status update needed
         });
 
         static::updated(function (Produksi $produksi): void {
             $originalTeamId = $produksi->getOriginal('team_id');
             $newTeamId = $produksi->team_id;
-            $originalStatus = $produksi->getOriginal('status');
-            $newStatus = $produksi->status;
 
-            // Validasi: Jika status berubah menjadi 'selesai', update team dan petukang menjadi 'ready'
-            if ($originalStatus !== 'selesai' && $newStatus === 'selesai' && $produksi->team_id) {
-                Team::where('id', $produksi->team_id)->update(['status' => 'ready']);
-                Petukang::where('team_id', $produksi->team_id)->update(['status' => 'ready']);
-            }
-
-            // Handle perubahan team_id
-            if ($originalTeamId !== $newTeamId) {
-                if ($newTeamId) {
-                    Team::where('id', $newTeamId)->update(['status' => 'busy']);
-                    Petukang::where('team_id', $newTeamId)->update(['status' => 'busy']);
-                }
-
-                if ($originalTeamId) {
-                    $hasActiveProduksi = static::query()
-                        ->where('team_id', $originalTeamId)
-                        ->where('id', '!=', $produksi->id)
-                        ->where('status', '!=', 'selesai')
-                        ->exists();
-
-                    if (!$hasActiveProduksi) {
-                        Team::where('id', $originalTeamId)->update(['status' => 'ready']);
-                        Petukang::where('team_id', $originalTeamId)->update(['status' => 'ready']);
-                    }
-                }
-            }
+            // No team status updates needed - teams can handle multiple produksis
         });
 
         static::deleted(function (Produksi $produksi): void {
-            if ($produksi->team_id) {
-                $hasActiveProduksi = static::query()
-                    ->where('team_id', $produksi->team_id)
-                    ->where('status', '!=', 'selesai')
-                    ->exists();
-
-                if (!$hasActiveProduksi) {
-                    Team::where('id', $produksi->team_id)->update(['status' => 'ready']);
-                    Petukang::where('team_id', $produksi->team_id)->update(['status' => 'ready']);
-                }
-            }
+            // No team status updates needed - teams can handle multiple produksis
         });
     }
 }

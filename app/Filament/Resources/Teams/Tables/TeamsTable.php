@@ -6,9 +6,9 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Models\Produksi;
 
 class TeamsTable
 {
@@ -16,18 +16,38 @@ class TeamsTable
     {
         return $table
             ->columns([
-                TextColumn::make("nama")->label('Nama')->sortable()->searchable(),
-                IconColumn::make("status")
-                    ->label('Status')
-                    ->boolean()
-                    ->trueIcon('heroicon-m-check-badge')
-                    ->falseIcon('heroicon-m-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger')
+                TextColumn::make("order")
+                    ->label('Urutan')
                     ->sortable()
-                    ->searchable()
-                    ->extraAttributes(['class' => 'flex items-center gap-2'])
-                    ->getStateUsing(fn ($record) => $record->status === 'ready'),
+                    ->badge()
+                    ->color('info')
+                    ->alignment('center'),
+                TextColumn::make("nama")
+                    ->label('Nama Team')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('active_produksis')
+                    ->label('Produksi Aktif')
+                    ->getStateUsing(fn ($record) => $record->getActiveProduksisCount())
+                    ->badge()
+                    ->color(fn ($state) => match (true) {
+                        $state === 0 => 'success',
+                        $state <= 2 => 'warning',
+                        default => 'danger',
+                    })
+                    ->sortable(query: function ($query, $direction) {
+                        $query->orderBy(
+                            Produksi::selectRaw('COUNT(*)')
+                                ->whereColumn('team_id', 'teams.id')
+                                ->where('status', '!=', 'selesai'),
+                            $direction
+                        );
+                    }),
+                TextColumn::make('capacity_status')
+                    ->label('Status')
+                    ->getStateUsing(fn ($record) => $record->hasAvailableCapacity() ? 'Tersedia' : 'Penuh')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'Tersedia' ? 'success' : 'danger'),
             ])
             ->filters([
                 //

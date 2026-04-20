@@ -32,6 +32,11 @@ class ProduksisTable
                     ->sortable()
                     ->searchable()
                     ->placeholder('-'),
+                TextColumn::make('pelanggan.nama')
+                    ->label('Customer')
+                    ->sortable()
+                    ->searchable()
+                    ->placeholder('-'),
                 TextColumn::make('items_count')
                     ->label('Jumlah Item')
                     ->counts('items')
@@ -46,18 +51,25 @@ class ProduksisTable
                     ->searchable()
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        'produksi baru'           => 'danger',
-                        'siap produksi'           => 'info',
-                        'dalam pengerjaan'        => 'warning',
-                        'produksi siap diambil'   => 'success',
-                        'selesai'                 => 'success',
+                        'baru', 'produksi baru'           => 'danger',
+                        'proses', 'siap produksi', 'dalam pengerjaan'        => 'warning',
+                        'siap diambil', 'produksi siap diambil'   => 'success',
+                        'selesai', 'selesai dikerjakan'                 => 'success',
                         default                   => 'secondary',
+                    })
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'produksi baru' => 'Baru',
+                        'siap produksi' => 'Proses',
+                        'dalam pengerjaan' => 'Proses',
+                        'produksi siap diambil' => 'Siap Diambil',
+                        'selesai dikerjakan' => 'Selesai',
+                        default => ucfirst($state),
                     }),
-                TextColumn::make("createdAt")
+                TextColumn::make("jadwal")
                     ->label('Jadwal')
                     ->sortable()
                     ->searchable()
-                    ->date('d-m-Y'),
+                    ->date('d-m-Y H:i'),
             ])
             ->filters([
                 //

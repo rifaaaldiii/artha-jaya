@@ -18,10 +18,9 @@ class Progress extends Page implements HasForms
 {
     use InteractsWithForms;
     protected const STATUS_FLOW = [
-        'produksi baru',
-        'siap produksi',
-        'dalam pengerjaan',
-        'produksi siap diambil',
+        'baru',
+        'proses',
+        'siap diambil',
         'selesai',
     ];
 
@@ -29,7 +28,7 @@ class Progress extends Page implements HasForms
     
     protected static ?string $navigationLabel = 'Progress';
     
-    protected static ?string $title = 'Progress';
+    protected static ?string $title = 'Progress Produksi';
     
     protected static ?int $navigationSort = 2;
 
@@ -57,7 +56,7 @@ class Progress extends Page implements HasForms
     protected function loadRecord(): void
     {
         if ($this->selectedProduksiId) {
-            $this->record = Produksi::with(['team', 'items'])->find($this->selectedProduksiId);
+            $this->record = Produksi::with(['team', 'items', 'pelanggan'])->find($this->selectedProduksiId);
         } else {
             $this->record = null;
         }
@@ -77,7 +76,9 @@ class Progress extends Page implements HasForms
             $this->selectedProduksiId = (int) $selectedProduksiId;
             $this->loadRecord();
         } else {
-            $firstProduksi = Produksi::orderBy('createdAt', 'desc')->first();
+            $firstProduksi = Produksi::where('status', '!=', 'selesai')
+                ->orderBy('createdAt', 'desc')
+                ->first();
             if ($firstProduksi) {
                 $this->selectedProduksiId = $firstProduksi->id;
                 $this->loadRecord();
@@ -113,6 +114,7 @@ class Progress extends Page implements HasForms
                     ->options(function () {
                         return Produksi::query()
                             ->with('items')
+                            ->where('status', '!=', 'selesai')
                             ->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
@@ -135,6 +137,7 @@ class Progress extends Page implements HasForms
                     ->getSearchResultsUsing(function (string $search) {
                         return Produksi::query()
                             ->with('items')
+                            ->where('status', '!=', 'selesai')
                             ->where(function ($query) use ($search) {
                                 $searchTerm = '%' . trim($search) . '%';
                                 $query->where('no_produksi', 'like', $searchTerm)
@@ -191,7 +194,7 @@ class Progress extends Page implements HasForms
         return $form
             ->schema([
                 FileUpload::make('progressImages')
-                    ->label('Upload Foto Progress')
+                    // ->label('Upload Foto Progress')
                     ->image()
                     ->multiple()
                     ->disk('public_html_progress')
@@ -285,6 +288,20 @@ class Progress extends Page implements HasForms
 
         $allowedStatuses = $this->getAllowedStatusesForRole();
         $currentStatus = $produksi->status;
+        
+        // Backward compatibility: map old status values to new ones
+        $statusMapping = [
+            'produksi baru' => 'baru',
+            'siap produksi' => 'proses',
+            'dalam pengerjaan' => 'proses',
+            'produksi siap diambil' => 'siap diambil',
+            'selesai dikerjakan' => 'selesai',
+        ];
+        
+        if (isset($statusMapping[$currentStatus])) {
+            $currentStatus = $statusMapping[$currentStatus];
+        }
+        
         $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
         
         if ($currentIndex === false) {
@@ -318,28 +335,19 @@ class Progress extends Page implements HasForms
             return;
         }
 
-        if (empty($this->updateStatusValue)) {
-            Notification::make()
-                ->title('Gagal Memperbarui Status')
-                ->danger()
-                ->body('Gagal memperbarui status produksi. Silakan pilih status terlebih dahulu.')
-                ->send();
-            return;
-        }
-
+        // Check permission for the next status
         $allowedStatuses = $this->allowedStatuses;
 
-        if (! in_array($this->updateStatusValue, $allowedStatuses, true)) {
+        if (! in_array($nextStatus, $allowedStatuses, true)) {
             Notification::make()
                 ->title('Status tidak diizinkan')
                 ->danger()
-                ->body('Anda tidak memiliki izin untuk mengubah status ke pilihan tersebut.')
+                ->body('Anda tidak memiliki izin untuk mengubah status ke posisi tersebut.')
                 ->send();
-            $this->updateStatusValue = null;
             return;
         }
 
-        if ($this->record->status === $this->updateStatusValue) {
+        if ($this->record->status === $nextStatus) {
             Notification::make()
                 ->title('Tidak ada perubahan')
                 ->warning()
@@ -379,7 +387,7 @@ class Progress extends Page implements HasForms
                             'path' => $imagePath,
                             'uploaded_at' => now()->format('Y-m-d H:i:s'),
                             'status_from' => $this->record->status,
-                            'status_to' => $this->updateStatusValue,
+                            'status_to' => $nextStatus,
                             'uploaded_by' => Auth::id(),
                         ];
                     }
@@ -406,7 +414,7 @@ class Progress extends Page implements HasForms
             return;
         }
 
-        $this->record->status = $this->updateStatusValue;
+        $this->record->status = $nextStatus;
         $this->record->save();
         $this->record->refresh();
 
@@ -423,7 +431,7 @@ class Progress extends Page implements HasForms
         Notification::make()
             ->title('Success')
             ->success()
-            ->body('Status produksi berhasil diperbarui menjadi '.ucwords($this->updateStatusValue).'.')
+            ->body('Status produksi berhasil diperbarui menjadi '.ucwords($nextStatus).'.')
             ->send();
         $this->updateStatusValue = null;
         
@@ -441,9 +449,9 @@ class Progress extends Page implements HasForms
         $allStatuses = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            'admin_toko' => ['produksi abru', 'selesai'],
-            'superadmin' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_lapangan' => ['dalam pengerjaan', 'produksi siap diambil'],
+            'admin_toko' => ['baru', 'selesai'],
+            'admin_gudang' => ['proses', 'siap diambil'],
+            'kepala_gudang' => ['proses', 'siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
@@ -469,6 +477,20 @@ class Progress extends Page implements HasForms
         }
 
         $currentStatus = $this->record->status;
+        
+        // Backward compatibility: map old status values to new ones
+        $statusMapping = [
+            'produksi baru' => 'baru',
+            'siap produksi' => 'proses',
+            'dalam pengerjaan' => 'proses',
+            'produksi siap diambil' => 'siap diambil',
+            'selesai dikerjakan' => 'selesai',
+        ];
+        
+        if (isset($statusMapping[$currentStatus])) {
+            $currentStatus = $statusMapping[$currentStatus];
+        }
+        
         $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
 
         if ($currentIndex === false) {
@@ -496,9 +518,9 @@ class Progress extends Page implements HasForms
         $statusFlow = self::STATUS_FLOW;
 
         $roleStatusMap = [
-            'admin_toko' => ['produksi abru', 'selesai'],
-            'superadmin' => ['siap produksi', 'produksi siap diambil'],
-            'kepala_lapangan' => ['dalam pengerjaan', 'produksi siap diambil'],
+            'admin_toko' => ['baru', 'selesai'],
+            'admin_gudang' => ['proses', 'siap diambil'],
+            'kepala_gudang' => ['proses', 'siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {

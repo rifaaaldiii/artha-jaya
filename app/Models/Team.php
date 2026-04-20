@@ -16,7 +16,7 @@ class Team extends Model
 
     protected $fillable = [
         'nama',
-        'status',
+        'order',
         'createdAt',
         'updatedAt',
     ];
@@ -42,6 +42,24 @@ class Team extends Model
     public function produksis()
     {
         return $this->hasMany(Produksi::class, 'team_id');
+    }
+
+    /**
+     * Get active (non-completed) produksis count for this team.
+     */
+    public function getActiveProduksisCount(): int
+    {
+        return $this->produksis()
+            ->where('status', '!=', 'selesai')
+            ->count();
+    }
+
+    /**
+     * Check if team has available capacity (less than 3 active produksis).
+     */
+    public function hasAvailableCapacity(): bool
+    {
+        return $this->getActiveProduksisCount() < 3;
     }
 
     /**

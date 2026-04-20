@@ -544,45 +544,70 @@
         .update-status-body {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
-        .update-status-field {
+
+        /* Next status info */
+        .update-status-info {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            justify-content: center;
         }
-        .update-status-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--aj-status-title);
-        }
-        .update-status-actions {
-            display: flex;
-            gap: 12px;
+        .next-status-badge {
+            display: inline-flex;
             align-items: center;
-            flex-wrap: wrap;
+            gap: 10px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+            border: 2px solid #14b8a6;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #0f766e;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.15);
         }
+        .dark .next-status-badge,
+        [data-theme="dark"] .next-status-badge,
+        .filament-theme-dark .next-status-badge {
+            background: linear-gradient(135deg, #134e4a, #115e59);
+            border-color: #2dd4bf;
+            color: #5eead4;
+        }
+        .next-status-badge svg {
+            flex-shrink: 0;
+            animation: arrowPulse 2s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(4px); }
+        }
+        .next-status-badge strong {
+            color: #0d9488;
+            font-weight: 700;
+        }
+        .dark .next-status-badge strong,
+        [data-theme="dark"] .next-status-badge strong,
+        .filament-theme-dark .next-status-badge strong {
+            color: #2dd4bf;
+        }
+
         /* Image upload section */
         .image-upload-section {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .image-upload-label {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--aj-status-title);
         }
-        .image-upload-wrapper {
+
+        /* Actions footer */
+        .update-status-actions-footer {
             display: flex;
+            flex-direction: column;
             gap: 12px;
             align-items: flex-start;
-            flex-wrap: wrap;
-        }
-        @media (max-width: 768px) {
-            .image-upload-wrapper {
-                flex-direction: column;
-            }
         }
         .update-status-select {
             padding: 10px 12px;
@@ -638,6 +663,69 @@
                 align-items: flex-start;
             }
         }
+
+        /* Items Table Styles */
+        .items-table-container {
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--aj-card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .items-table thead {
+            background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+            border-bottom: 2px solid var(--aj-card-border);
+        }
+        .dark .items-table thead,
+        [data-theme="dark"] .items-table thead,
+        .filament-theme-dark .items-table thead {
+            background: linear-gradient(135deg, #0f172a, #0b1120);
+        }
+        .items-table-header {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--aj-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .items-table-row {
+            border-bottom: 1px solid var(--aj-card-divider);
+            transition: background-color 0.2s ease;
+        }
+        .items-table-row:hover {
+            background-color: var(--aj-soft-bg);
+        }
+        .items-table-row:last-child {
+            border-bottom: none;
+        }
+        .items-table-cell {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--aj-text);
+        }
+        .items-table-price {
+            font-weight: 700;
+            color: #059669;
+            font-family: 'Courier New', monospace;
+        }
+        .dark .items-table-price,
+        [data-theme="dark"] .items-table-price,
+        .filament-theme-dark .items-table-price {
+            color: #34d399;
+        }
+        @media (max-width: 768px) {
+            .items-table-header,
+            .items-table-cell {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
     </style>
 
     <!-- Pilih Produksi -->
@@ -659,33 +747,42 @@
     @else
         @php
             $statuses = [
-                'produksi baru' => [
-                    'label' => 'Produksi Baru',
+                'baru' => [
+                    'label' => 'Baru',
                     'subtitle' => 'Pesanan baru masuk (CS / Admin Toko)',
                     'step' => 1,
                 ],
-                'siap produksi' => [
-                    'label' => 'Siap Produksi',
-                    'subtitle' => 'Siap untuk diproses (Admin Gudang)',
+                'proses' => [
+                    'label' => 'Proses',
+                    'subtitle' => 'Sedang dikerjakan (Admin)',
                     'step' => 2,
                 ],
-                'dalam pengerjaan' => [
-                    'label' => 'Dalam Pengerjaan',
-                    'subtitle' => 'Sedang dikerjakan (Kepala Gudang)',
+                'siap diambil' => [
+                    'label' => 'Siap Diambil',
+                    'subtitle' => 'Siap untuk diambil (Admin)',
                     'step' => 3,
-                ],
-                'produksi siap diambil' => [
-                    'label' => 'Produksi Siap Diambil',
-                    'subtitle' => 'Siap untuk diambil (Admin / Kepala Gudang)',
-                    'step' => 4,
                 ],
                 'selesai' => [
                     'label' => 'Selesai',
                     'subtitle' => 'Produksi selesai (CS / Admin Toko)',
-                    'step' => 5,
+                    'step' => 4,
                 ],
             ];
+            
+            // Backward compatibility: map old status values to new ones
             $currentStatus = $this->record->status;
+            $statusMapping = [
+                'produksi baru' => 'baru',
+                'siap produksi' => 'proses',
+                'dalam pengerjaan' => 'proses',
+                'produksi siap diambil' => 'siap diambil',
+                'selesai dikerjakan' => 'selesai',
+            ];
+            
+            if (isset($statusMapping[$currentStatus])) {
+                $currentStatus = $statusMapping[$currentStatus];
+            }
+            
             $currentStep = $statuses[$currentStatus]['step'] ?? 1;
             $allowedStatuses = $this->allowedStatuses ?? array_keys($statuses);
             $nextSequentialStatus = $this->nextSequentialStatus ?? null;
@@ -821,6 +918,37 @@
                                     <span class="detail-item-value">{{ $this->record->branch }}</span>
                                 </li>
                                 @endif
+                                @if($this->record->team)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Team</span>
+                                    <span class="detail-item-value">{{ $this->record->team->nama }}</span>
+                                </li>
+                                @endif
+                            </ul>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+                                </svg>
+                                Informasi Customer
+                            </div>
+                            <ul class="detail-list">
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Nama Customer</span>
+                                    <span class="detail-item-value">{{ $this->record->pelanggan->nama ?? '-' }}</span>
+                                </li>
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Kontak</span>
+                                    <span class="detail-item-value">{{ $this->record->pelanggan->kontak ?? '-' }}</span>
+                                </li>
+                                @if($this->record->branch)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Alamat</span>
+                                    <span class="detail-item-value">{{ $this->record->alamat ?? '-' }}</span>
+                                </li>
+                                @endif
                             </ul>
                         </div>
 
@@ -833,51 +961,30 @@
                                 </svg>
                                 Detail Item ({{ $this->record->items->count() }})
                             </div>
-                            <div class="items-container">
-                                @foreach($this->record->items as $index => $item)
-                                <div class="item-card">
-                                    <div class="item-card-header">
-                                        <span class="item-badge">Item {{ $index + 1 }}</span>
-                                    </div>
-                                    <div class="item-card-body">
-                                        <div class="item-row">
-                                            <span class="item-label">Jenis Produksi</span>
-                                            <span class="item-value">{{ $item->nama_produksi }}</span>
-                                        </div>
-                                        <div class="item-row">
-                                            <span class="item-label">Nama Bahan</span>
-                                            <span class="item-value">{{ $item->nama_bahan }}</span>
-                                        </div>
-                                        <div class="item-row">
-                                            <span class="item-label">Jumlah</span>
-                                            <span class="item-value">{{ number_format($item->jumlah, 0, ',', '.') }} Unit</span>
-                                        </div>
-                                        <div class="item-row">
-                                            <span class="item-label">Harga</span>
-                                            <span class="item-value item-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
+                            <div class="items-table-container">
+                                <table class="items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="items-table-header">No</th>
+                                            <th class="items-table-header">Jenis Produksi</th>
+                                            <th class="items-table-header">Nama Bahan</th>
+                                            <th class="items-table-header">Jumlah</th>
+                                            <th class="items-table-header">Harga</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($this->record->items as $index => $item)
+                                        <tr class="items-table-row">
+                                            <td class="items-table-cell">{{ $index + 1 }}</td>
+                                            <td class="items-table-cell">{{ $item->nama_produksi }}</td>
+                                            <td class="items-table-cell">{{ $item->nama_bahan ?? '-' }}</td>
+                                            <td class="items-table-cell">{{ number_format($item->jumlah, 0, ',', '.') }} Unit</td>
+                                            <td class="items-table-cell items-table-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        @endif
-
-                        {{-- Team Section --}}
-                        @if($this->record->team)
-                        <div class="info-section">
-                            <div class="info-section-title">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                                </svg>
-                                Team
-                            </div>
-                            <ul class="detail-list">
-                                <li class="detail-list-item">
-                                    <span class="detail-item-label">Team</span>
-                                    <span class="detail-item-value">{{ $this->record->team->nama }}</span>
-                                </li>
-                            </ul>
                         </div>
                         @endif
 
@@ -891,8 +998,8 @@
                             </div>
                             <ul class="detail-list">
                                 <li class="detail-list-item">
-                                    <span class="detail-item-label">Tanggal Dibuat</span>
-                                    <span class="detail-item-value">{{ $this->record->createdAt ? $this->record->createdAt->format('d F Y, H:i') : '-' }} WIB</span>
+                                    <span class="detail-item-label">Jadwal</span>
+                                    <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y, H:i') : '-' }} WIB</span>
                                 </li>
                                 @if($this->record->updateAt)
                                 <li class="detail-list-item">
@@ -999,9 +1106,9 @@
                         if ($nextSequentialStatus) {
                             // Mapping from Progress.php
                             $roleStatusMap = [
-                                'admin_toko' => ['produksi baru', 'selesai'],
-                                'admin_gudang' => ['siap produksi', 'produksi siap diambil'],
-                                'kepala_gudang' => ['dalam pengerjaan', 'produksi siap diambil'],
+                                'admin_toko' => ['baru', 'selesai'],
+                                'admin_gudang' => ['proses', 'siap diambil'],
+                                'kepala_gudang' => ['proses', 'siap diambil'],
                             ];
                             foreach ($roleStatusMap as $role => $statusesForRole) {
                                 if (in_array($nextSequentialStatus, $statusesForRole, true)) {
@@ -1024,58 +1131,38 @@
                         <div class="update-status-card">
                             <div class="update-status-header">
                                 <div>
-                                    <div class="update-status-title">Update Status Produksi</div>
-                                    <p class="update-status-subtitle">
-                                        Status hanya dapat bergerak ke langkah berikutnya.
-                                    </p>
+                                    <div class="update-status-title">Upload Image Progress (Opsional)</div>
                                 </div>
                             </div>
 
                             @if($canProceedNext)
                                 <div class="update-status-body">
-                                    <div class="image-upload-wrapper">
-                                        <!-- Status Update Field -->
-                                        <div class="update-status-field" style="flex: 1; min-width: 200px;">
-                                            <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
-                                            <div class="update-status-actions">
-                                                <select id="updateStatusValue"
-                                                        class="update-status-select"
-                                                        wire:model.defer="updateStatusValue"
-                                                        wire:loading.attr="disabled"
-                                                >
-                                                    <option value="">Konfirmasi status berikutnya</option>
-                                                    <option value="{{ $nextSequentialStatus }}">
-                                                        {{ $statuses[$nextSequentialStatus]['label'] }}
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
+                                    
 
-                                        <!-- Image Upload Field -->
-                                        <div class="image-upload-section" style="flex: 1; min-width: 250px;">
-                                            <!-- <label class="image-upload-label">Upload Foto Progress</label> -->
-                                            <div>
-                                                {{ $this->imageUploadForm }}
-                                            </div>
-
-                                            <x-filament::button
-                                                color="success"
-                                                icon="heroicon-m-check-badge"
-                                                wire:click="updateStatus"
-                                                wire:loading.attr="disabled"
-                                                wire:target="updateStatus"
-                                            >
-                                                Simpan Status
-                                            </x-filament::button>
+                                    <div class="image-upload-section">
+                                        {{-- <label class="image-upload-label">Upload Foto Progress (Opsional)</label> --}}
+                                        <div>
+                                            {{ $this->imageUploadForm }}
                                         </div>
                                     </div>
                                     
-                                    <div class="update-status-meta">
+                                    <div class="update-status-actions-footer">
+                                        <x-filament::button
+                                            color="success"
+                                            icon="heroicon-m-check-badge"
+                                            wire:click="updateStatus"
+                                            wire:loading.attr="disabled"
+                                            wire:target="updateStatus"
+                                            size="lg"
+                                        >
+                                            Simpan Status
+                                        </x-filament::button>
+
                                         <span class="update-status-helper">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                                             </svg>
-                                            Status diperbarui secara berurutan untuk menjaga histori produksi.
+                                            Status akan otomatis berubah ke <strong>{{ $statuses[$nextSequentialStatus]['label'] }}</strong>
                                         </span>
 
                                         <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">

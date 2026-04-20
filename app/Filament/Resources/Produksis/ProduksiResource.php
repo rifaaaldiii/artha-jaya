@@ -7,9 +7,13 @@ use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use App\Models\Produksi as Produksi;
+use App\Models\Pelanggan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
+use App\Filament\Resources\Produksis\Pages\EditProduksi;
 use App\Filament\Resources\Produksis\Pages\ListProduksis;
+use App\Filament\Resources\Produksis\Pages\CreateProduksi;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -86,6 +90,8 @@ class ProduksiResource extends Resource
     {
         return [
             'index' => ListProduksis::route('/'),
+            'create' => CreateProduksi::route('/create'),
+            'edit' => EditProduksi::route('/{record}/edit'),
         ];
     }
 
@@ -116,6 +122,60 @@ class ProduksiResource extends Resource
     {
         $user = Auth::user();
         return in_array($user->role, ['administrator', 'admin_toko', 'superadmin'], true);
+    }
+
+    public static function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (empty($data['no_produksi'])) {
+            $prefix = 'P-';
+            $padLength = 5;
+
+            $lastNo = Produksi::query()
+                ->where('no_produksi', 'like', $prefix . '%')
+                ->orderByDesc('id')
+                ->value('no_produksi');
+
+            $nextNum = $lastNo
+                ? (int) substr($lastNo, strlen($prefix)) + 1
+                : 1;
+
+            $data['no_produksi'] = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+        }
+
+        if (empty($data['status'])) {
+            $data['status'] = 'baru';
+        }
+
+        if (!empty($data['create_new_pelanggan'])) {
+            $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'] ?? null)
+                ->where('kontak', $data['new_pelanggan_kontak'] ?? null)
+                ->where('alamat', $data['new_pelanggan_alamat'] ?? null)
+                ->first();
+
+            if ($existingPelanggan) {
+                throw ValidationException::withMessages([
+                    'new_pelanggan_nama' => ['Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.'],
+                ]);
+            }
+
+            $pelanggan = Pelanggan::create([
+                'nama' => $data['new_pelanggan_nama'],
+                'kontak' => $data['new_pelanggan_kontak'],
+                'alamat' => $data['new_pelanggan_alamat'],
+                'createdAt' => now(),
+            ]);
+
+            $data['pelanggan_id'] = $pelanggan->id;
+        }
+
+        unset(
+            $data['create_new_pelanggan'],
+            $data['new_pelanggan_nama'],
+            $data['new_pelanggan_kontak'],
+            $data['new_pelanggan_alamat'],
+        );
+
+        return $data;
     }
 
     public static function shouldRegisterNavigation(): bool

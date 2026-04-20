@@ -37,7 +37,8 @@ class TeamResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return TeamsTable::configure($table);
+        return TeamsTable::configure($table)
+            ->defaultSort('order', 'asc');
     }
 
     public static function getRelations(): array

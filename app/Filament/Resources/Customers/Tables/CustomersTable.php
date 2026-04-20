@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Pelanggans\Tables;
+namespace App\Filament\Resources\Customers\Tables;
 
 use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
@@ -10,7 +10,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class PelanggansTable
+class CustomersTable
 {
     public static function configure(Table $table): Table
     {
@@ -47,7 +47,7 @@ class PelanggansTable
                     ->counts('produksis')
                     ->sortable()
                     ->badge()
-                    ->color('success'),
+                    ->color('primary'),
 
                 TextColumn::make('createdAt')
                     ->label('Tanggal Dibuat')
@@ -63,6 +63,14 @@ class PelanggansTable
             //     Filter::make('no_jasa')
             //         ->label('Belum Ada Jasa')
             //         ->query(fn (Builder $query): Builder => $query->doesntHave('jasas')),
+
+            //     Filter::make('has_produksi')
+            //         ->label('Sudah Ada Produksi')
+            //         ->query(fn (Builder $query): Builder => $query->has('produksis')),
+
+            //     Filter::make('no_produksi')
+            //         ->label('Belum Ada Produksi')
+            //         ->query(fn (Builder $query): Builder => $query->doesntHave('produksis')),
             // ])
             ->actions([
                 ViewAction::make()
@@ -73,42 +81,25 @@ class PelanggansTable
                     ]))
                     ->visible(fn ($record) => $record->jasas()->count() > 0),
 
+                \Filament\Actions\Action::make('viewProduksi')
+                    ->label('Lihat Produksi')
+                    ->icon('heroicon-m-building-office')
+                    ->color('primary')
+                    ->url(fn ($record) => route('filament.admin.resources.produksis.index', [
+                        'tableFilters[pelanggan_id]' => $record->id,
+                    ]))
+                    ->visible(fn ($record) => $record->produksis()->count() > 0),
+
                 DeleteAction::make()
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Customer')
-                    ->modalDescription(function ($record) {
-                        $hasJasa = $record->jasas()->exists();
-                        $hasProduksi = $record->produksis()->exists();
-                        
-                        if ($hasJasa || $hasProduksi) {
-                            $message = 'Customer ini tidak dapat dihapus karena memiliki data terkait: ';
-                            $reasons = [];
-                            if ($hasJasa) {
-                                $reasons[] = $record->jasas()->count() . ' record Jasa';
-                            }
-                            if ($hasProduksi) {
-                                $reasons[] = $record->produksis()->count() . ' record Produksi';
-                            }
-                            return $message . implode(', ', $reasons) . '. Hapus terlebih dahulu data Jasa/Produksi terkait.';
-                        }
-                        
-                        return 'Apakah Anda yakin ingin menghapus customer ini?';
-                    })
-                    ->visible(fn ($record) => !$record->jasas()->exists() && !$record->produksis()->exists()),
+                    ->modalDescription('Apakah Anda yakin ingin menghapus customer ini? Semua data terkait juga akan terpengaruh.'),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Customer')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus customer yang dipilih? Customer dengan data Jasa/Produksi tidak akan dihapus.')
-                    ->action(function ($records) {
-                        $records->each(function ($record) {
-                            // Only delete if customer has no Jasa or Produksi records
-                            if (!$record->jasas()->exists() && !$record->produksis()->exists()) {
-                                $record->delete();
-                            }
-                        });
-                    }),
+                    ->modalDescription('Apakah Anda yakin ingin menghapus customer yang dipilih?'),
             ])
             ->defaultSort('createdAt', 'desc');
     }
