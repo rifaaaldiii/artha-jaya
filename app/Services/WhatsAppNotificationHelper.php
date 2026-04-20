@@ -42,7 +42,7 @@ class WhatsAppNotificationHelper
             ],
             
             'produksi_status_updated' => match ($newStatus) {
-                'baru', 'produksi baru' => ['administrator'],
+                'baru', 'produksi baru' => ['superadmin'],
                 'proses', 'siap produksi', 'dalam pengerjaan' => ['admin_toko'],
                 'siap diambil', 'produksi siap diambil' => ['admin_toko'],
                 'selesai', 'selesai dikerjakan' => [],
