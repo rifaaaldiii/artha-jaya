@@ -18,14 +18,21 @@ class WhatsAppNotificationHelper
      */
     public static function getRecipientsByBranch(string $branch, string $eventType, ?string $newStatus = null): Collection
     {
-        $query = User::where('branch', $branch)
-            ->whereNotNull('kontak');
+        $query = User::whereNotNull('kontak');
 
-        // Determine which roles should be notified based on event type
-        $rolesToNotify = self::getRolesForEvent($eventType, $newStatus);
+        // For produksi_created and jasa_created, notify all superadmins regardless of branch
+        if (in_array($eventType, ['produksi_created', 'jasa_created'])) {
+            $query->where('role', 'superadmin');
+        } else {
+            // For other events, filter by branch
+            $query->where('branch', $branch);
+            
+            // Determine which roles should be notified based on event type
+            $rolesToNotify = self::getRolesForEvent($eventType, $newStatus);
 
-        if (!empty($rolesToNotify)) {
-            $query->whereIn('role', $rolesToNotify);
+            if (!empty($rolesToNotify)) {
+                $query->whereIn('role', $rolesToNotify);
+            }
         }
 
         return $query->get();

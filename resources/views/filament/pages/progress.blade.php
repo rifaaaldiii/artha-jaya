@@ -1107,8 +1107,8 @@
                             // Mapping from Progress.php
                             $roleStatusMap = [
                                 'admin_toko' => ['baru', 'selesai'],
-                                'admin_gudang' => ['proses', 'siap diambil'],
-                                'kepala_gudang' => ['proses', 'siap diambil'],
+                                'superadmin' => ['proses', 'siap diambil'],
+                                // 'kepala_gudang' => ['proses', 'siap diambil'],
                             ];
                             foreach ($roleStatusMap as $role => $statusesForRole) {
                                 if (in_array($nextSequentialStatus, $statusesForRole, true)) {

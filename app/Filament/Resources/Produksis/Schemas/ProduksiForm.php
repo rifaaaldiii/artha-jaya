@@ -118,152 +118,33 @@ class ProduksiForm
                     ($data = Pelanggan::find($value)) ? ($data->nama . ' | ' . $data->alamat) : null
                 )
                 ->preload()
-                ->required(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
-                ->visible(fn ($get, $record) => $record ? true : !$get('create_new_pelanggan'))
+                ->required()
                 ->dehydrated(true)
                 ->reactive()
-                ->afterStateUpdated(function ($state, callable $set, $get, $record) {
+                ->afterStateUpdated(function ($state, callable $set, callable $get) {
                     if ($state) {
                         $pelanggan = Pelanggan::find($state);
                         if ($pelanggan) {
-                            $set('edit_pelanggan_nama', $pelanggan->nama);
-                            $set('edit_pelanggan_kontak', $pelanggan->kontak);
-                            $set('edit_pelanggan_alamat', $pelanggan->alamat);
-                            
-                            // Update info placeholders
-                            $set('pelanggan_nama_info', $pelanggan->nama);
-                            $set('pelanggan_kontak_info', $pelanggan->kontak);
-                            $set('pelanggan_alamat_info', $pelanggan->alamat);
-                            
                             // Auto-fill alamat produksi dari alamat pelanggan
                             $set('alamat', $pelanggan->alamat);
                         }
+                    } else {
+                        // Clear alamat when customer is deselected
+                        $set('alamat', null);
                     }
                 })
                 ->afterStateHydrated(function ($state, $component, $record, $get, $set) {
                     if ($record && $record->pelanggan_id) {
                         $pelanggan = Pelanggan::find($record->pelanggan_id);
                         if ($pelanggan) {
-                            $set('pelanggan_nama_info', $pelanggan->nama);
-                            $set('pelanggan_kontak_info', $pelanggan->kontak);
-                            $set('pelanggan_alamat_info', $pelanggan->alamat);
+                            // Auto-fill alamat produksi dari alamat pelanggan existing
+                            if (blank($get('alamat'))) {
+                                $set('alamat', $pelanggan->alamat);
+                            }
                         }
                     }
                 }),
             
-            
-            TextInput::make('edit_pelanggan_nama')
-                ->label('Nama Customer')
-                ->required()
-                ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
-                ->dehydrated(true)
-                ->default(fn ($record) => $record?->pelanggan?->nama)
-                ->afterStateHydrated(function ($component, $state, $record, $get) {
-                    if (blank($state)) {
-                        $pelangganId = $get('pelanggan_id') ?? $record?->pelanggan_id;
-                        if ($pelangganId) {
-                            $pelanggan = Pelanggan::find($pelangganId);
-                            if ($pelanggan) {
-                                $component->state($pelanggan->nama);
-                            }
-                        }
-                    }
-                })
-                ->rules([
-                    function ($get, $record) {
-                        return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                            if ($record && $value) {
-                                $pelangganId = $get('pelanggan_id') ?? $record->pelanggan_id;
-                                $exists = Pelanggan::where('nama', $value)
-                                    ->where('kontak', $get('edit_pelanggan_kontak'))
-                                    ->where('alamat', $get('edit_pelanggan_alamat'))
-                                    ->where('id', '!=', $pelangganId)
-                                    ->exists();
-                                
-                                if ($exists) {
-                                    $fail('Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.');
-                                }
-                            }
-                        };
-                    },
-                ]),
-            
-            TextInput::make('edit_pelanggan_kontak')
-                ->label('Kontak')
-                ->required()
-                ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
-                ->dehydrated(true)
-                ->default(fn ($record) => $record?->pelanggan?->kontak)
-                ->afterStateHydrated(function ($component, $state, $record, $get) {
-                    if (blank($state)) {
-                        $pelangganId = $get('pelanggan_id') ?? $record?->pelanggan_id;
-                        if ($pelangganId) {
-                            $pelanggan = Pelanggan::find($pelangganId);
-                            if ($pelanggan) {
-                                $component->state($pelanggan->kontak);
-                            }
-                        }
-                    }
-                })
-                ->rules([
-                    function ($get, $record) {
-                        return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                            if ($record && $value) {
-                                $pelangganId = $get('pelanggan_id') ?? $record->pelanggan_id;
-                                $exists = Pelanggan::where('nama', $get('edit_pelanggan_nama'))
-                                    ->where('kontak', $value)
-                                    ->where('alamat', $get('edit_pelanggan_alamat'))
-                                    ->where('id', '!=', $pelangganId)
-                                    ->exists();
-                                
-                                if ($exists) {
-                                    $fail('Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.');
-                                }
-                            }
-                        };
-                    },
-                ]),
-            
-            Textarea::make('edit_pelanggan_alamat')
-                ->label('Alamat')
-                ->required()
-                ->visible(fn ($get, $record) => $record && ($get('pelanggan_id') || $record->pelanggan_id))
-                ->dehydrated(true)
-                ->default(fn ($record) => $record?->pelanggan?->alamat)
-                ->afterStateHydrated(function ($component, $state, $record, $get) {
-                    if (blank($state)) {
-                        $pelangganId = $get('pelanggan_id') ?? $record?->pelanggan_id;
-                        if ($pelangganId) {
-                            $pelanggan = Pelanggan::find($pelangganId);
-                            if ($pelanggan) {
-                                $component->state($pelanggan->alamat);
-                            }
-                        }
-                    }
-                })
-                ->reactive()
-                ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                    // Update info placeholder only
-                    $set('pelanggan_alamat_info', $state);
-                })
-                ->rules([
-                    function ($get, $record) {
-                        return function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                            if ($record && $value) {
-                                $pelangganId = $get('pelanggan_id') ?? $record->pelanggan_id;
-                                $exists = Pelanggan::where('nama', $get('edit_pelanggan_nama'))
-                                    ->where('kontak', $get('edit_pelanggan_kontak'))
-                                    ->where('alamat', $value)
-                                    ->where('id', '!=', $pelangganId)
-                                    ->exists();
-                                
-                                if ($exists) {
-                                    $fail('Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.');
-                                }
-                            }
-                        };
-                    },
-                ]),
             
             TextInput::make('new_pelanggan_nama')
                 ->label('Nama Customer')
@@ -276,7 +157,7 @@ class ProduksiForm
                             if ($get('create_new_pelanggan') && $value) {
                                 $exists = Pelanggan::where('nama', $value)
                                     ->where('kontak', $get('new_pelanggan_kontak'))
-                                    ->where('alamat', $get('new_pelanggan_alamat'))
+                                    ->where('alamat', $get('alamat'))
                                     ->exists();
                                 
                                 if ($exists) {
@@ -298,36 +179,7 @@ class ProduksiForm
                             if ($get('create_new_pelanggan') && $value) {
                                 $exists = Pelanggan::where('nama', $get('new_pelanggan_nama'))
                                     ->where('kontak', $value)
-                                    ->where('alamat', $get('new_pelanggan_alamat'))
-                                    ->exists();
-                                
-                                if ($exists) {
-                                    $fail('Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.');
-                                }
-                            }
-                        };
-                    },
-                ]),
-            
-            Textarea::make('new_pelanggan_alamat')
-                ->label('Alamat')
-                ->required(fn ($get) => $get('create_new_pelanggan'))
-                ->visible(fn ($get, $record) => !$record && $get('create_new_pelanggan'))
-                ->dehydrated(fn ($get) => $get('create_new_pelanggan'))
-                ->reactive()
-                ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                    // Auto-fill alamat produksi dari alamat pelanggan baru
-                    if ($get('create_new_pelanggan') && $state) {
-                        $set('alamat', $state);
-                    }
-                })
-                ->rules([
-                    function ($get) {
-                        return function (string $attribute, $value, \Closure $fail) use ($get) {
-                            if ($get('create_new_pelanggan') && $value) {
-                                $exists = Pelanggan::where('nama', $get('new_pelanggan_nama'))
-                                    ->where('kontak', $get('new_pelanggan_kontak'))
-                                    ->where('alamat', $value)
+                                    ->where('alamat', $get('alamat'))
                                     ->exists();
                                 
                                 if ($exists) {
@@ -454,16 +306,12 @@ class ProduksiForm
                 ->afterStateUpdated(function ($state, callable $set, callable $get) {
                     if ($state) {
                         $set('pelanggan_id', null);
-                        // If there's already a new_pelanggan_alamat filled, use it
-                        $newAlamat = $get('new_pelanggan_alamat');
-                        if ($newAlamat) {
-                            $set('alamat', $newAlamat);
-                        }
+                        // Clear alamat when switching to new customer
+                        $set('alamat', null);
                     } else {
                         $set('new_pelanggan_nama', null);
                         $set('new_pelanggan_kontak', null);
-                        $set('new_pelanggan_alamat', null);
-                        // Clear alamat produksi jika toggle dimatikan
+                        // Clear alamat when switching to existing customer without selection
                         if (!$get('pelanggan_id')) {
                             $set('alamat', null);
                         }

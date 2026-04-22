@@ -149,7 +149,7 @@ class ProduksiResource extends Resource
         if (!empty($data['create_new_pelanggan'])) {
             $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'] ?? null)
                 ->where('kontak', $data['new_pelanggan_kontak'] ?? null)
-                ->where('alamat', $data['new_pelanggan_alamat'] ?? null)
+                ->where('alamat', $data['alamat'] ?? null)
                 ->first();
 
             if ($existingPelanggan) {
@@ -161,7 +161,7 @@ class ProduksiResource extends Resource
             $pelanggan = Pelanggan::create([
                 'nama' => $data['new_pelanggan_nama'],
                 'kontak' => $data['new_pelanggan_kontak'],
-                'alamat' => $data['new_pelanggan_alamat'],
+                'alamat' => $data['alamat'],
                 'createdAt' => now(),
             ]);
 
@@ -172,7 +172,6 @@ class ProduksiResource extends Resource
             $data['create_new_pelanggan'],
             $data['new_pelanggan_nama'],
             $data['new_pelanggan_kontak'],
-            $data['new_pelanggan_alamat'],
         );
 
         return $data;

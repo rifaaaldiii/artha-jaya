@@ -76,9 +76,20 @@ class Progress extends Page implements HasForms
             $this->selectedProduksiId = (int) $selectedProduksiId;
             $this->loadRecord();
         } else {
-            $firstProduksi = Produksi::where('status', '!=', 'selesai')
-                ->orderBy('createdAt', 'desc')
-                ->first();
+            $user = Auth::user();
+            if (!$user) {
+                return;
+            }
+
+            // Get first produksi based on user role and branch
+            $query = Produksi::query()->orderBy('createdAt', 'desc');
+            
+            // Filter by branch for non-administrator users
+            if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+                $query->where('branch', $user->branch);
+            }
+
+            $firstProduksi = $query->first();
             if ($firstProduksi) {
                 $this->selectedProduksiId = $firstProduksi->id;
                 $this->loadRecord();
@@ -112,10 +123,21 @@ class Progress extends Page implements HasForms
                 Select::make('selectedProduksiId')
                     ->label('Cari & Pilih Produksi')
                     ->options(function () {
-                        return Produksi::query()
+                        $user = Auth::user();
+                        if (!$user) {
+                            return [];
+                        }
+
+                        $query = Produksi::query()
                             ->with('items')
-                            ->where('status', '!=', 'selesai')
-                            ->orderBy('createdAt', 'desc')
+                            ->where('status', '!=', 'selesai');
+
+                        // Filter by branch for non-administrator users
+                        if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+                            $query->where('branch', $user->branch);
+                        }
+
+                        return $query->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($produksi) {
@@ -135,19 +157,31 @@ class Progress extends Page implements HasForms
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
-                        return Produksi::query()
+                        $user = Auth::user();
+                        if (!$user) {
+                            return [];
+                        }
+
+                        $query = Produksi::query()
                             ->with('items')
-                            ->where('status', '!=', 'selesai')
-                            ->where(function ($query) use ($search) {
-                                $searchTerm = '%' . trim($search) . '%';
-                                $query->where('no_produksi', 'like', $searchTerm)
-                                    ->orWhere('no_ref', 'like', $searchTerm)
-                                    ->orWhereHas('items', function ($q) use ($searchTerm) {
-                                        $q->where('nama_produksi', 'like', $searchTerm)
-                                            ->orWhere('nama_bahan', 'like', $searchTerm);
-                                    });
-                            })
-                            ->orderBy('createdAt', 'desc')
+                            ->where('status', '!=', 'selesai');
+
+                        // Filter by branch for non-administrator users
+                        if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+                            $query->where('branch', $user->branch);
+                        }
+
+                        $searchTerm = '%' . trim($search) . '%';
+                        $query->where(function ($q) use ($searchTerm) {
+                            $q->where('no_produksi', 'like', $searchTerm)
+                                ->orWhere('no_ref', 'like', $searchTerm)
+                                ->orWhereHas('items', function ($q) use ($searchTerm) {
+                                    $q->where('nama_produksi', 'like', $searchTerm)
+                                        ->orWhere('nama_bahan', 'like', $searchTerm);
+                                });
+                        });
+
+                        return $query->orderBy('createdAt', 'desc')
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($produksi) {
@@ -450,8 +484,7 @@ class Progress extends Page implements HasForms
 
         $roleStatusMap = [
             'admin_toko' => ['baru', 'selesai'],
-            'admin_gudang' => ['proses', 'siap diambil'],
-            'kepala_gudang' => ['proses', 'siap diambil'],
+            'superadmin' => ['proses', 'siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
@@ -519,8 +552,7 @@ class Progress extends Page implements HasForms
 
         $roleStatusMap = [
             'admin_toko' => ['baru', 'selesai'],
-            'admin_gudang' => ['proses', 'siap diambil'],
-            'kepala_gudang' => ['proses', 'siap diambil'],
+            'superadmin' => ['proses', 'siap diambil'],
         ];
 
         if (in_array($normalizedRole, ['administrator'], true)) {
@@ -535,9 +567,16 @@ class Progress extends Page implements HasForms
             return null;
         }
 
-        $count = Produksi::query()
-            ->where('status', '!=', 'selesai')
-            ->get()
+        // Build query for counting produksis
+        $query = Produksi::query()
+            ->where('status', '!=', 'selesai');
+
+        // Filter by branch for non-administrator users
+        if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+            $query->where('branch', $user->branch);
+        }
+
+        $count = $query->get()
             ->filter(function ($produksi) use ($statusFlow, $allowedStatuses) {
                 $currentStatus = $produksi->status;
                 $currentIndex = array_search($currentStatus, $statusFlow, true);
