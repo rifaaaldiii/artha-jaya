@@ -19,6 +19,8 @@ class Jasa extends Model
         'jadwal_petugas',
         'catatan',
         'progress_images',
+        'completion_images',
+        'completion_notes',
         'petugas_id',
         'pelanggan_id',
         'alamat',
@@ -35,6 +37,7 @@ class Jasa extends Model
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
         'progress_images' => 'array',
+        'completion_images' => 'array',
     ];
 
     protected $rules = [
@@ -181,5 +184,49 @@ class Jasa extends Model
                 }
             }
         });
+    }
+
+    /**
+     * Get all update tokens for this jasa.
+     */
+    public function updateTokens(): HasMany
+    {
+        return $this->hasMany(JasaUpdateToken::class);
+    }
+
+    /**
+     * Generate a new update token for this jasa.
+     */
+    public function generateUpdateToken(): string
+    {
+        \Log::info('Generating update token for jasa', [
+            'jasa_id' => $this->id,
+            'no_jasa' => $this->no_jasa,
+        ]);
+        
+        $token = hash('sha256', $this->id . now()->timestamp . config('app.key'));
+        
+        try {
+            JasaUpdateToken::create([
+                'jasa_id' => $this->id,
+                'token' => $token,
+                'target_status' => 'selesai dikerjakan',
+                'expires_at' => now()->addDays(7),
+            ]);
+            
+            \Log::info('Update token created successfully', [
+                'jasa_id' => $this->id,
+                'token' => substr($token, 0, 20) . '...',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to create update token', [
+                'jasa_id' => $this->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
+        
+        return $token;
     }
 }

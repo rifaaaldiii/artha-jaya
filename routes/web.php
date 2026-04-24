@@ -1,12 +1,21 @@
 <?php
 
 use App\Http\Controllers\PollingController;
+use App\Http\Controllers\PublicJasaUpdateController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/admin');
+});
+
+// Public jasa update routes (no auth required)
+Route::prefix('jasa-update')->name('jasa.public.')->group(function () {
+    Route::get('/{token}', [PublicJasaUpdateController::class, 'show'])
+        ->name('update');
+    Route::post('/{token}', [PublicJasaUpdateController::class, 'update'])
+        ->name('update.submit');
 });
 
 // Custom 404 page route

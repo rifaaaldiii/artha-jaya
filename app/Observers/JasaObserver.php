@@ -135,13 +135,37 @@ class JasaObserver
         $oldStatus = $jasa->getOriginal('status');
         $newStatus = $jasa->status;
 
+        Log::info('Jasa status changed - checking recipients', [
+            'jasa_id' => $jasa->id,
+            'no_jasa' => $jasa->no_jasa,
+            'branch' => $jasa->branch,
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus,
+        ]);
+
         $recipients = WhatsAppNotificationHelper::getRecipientsByBranch(
             $jasa->branch,
             'jasa_status_updated',
             $newStatus
         );
 
+        Log::info('Recipients found for jasa status update', [
+            'recipients_count' => $recipients->count(),
+            'recipients' => $recipients->map(fn($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'role' => $u->role,
+                'branch' => $u->branch,
+                'kontak' => $u->kontak,
+            ])->toArray(),
+        ]);
+
         if ($recipients->isEmpty()) {
+            Log::warning('No recipients found for jasa status update', [
+                'jasa_id' => $jasa->id,
+                'new_status' => $newStatus,
+                'branch' => $jasa->branch,
+            ]);
             return;
         }
 
@@ -165,7 +189,43 @@ class JasaObserver
             'jadwal_petugas' => $jadwalPetugas,
         ];
 
+        // Generate update token if status changed to 'terjadwal'
+        if ($newStatus === 'terjadwal') {
+            try {
+                Log::info('Attempting to generate update token', [
+                    'jasa_id' => $jasa->id,
+                    'no_jasa' => $jasa->no_jasa,
+                ]);
+                
+                $token = $jasa->generateUpdateToken();
+                $updateLink = route('jasa.public.update', ['token' => $token]);
+                $jasaData['update_link'] = $updateLink;
+                
+                Log::info('Update token generated successfully', [
+                    'jasa_id' => $jasa->id,
+                    'no_jasa' => $jasa->no_jasa,
+                    'update_link' => $updateLink,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to generate update token - will still send WhatsApp without link', [
+                    'jasa_id' => $jasa->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                // Continue with notification even if token fails
+            }
+        } else {
+            Log::info('Status is not terjadwal, skipping token generation', [
+                'new_status' => $newStatus,
+            ]);
+        }
+
         // Send notifications via helper
+        Log::info('Sending WhatsApp notification', [
+            'recipients_count' => $recipients->count(),
+            'has_update_link' => isset($jasaData['update_link']),
+        ]);
+        
         WhatsAppNotificationHelper::sendJasaStatusUpdate($recipients, $jasaData);
 
         Log::info('Jasa status update notification sent', [

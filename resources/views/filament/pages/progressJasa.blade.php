@@ -1049,7 +1049,7 @@
             $nextStatus = $this->getNextSequentialStatusProperty();
         @endphp
 
-    <div class="progress-container">
+    <div class="progress-container" wire:poll.5s>
         <!-- Left Side: Progress Stepper -->
         <div class="prog-sidebar">
             <div class="prog-steps">
@@ -1167,6 +1167,20 @@
                                     <span class="detail-item-label">No. Ref</span>
                                     <span class="detail-item-value">{{ $record->no_ref ?? '-' }}</span>
                                 </li>
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Branch</span>
+                                    <span class="detail-item-value">{{ $record->branch ?? '-' }}</span>
+                                </li>
+                                @if($this->record->petugasMany && $this->record->petugasMany->count() > 0)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Petugas</span>
+                                    <span class="detail-item-value">
+                                        @foreach($this->record->petugasMany as $index => $petugas)
+                                            {{ $petugas->nama }}@if(!$loop->last), @endif
+                                        @endforeach
+                                    </span>
+                                </li>
+                                @endif
                             </ul>
                         </div>
                         <div class="info-section">
@@ -1269,22 +1283,37 @@
                                     <span class="detail-item-value">{{ $this->record->jadwal_petugas->format('d F Y, H:i')}} WIB</span>
                                 </li>
                                 @endif
-                                @if($this->record->petugasMany && $this->record->petugasMany->count() > 0)
-                                <li class="detail-list-item">
-                                    <span class="detail-item-label">Petugas</span>
-                                    <span class="detail-item-value">
-                                        @foreach($this->record->petugasMany as $index => $petugas)
-                                            {{ $petugas->nama }}@if(!$loop->last), @endif
-                                        @endforeach
-                                    </span>
-                                </li>
-                                @endif
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Status</span>
                                     <span class="detail-item-value"><span class="{{ $badgeClass }}">{{ $statuses[$currentStatus]['label'] }}</span></span>
                                 </li>
                             </ul>
                         </div>
+                        
+                        {{-- Completion Proof Section --}}
+                        @if($this->record->completion_images && count($this->record->completion_images) > 0)
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Bukti Pengerjaan
+                            </div>
+                            <div class="progress-images-grid">
+                                @foreach($this->record->completion_images as $image)
+                                <div class="progress-image-item">
+                                    <img src="{{ $image }}" alt="Bukti Pengerjaan">
+                                </div>
+                                @endforeach
+                            </div>
+                            @if($this->record->completion_notes)
+                            <div style="margin-top: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                                <strong style="font-size: 14px; color: #374151;">📝 Catatan Pengerjaan:</strong>
+                                <p style="margin-top: 8px; color: #6b7280; font-size: 14px;">{{ $this->record->completion_notes }}</p>
+                            </div>
+                            @endif
+                        </div>
+                        @endif
                     </div>
 
                     {{-- Catatan Section --}}
@@ -1380,7 +1409,7 @@
                             $roleStatusMap = [
                                 'terjadwal' => 'superadmin',
                                 'selesai dikerjakan' => 'kepala_lapangan',
-                                'selesai' => 'superadmin',
+                                'selesai' => 'superadmin, admin_toko',
                             ];
                             $nextSequentialStatusRole = $roleStatusMap[$nextSequentialStatus] ?? 'administrator';
                             
@@ -1404,197 +1433,177 @@
 
                             @if($canProceedNext)
                                 <div class="update-status-body">
-                                    <div class="image-upload-wrapper">
-                                        <!-- Status Update Field (Hidden for Terjadwal) -->
-                                        @if($nextStatus !== 'terjadwal')
-                                        <div class="update-status-field" style="flex: 1; min-width: 200px;">
-                                            <label class="update-status-label" for="updateStatusValue">Langkah Berikutnya</label>
-                                            <div class="update-status-actions">
-                                                <select id="updateStatusValue"
-                                                        class="update-status-select"
-                                                        wire:model.defer="updateStatusValue"
-                                                        wire:loading.attr="disabled"
-                                                >
-                                                    <option value="">Konfirmasi status berikutnya</option>
-                                                    <option value="{{ $nextSequentialStatus }}">
-                                                        {{ $statuses[$nextSequentialStatus]['label'] }}
-                                                    </option>
-                                                </select>
+                                    
+                                    <!-- Form Terjadwal (Date/Time & Multi-select Petugas) -->
+                                    @if($nextStatus === 'terjadwal')
+                                    <div class="terjadwal-form-container">
+                                        <div class="terjadwal-form-fields">
+                                            <!-- Input Tanggal dan Waktu -->
+                                            <div class="terjadwal-field">
+                                                <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
+                                                    Tanggal & Waktu Pelaksanaan <span style="color: #dc2626;">*</span>
+                                                </label>
+                                                <input type="datetime-local"
+                                                       wire:model.defer="jadwalPetugas"
+                                                       wire:loading.attr="disabled"
+                                                       class="terjadwal-datetime-input"
+                                                />
                                             </div>
-                                        </div>
-                                        @endif
 
-                                        <!-- Form Terjadwal (Date/Time & Multi-select Petugas) -->
-                                        @if($nextStatus === 'terjadwal')
-                                        <div class="terjadwal-form-container">
-                                            <div class="terjadwal-form-fields">
-                                                <!-- Input Tanggal dan Waktu -->
-                                                <div class="terjadwal-field">
-                                                    <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                        Tanggal & Waktu Pelaksanaan <span style="color: #dc2626;">*</span>
-                                                    </label>
-                                                    <input type="datetime-local"
-                                                           wire:model.defer="jadwalPetugas"
-                                                           wire:loading.attr="disabled"
-                                                           class="terjadwal-datetime-input"
-                                                    />
-                                                </div>
+                                            <!-- Multi-select Petugas with Tags -->
+                                            <div class="terjadwal-field">
+                                                <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
+                                                    Petugas Jasa <span style="color: #dc2626;">*</span>
+                                                </label>
+                                                
+                                                <!-- Custom Multi-Select with Tags -->
+                                                <div x-data="petugasMultiSelectComponent" 
+                                                     x-init="init()"
+                                                     @click.away="open = false" 
+                                                     class="petugas-multiselect">
+                                                    <!-- Selected Tags Display -->
+                                                    <div class="petugas-select-box"
+                                                         :class="{ 'active': open }"
+                                                         @click="toggleDropdown()"
+                                                         id="petugasSelectBox">
+                                                        <div class="petugas-tags-container">
+                                                            <template x-for="petugas in selectedPetugas" :key="petugas.id">
+                                                                <span class="petugas-tag">
+                                                                    <span x-text="petugas.nama"></span>
+                                                                    <button type="button" 
+                                                                            @click.stop="remove(petugas.id)"
+                                                                            class="petugas-tag-remove"
+                                                                            title="Hapus petugas">
+                                                                        &times;
+                                                                    </button>
+                                                                </span>
+                                                            </template>
+                                                            <span x-show="!selected || selected.length === 0" class="petugas-placeholder">Pilih petugas...</span>
+                                                        </div>
+                                                    </div>
 
-                                                <!-- Multi-select Petugas with Tags -->
-                                                <div class="terjadwal-field">
-                                                    <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                        Petugas Jasa <span style="color: #dc2626;">*</span>
-                                                    </label>
-                                                    
-                                                    <!-- Custom Multi-Select with Tags -->
-                                                    <div x-data="petugasMultiSelectComponent" 
-                                                         x-init="init()"
-                                                         @click.away="open = false" 
-                                                         class="petugas-multiselect">
-                                                        <!-- Selected Tags Display -->
-                                                        <div class="petugas-select-box"
-                                                             :class="{ 'active': open }"
-                                                             @click="toggleDropdown()"
-                                                             id="petugasSelectBox">
-                                                            <div class="petugas-tags-container">
-                                                                <template x-for="petugas in selectedPetugas" :key="petugas.id">
-                                                                    <span class="petugas-tag">
-                                                                        <span x-text="petugas.nama"></span>
-                                                                        <button type="button" 
-                                                                                @click.stop="remove(petugas.id)"
-                                                                                class="petugas-tag-remove"
-                                                                                title="Hapus petugas">
-                                                                            &times;
-                                                                        </button>
-                                                                    </span>
-                                                                </template>
-                                                                <span x-show="!selected || selected.length === 0" class="petugas-placeholder">Pilih petugas...</span>
-                                                            </div>
+                                                    <!-- Dropdown List -->
+                                                    <div x-show="open"
+                                                         x-transition:enter="transition ease-out duration-200"
+                                                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                                                         x-transition:leave="transition ease-in duration-150"
+                                                         x-transition:leave-start="opacity-100 transform translate-y-0"
+                                                         x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                                         class="petugas-dropdown"
+                                                         :style="dropdownStyle"
+                                                         @click.stop>
+                                                        
+                                                        <!-- Search Input -->
+                                                        <div class="petugas-dropdown-search">
+                                                            <input type="text"
+                                                                   x-model="search"
+                                                                   @input="debounceSearch()"
+                                                                   placeholder="Ketik untuk mencari petugas..."
+                                                                   @click.stop
+                                                                   id="petugasSearchInput"
+                                                                   autocomplete="off"
+                                                            />
                                                         </div>
 
-                                                        <!-- Dropdown List -->
-                                                        <div x-show="open"
-                                                             x-transition:enter="transition ease-out duration-200"
-                                                             x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                                             x-transition:enter-end="opacity-100 transform translate-y-0"
-                                                             x-transition:leave="transition ease-in duration-150"
-                                                             x-transition:leave-start="opacity-100 transform translate-y-0"
-                                                             x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                                             class="petugas-dropdown"
-                                                             :style="dropdownStyle"
-                                                             @click.stop>
-                                                            
-                                                            <!-- Search Input -->
-                                                            <div class="petugas-dropdown-search">
-                                                                <input type="text"
-                                                                       x-model="search"
-                                                                       @input="debounceSearch()"
-                                                                       placeholder="Ketik untuk mencari petugas..."
-                                                                       @click.stop
-                                                                       id="petugasSearchInput"
-                                                                       autocomplete="off"
-                                                                />
-                                                            </div>
+                                                        <!-- Loading State -->
+                                                        <div x-show="loading" class="petugas-dropdown-loading">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px;">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+                                                            </svg>
+                                                            <span>Mencari...</span>
+                                                        </div>
 
-                                                            <!-- Loading State -->
-                                                            <div x-show="loading" class="petugas-dropdown-loading">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px;">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
-                                                                </svg>
-                                                                <span>Mencari...</span>
-                                                            </div>
-
-                                                            <!-- Petugas List -->
-                                                            <div x-show="!loading" class="petugas-dropdown-list">
-                                                                <template x-for="petugas in filteredPetugas" :key="petugas.id">
-                                                                    <div @click="toggle(petugas.id)"
-                                                                         class="petugas-dropdown-item"
-                                                                         :class="{ 'selected': selected && selected.includes(petugas.id) }">
-                                                                        <div class="petugas-checkbox"
-                                                                             :class="{ 'checked': selected && selected.includes(petugas.id) }">
-                                                                            <svg x-show="selected && selected.includes(petugas.id)" 
-                                                                                 fill="none" 
-                                                                                 viewBox="0 0 24 24" 
-                                                                                 stroke="currentColor" 
-                                                                                 stroke-width="3">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                                                            </svg>
-                                                                        </div>
-                                                                        <div class="petugas-dropdown-item-info">
-                                                                            <div class="petugas-dropdown-item-name" x-text="petugas.nama"></div>
-                                                                            <div x-show="petugas.kontak" class="petugas-dropdown-item-contact" x-text="petugas.kontak"></div>
-                                                                        </div>
+                                                        <!-- Petugas List -->
+                                                        <div x-show="!loading" class="petugas-dropdown-list">
+                                                            <template x-for="petugas in filteredPetugas" :key="petugas.id">
+                                                                <div @click="toggle(petugas.id)"
+                                                                     class="petugas-dropdown-item"
+                                                                     :class="{ 'selected': selected && selected.includes(petugas.id) }">
+                                                                    <div class="petugas-checkbox"
+                                                                         :class="{ 'checked': selected && selected.includes(petugas.id) }">
+                                                                        <svg x-show="selected && selected.includes(petugas.id)" 
+                                                                             fill="none" 
+                                                                             viewBox="0 0 24 24" 
+                                                                             stroke="currentColor" 
+                                                                             stroke-width="3">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                                                        </svg>
                                                                     </div>
-                                                                </template>
-                                                                <div x-show="!loading && filteredPetugas.length === 0" class="petugas-dropdown-empty">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                                                                    </svg>
-                                                                    <div>Tidak ada petugas ditemukan</div>
+                                                                    <div class="petugas-dropdown-item-info">
+                                                                        <div class="petugas-dropdown-item-name" x-text="petugas.nama"></div>
+                                                                        <div x-show="petugas.kontak" class="petugas-dropdown-item-contact" x-text="petugas.kontak"></div>
+                                                                    </div>
                                                                 </div>
+                                                            </template>
+                                                            <div x-show="!loading && filteredPetugas.length === 0" class="petugas-dropdown-empty">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                                </svg>
+                                                                <div>Tidak ada petugas ditemukan</div>
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    <!-- Helper Text -->
-                                                    <div class="petugas-helper">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                                                        </svg>
-                                                        <span>Klik petugas untuk memilih. Petugas terpilih akan muncul sebagai tag di atas dan bisa dihapus dengan klik tombol ×.</span>
-                                                    </div>
                                                 </div>
 
-                                                <!-- Submit Button for Terjadwal status -->
-                                                <div class="terjadwal-submit-container">
-                                                    <x-filament::button
-                                                        color="success"
-                                                        icon="heroicon-m-check-badge"
-                                                        wire:click="updateStatus"
-                                                        wire:loading.attr="disabled"
-                                                        wire:target="updateStatus"
-                                                    >
-                                                        Simpan Status
-                                                    </x-filament::button>
+                                                <!-- Helper Text -->
+                                                <div class="petugas-helper">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                                    </svg>
+                                                    <span>Klik petugas untuk memilih. Petugas terpilih akan muncul sebagai tag di atas dan bisa dihapus dengan klik tombol ×.</span>
                                                 </div>
+                                            </div>
+
+                                            <!-- Submit Button for Terjadwal status -->
+                                            <div class="terjadwal-submit-container">
+                                                <x-filament::button
+                                                    color="success"
+                                                    icon="heroicon-m-check-badge"
+                                                    wire:click="updateStatus"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="updateStatus"
+                                                >
+                                                    Simpan Status
+                                                </x-filament::button>
                                             </div>
                                         </div>
-                                        @endif
+                                    </div>
+                                    @endif
 
-                                        <!-- Image Upload Field (Hidden for Terjadwal status) -->
-                                        @if($nextStatus !== 'terjadwal')
-                                        <div class="image-upload-section" style="flex: 1; min-width: 250px;">
-                                            <!-- <label class="image-upload-label">Upload Foto Progress</label> -->
-                                            <div>
-                                                {{ $this->imageUploadForm }}
-                                            </div>
-
+                                    <!-- Image Upload Field (For non-terjadwal status) -->
+                                    @if($nextStatus !== 'terjadwal')
+                                    <div class="image-upload-section">
+                                        <div>
+                                            {{ $this->imageUploadForm }}
+                                        </div>
+                                        
+                                        <div class="update-status-actions-footer">
                                             <x-filament::button
                                                 color="success"
                                                 icon="heroicon-m-check-badge"
                                                 wire:click="updateStatus"
                                                 wire:loading.attr="disabled"
                                                 wire:target="updateStatus"
+                                                size="lg"
                                             >
                                                 Simpan Status
                                             </x-filament::button>
-                                        </div>
-                                        @endif
-                                    </div>
-                                    
-                                    <div class="update-status-meta">
-                                        <span class="update-status-helper">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                                            </svg>
-                                            Status diperbarui secara berurutan untuk menjaga histori Jasa & Layanan.
-                                        </span>
 
-                                        <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
-                                            <x-filament::loading-indicator class="w-4 h-4" />
-                                            Memperbarui status...
+                                            <span class="update-status-helper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                                </svg>
+                                                Status akan otomatis berubah ke <strong>{{ $statuses[$nextSequentialStatus]['label'] }}</strong>
+                                            </span>
+
+                                            <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
+                                                <x-filament::loading-indicator class="w-4 h-4" />
+                                                Memperbarui status...
+                                            </div>
                                         </div>
                                     </div>
+                                    @endif
                                 </div>
                             @else
                                 <div class="update-status-no-permission" style="display: flex; align-items: center; gap: 14px; border-radius: 8px; padding: 15px 24px;">

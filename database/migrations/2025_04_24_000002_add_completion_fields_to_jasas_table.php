@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('jasas', function (Blueprint $table) {
+            $table->json('completion_images')->nullable()->after('progress_images');
+            $table->text('completion_notes')->nullable()->after('completion_images');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('jasas', function (Blueprint $table) {
+            $table->dropColumn(['completion_images', 'completion_notes']);
+        });
+    }
+};

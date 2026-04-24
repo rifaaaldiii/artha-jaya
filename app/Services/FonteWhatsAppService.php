@@ -328,14 +328,13 @@ class FonteWhatsAppService
         $message .= "📋 *Informasi*\n";
         $message .= "No. Jasa: *{$data['no_jasa']}*\n";
         $message .= "No. Ref: {$data['no_ref']}\n";
-        $message .= "Branch: {$data['branch']}\n";
-        $message .= "Pelanggan: {$data['pelanggan']}\n";
+        $message .= "Branch: {$data['branch']}\n\n";
 
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "👤 *Data Pelanggan*\n";
         $message .= "Nama: {$data['pelanggan']}\n";
         $message .= "Kontak: {$data['kontak']}\n";
-        $message .= "Alamat: {$data['alamat']}\n";
+        $message .= "Alamat: {$data['alamat']}\n\n";
         
         $message .= "📊 *Perubahan Status*\n";
         $message .= "Dari: {$data['old_status']}\n";
@@ -347,8 +346,18 @@ class FonteWhatsAppService
         }
         
         $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "💡 _Status telah diperbarui_\n";
-        $message .= "🔗 " . url('/admin/progress-jasa?selectedJasaId=' . $data['jasa_id']);
+        
+        // Add update link if available (for 'terjadwal' status - sent to kepala_lapangan)
+        if (!empty($data['update_link'])) {
+            $message .= "📝 *Update Status Pengerjaan*\n";
+            $message .= "Silakan klik link berikut untuk update status setelah pengerjaan selesai:\n";
+            $message .= "🔗 {$data['update_link']}\n";
+            $message .= "⚠️ _Link ini hanya bisa digunakan 1 kali dan expired dalam 7 hari_";
+        } else {
+            // Admin link for other recipients (superadmin, admin_toko)
+            $message .= "💡 _Status telah diperbarui_\n";
+            $message .= "🔗 " . url('/admin/progress-jasa?selectedJasaId=' . $data['jasa_id']);
+        }
 
         return $message;
     }

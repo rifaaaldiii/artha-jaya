@@ -92,6 +92,14 @@ class ProgressJasa extends Page implements HasForms
         }
     }
 
+    public function refresh(): void
+    {
+        if ($this->record) {
+            $this->record->refresh();
+            $this->loadRecord();
+        }
+    }
+
     public function mount(): void
     {
         $selectedJasaId = request()->query('selectedJasaId');
@@ -228,9 +236,8 @@ class ProgressJasa extends Page implements HasForms
             return;
         }
 
-        if (empty($this->updateStatusValue)) {
-            $this->updateStatusValue = $nextStatus;
-        }
+        // Auto-set status value to next status
+        $this->updateStatusValue = $nextStatus;
 
         $allowedStatuses = $this->getAllowedStatusesForRole();
 
@@ -337,6 +344,67 @@ class ProgressJasa extends Page implements HasForms
                 // Refresh record
                 $this->record->refresh();
 
+                // Generate update token for kepala_lapangan
+                try {
+                    \Log::info('Generating update token in ProgressJasa', [
+                        'jasa_id' => $this->record->id,
+                    ]);
+                    
+                    $token = $this->record->generateUpdateToken();
+                    $updateLink = route('jasa.public.update', ['token' => $token]);
+                    
+                    \Log::info('Update token generated in ProgressJasa', [
+                        'jasa_id' => $this->record->id,
+                        'update_link' => $updateLink,
+                    ]);
+                    
+                    // Send WhatsApp notification to kepala_lapangan
+                    $recipients = \App\Services\WhatsAppNotificationHelper::getRecipientsByBranch(
+                        $this->record->branch,
+                        'jasa_status_updated',
+                        'terjadwal'
+                    );
+                    
+                    \Log::info('Recipients for terjadwal notification', [
+                        'count' => $recipients->count(),
+                        'recipients' => $recipients->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'kontak' => $u->kontak])->toArray(),
+                    ]);
+                    
+                    if ($recipients->isNotEmpty()) {
+                        $jasaData = [
+                            'jasa_id' => $this->record->id,
+                            'no_jasa' => $this->record->no_jasa,
+                            'no_ref' => $this->record->no_ref,
+                            'branch' => $this->record->branch,
+                            'pelanggan' => $this->record->pelanggan?->nama ?? '-',
+                            'kontak' => $this->record->pelanggan?->kontak ?? '-',
+                            'alamat' => $this->record->alamat ?? $this->record->pelanggan?->alamat ?? '-',
+                            'old_status' => 'jasa baru',
+                            'new_status' => 'terjadwal',
+                            'jadwal_petugas' => $jadwalParsed->format('d/m/Y H:i'),
+                            'update_link' => $updateLink,
+                        ];
+                        
+                        \App\Services\WhatsAppNotificationHelper::sendJasaStatusUpdate($recipients, $jasaData);
+                        
+                        \Log::info('WhatsApp notification sent to kepala_lapangan', [
+                            'jasa_id' => $this->record->id,
+                            'recipients_count' => $recipients->count(),
+                        ]);
+                    } else {
+                        \Log::warning('No kepala_lapangan found to notify', [
+                            'jasa_id' => $this->record->id,
+                            'branch' => $this->record->branch,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to generate token or send notification in ProgressJasa', [
+                        'jasa_id' => $this->record->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+                }
+
                 $this->record->petugasMany()->sync($petugasIds);
 
                 if (!empty($petugasIds)) {
@@ -366,7 +434,9 @@ class ProgressJasa extends Page implements HasForms
                     ->body('Status berhasil diperbarui menjadi Terjadwal.')
                     ->send();
 
-                $this->js('window.location.reload();');
+                // Refresh the record and dispatch event instead of full reload
+                $this->refresh();
+                $this->dispatch('$refresh');
                 return;
             }
         }
@@ -380,7 +450,9 @@ class ProgressJasa extends Page implements HasForms
             ->body('Status berhasil diperbarui menjadi ' . ucwords($this->updateStatusValue) . '.')
             ->send();
 
-        $this->js('window.location.reload();');
+        // Refresh the record and dispatch event instead of full reload
+        $this->refresh();
+        $this->dispatch('$refresh');
     }
 
     protected function getAllowedStatusesForRole(): array

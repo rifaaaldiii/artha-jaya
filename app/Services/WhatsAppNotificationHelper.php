@@ -11,6 +11,11 @@ class WhatsAppNotificationHelper
     /**
      * Get users to notify based on branch and event type
      * 
+     * Rules:
+     * - superadmin: receives notifications from ALL branches (no branch filter)
+     * - kepala_lapangan: receives notifications from ALL branches (no branch filter)
+     * - admin_toko: receives notifications ONLY from their own branch
+     * 
      * @param string $branch Branch code (AJP, AJC, AJK, AJR)
      * @param string $eventType Event type (produksi_created, produksi_status_updated, jasa_created, jasa_status_updated)
      * @param string|null $newStatus New status (for status updates)
@@ -18,24 +23,75 @@ class WhatsAppNotificationHelper
      */
     public static function getRecipientsByBranch(string $branch, string $eventType, ?string $newStatus = null): Collection
     {
-        $query = User::whereNotNull('kontak');
+        // Determine which roles should be notified based on event type
+        $rolesToNotify = self::getRolesForEvent($eventType, $newStatus);
 
-        // For produksi_created and jasa_created, notify all superadmins regardless of branch
-        if (in_array($eventType, ['produksi_created', 'jasa_created'])) {
-            $query->where('role', 'superadmin');
-        } else {
-            // For other events, filter by branch
-            $query->where('branch', $branch);
-            
-            // Determine which roles should be notified based on event type
-            $rolesToNotify = self::getRolesForEvent($eventType, $newStatus);
+        Log::info('getRecipientsByBranch called', [
+            'branch' => $branch,
+            'eventType' => $eventType,
+            'newStatus' => $newStatus,
+            'rolesToNotify' => $rolesToNotify,
+        ]);
 
-            if (!empty($rolesToNotify)) {
-                $query->whereIn('role', $rolesToNotify);
-            }
+        if (empty($rolesToNotify)) {
+            Log::warning('No roles to notify for this event', [
+                'eventType' => $eventType,
+                'newStatus' => $newStatus,
+            ]);
+            return collect();
         }
 
-        return $query->get();
+        // Separate roles that receive from all branches vs branch-specific
+        $allBranchRoles = ['superadmin', 'kepala_lapangan'];
+        $branchSpecificRoles = ['admin_toko'];
+
+        $recipients = collect();
+
+        // Get users with roles that receive from ALL branches (no branch filter)
+        $allBranchRolesToNotify = array_intersect($rolesToNotify, $allBranchRoles);
+        if (!empty($allBranchRolesToNotify)) {
+            Log::info('Fetching all-branch users', [
+                'roles' => $allBranchRolesToNotify,
+            ]);
+            
+            $allBranchUsers = User::whereNotNull('kontak')
+                ->whereIn('role', $allBranchRolesToNotify)
+                ->get();
+                
+            Log::info('All-branch users found', [
+                'count' => $allBranchUsers->count(),
+                'users' => $allBranchUsers->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'branch' => $u->branch, 'kontak' => $u->kontak])->toArray(),
+            ]);
+            
+            $recipients = $recipients->merge($allBranchUsers);
+        }
+
+        // Get users with branch-specific roles (filter by branch)
+        $branchSpecificRolesToNotify = array_intersect($rolesToNotify, $branchSpecificRoles);
+        if (!empty($branchSpecificRolesToNotify)) {
+            Log::info('Fetching branch-specific users', [
+                'branch' => $branch,
+                'roles' => $branchSpecificRolesToNotify,
+            ]);
+            
+            $branchUsers = User::whereNotNull('kontak')
+                ->where('branch', $branch)
+                ->whereIn('role', $branchSpecificRolesToNotify)
+                ->get();
+                
+            Log::info('Branch-specific users found', [
+                'count' => $branchUsers->count(),
+                'users' => $branchUsers->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'branch' => $u->branch, 'kontak' => $u->kontak])->toArray(),
+            ]);
+            
+            $recipients = $recipients->merge($branchUsers);
+        }
+
+        Log::info('Total recipients', [
+            'total' => $recipients->unique('id')->count(),
+        ]);
+
+        return $recipients->unique('id');
     }
 
     /**
@@ -62,10 +118,10 @@ class WhatsAppNotificationHelper
 
             'jasa_status_updated' => match ($newStatus) {
                 'jasa baru' => ['superadmin'],
-                'terjadwal' => ['kepala_lapangan'],
-                'selesai dikerjakan' => ['superadmin'],
-                'selesai' => ['admin_toko'],
-                default => ['superadmin'],
+                'terjadwal' => ['kepala_lapangan', 'admin_toko'],
+                'selesai dikerjakan' => ['superadmin', 'admin_toko'],
+                'selesai' => [],
+                default => [],
             },
 
             default => ['administrator'],

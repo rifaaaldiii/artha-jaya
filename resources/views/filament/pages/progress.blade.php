@@ -788,7 +788,7 @@
             $nextSequentialStatus = $this->nextSequentialStatus ?? null;
         @endphp
 
-    <div class="progress-container">
+    <div class="progress-container" wire:poll.5s>
         <!-- Left Side: Progress Stepper -->
         <div class="prog-sidebar">
             <div class="prog-steps">

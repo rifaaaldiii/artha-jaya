@@ -469,9 +469,10 @@ class Progress extends Page implements HasForms
             ->send();
         $this->updateStatusValue = null;
         
-        \Log::info('Dispatching page reload...');
-        // Use JavaScript to force page reload instead of Livewire refresh
-        $this->js('window.location.reload();');
+        \Log::info('Refreshing component...');
+        // Refresh the record and dispatch event instead of full reload
+        $this->refresh();
+        $this->dispatch('$refresh');
         \Log::info('=== UPDATE COMPLETE ===');
     }
 
