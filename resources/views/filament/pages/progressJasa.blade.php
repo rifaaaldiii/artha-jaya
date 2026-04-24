@@ -1289,31 +1289,6 @@
                                 </li>
                             </ul>
                         </div>
-                        
-                        {{-- Completion Proof Section --}}
-                        @if($this->record->completion_images && count($this->record->completion_images) > 0)
-                        <div class="info-section">
-                            <div class="info-section-title">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Bukti Pengerjaan
-                            </div>
-                            <div class="progress-images-grid">
-                                @foreach($this->record->completion_images as $image)
-                                <div class="progress-image-item">
-                                    <img src="{{ $image }}" alt="Bukti Pengerjaan">
-                                </div>
-                                @endforeach
-                            </div>
-                            @if($this->record->completion_notes)
-                            <div style="margin-top: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
-                                <strong style="font-size: 14px; color: #374151;">📝 Catatan Pengerjaan:</strong>
-                                <p style="margin-top: 8px; color: #6b7280; font-size: 14px;">{{ $this->record->completion_notes }}</p>
-                            </div>
-                            @endif
-                        </div>
-                        @endif
                     </div>
 
                     {{-- Catatan Section --}}
