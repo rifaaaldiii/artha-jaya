@@ -168,6 +168,12 @@ class FonteWhatsAppService
         $message .= "Branch: {$data['branch']}\n";
         $message .= "Team: {$data['team']}\n\n";
         
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $message .= "👤 *Data Pelanggan*\n";
+        $message .= "Nama: {$data['pelanggan']}\n";
+        $message .= "Kontak: {$data['kontak']}\n";
+        $message .= "Alamat: {$data['alamat']}\n\n";
+        
         // Items section - ENSURE THIS WORKS
         if (!empty($data['items']) && is_array($data['items'])) {
             $itemCount = count($data['items']);
@@ -191,9 +197,9 @@ class FonteWhatsAppService
         $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
         
         // Catatan
-        if (!empty($data['catatan']) && $data['catatan'] !== '-') {
+        if (!empty($data['catatan']) && $data['catatan'] !== 'Tidak ada catatan') {
             $message .= "\n📝 *Catatan:*\n";
-            $message .= "{$data['catatan']}\n\n";
+            $message .= "{$data['catatan']}\n";
         }
         
         $message .= "━━━━━━━━━━━━━━━━━━━━\n";
@@ -215,15 +221,27 @@ class FonteWhatsAppService
         $message .= "No. Produksi: *{$data['no_produksi']}*\n";
         $message .= "No. Ref: {$data['no_ref']}\n";
         $message .= "Branch: {$data['branch']}\n";
-        
         if (!empty($data['team'])) {
             $message .= "Team: {$data['team']}\n";
         }
         
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $message .= "👤 *Data Pelanggan*\n";
+        $message .= "Nama: {$data['pelanggan']}\n";
+        $message .= "Kontak: {$data['kontak']}\n";
+        $message .= "Alamat: {$data['alamat']}\n";
+        
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         $message .= "\n📊 *Perubahan Status*\n";
         $message .= "Dari: {$data['old_status']}\n";
-        $message .= "Menjadi: *{$data['new_status']}*\n\n";
-        
+        $message .= "Menjadi: *{$data['new_status']}*\n";
+
+        // Catatan
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        if (!empty($data['catatan']) && $data['catatan'] !== 'Tidak ada catatan') {
+            $message .= "\n📝 *Catatan:*\n";
+            $message .= "{$data['catatan']}\n\n";
+        }
         $message .= "━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "💡 _Status telah diperbarui_\n";
         $message .= "🔗 " . url('/admin/progress?selectedProduksiId=' . $data['produksi_id']);

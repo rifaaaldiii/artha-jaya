@@ -63,7 +63,7 @@ class ProduksiObserver
     protected function notifyProduksiCreated(Produksi $produksi, FonteWhatsAppService $whatsAppService): void
     {
         // Items should already be saved because we use afterResponse()
-        $produksi->load(['team', 'items']);
+        $produksi->load(['team', 'items', 'pelanggan']);
 
         // Debug log
         Log::info('=== PRODUKSI CREATED DEBUG ===', [
@@ -111,6 +111,9 @@ class ProduksiObserver
             'no_ref' => $produksi->no_ref,
             'branch' => $produksi->branch,
             'team' => $produksi->team?->nama ?? '-',
+            'pelanggan' => $produksi->pelanggan?->nama ?? '-',
+            'kontak' => $produksi->pelanggan?->kontak ?? '-',
+            'alamat' => $produksi->alamat ?? '-',
             'items' => $itemsData,
             'catatan' => $produksi->catatan ?? '-',
         ];
@@ -143,16 +146,20 @@ class ProduksiObserver
             return;
         }
 
-        $produksi->load('team');
+        $produksi->load(['team', 'pelanggan']);
 
         $produksiData = [
             'produksi_id' => $produksi->id,
             'no_produksi' => $produksi->no_produksi,
             'no_ref' => $produksi->no_ref,
             'branch' => $produksi->branch,
+            'pelanggan' => $produksi->pelanggan?->nama ?? '-',
+            'kontak' => $produksi->pelanggan?->kontak ?? '-',
+            'alamat' => $produksi->alamat ?? '-',
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
             'team' => $produksi->team?->nama ?? '-',
+            'catatan' => $produksi->catatan ?? '-',
         ];
 
         // Send notifications via helper
