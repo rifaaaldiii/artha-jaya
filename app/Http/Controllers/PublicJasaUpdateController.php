@@ -86,12 +86,30 @@ class PublicJasaUpdateController extends Controller
         DB::beginTransaction();
         
         try {
-            // Upload images
+            // Upload images to public_html/progress/jasa
             $imagePaths = [];
             if ($request->hasFile('images')) {
+                // Ensure the jasa directory exists
+                $progressPath = base_path('../public_html/progress/jasa');
+                if (!is_dir($progressPath)) {
+                    mkdir($progressPath, 0755, true);
+                    \Log::info('Created jasa progress directory', ['path' => $progressPath]);
+                }
+                
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('jasa-completion', 'public');
-                    $imagePaths[] = Storage::url($path);
+                    // Generate unique filename
+                    $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                    
+                    // Move file to public_html/progress/jasa
+                    $image->move($progressPath, $filename);
+                    
+                    // Store relative path for database
+                    $imagePaths[] = 'jasa/' . $filename;
+                    
+                    \Log::info('Image uploaded successfully', [
+                        'filename' => $filename,
+                        'path' => $progressPath . '/' . $filename,
+                    ]);
                 }
             }
             
@@ -99,8 +117,28 @@ class PublicJasaUpdateController extends Controller
             $jasa = $updateToken->jasa;
             $oldStatus = $jasa->status;
             
+            // Prepare progress images data
+            $progressImagesData = [];
+            foreach ($imagePaths as $imagePath) {
+                $progressImagesData[] = [
+                    'path' => $imagePath,
+                    'uploaded_at' => now()->format('Y-m-d H:i:s'),
+                    'status_from' => $oldStatus,
+                    'status_to' => 'selesai dikerjakan',
+                    'uploaded_by' => null, // Public upload
+                ];
+            }
+            
+            // Merge with existing progress images if any
+            $existingImages = $jasa->progress_images ?? [];
+            if (!is_array($existingImages)) {
+                $existingImages = [];
+            }
+            $allImages = array_merge($existingImages, $progressImagesData);
+            
             $jasa->update([
                 'status' => 'selesai dikerjakan',
+                'progress_images' => $allImages,
                 'completion_images' => $imagePaths,
                 'completion_notes' => $request->notes,
                 'updateAt' => now(),
