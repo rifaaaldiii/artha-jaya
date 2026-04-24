@@ -6,6 +6,9 @@ use App\Models\Produksi;
 use App\Models\Jasa;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProduksiReportExport;
+use App\Exports\JasaReportExport;
 
 class ReportController extends Controller
 {
@@ -17,6 +20,11 @@ class ReportController extends Controller
         $preview = $request->query('preview', false);
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+
+        // Handle Excel export
+        if ($format === 'excel') {
+            return $this->exportExcel($reportType, $singleNumber, $startDate, $endDate);
+        }
 
         // If single number is provided, generate single report
         if ($singleNumber) {
@@ -178,5 +186,25 @@ class ReportController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Export report to Excel
+     */
+    protected function exportExcel($reportType, $singleNumber = null, $startDate = null, $endDate = null)
+    {
+        if ($reportType === 'produksi') {
+            $export = new ProduksiReportExport($singleNumber, $startDate, $endDate);
+            $filename = $singleNumber 
+                ? "Produksi-{$singleNumber}.xlsx"
+                : "Laporan-Produksi-" . now()->format('Y-m-d') . ".xlsx";
+        } else {
+            $export = new JasaReportExport($singleNumber, $startDate, $endDate);
+            $filename = $singleNumber 
+                ? "Jasa-{$singleNumber}.xlsx"
+                : "Laporan-Jasa-" . now()->format('Y-m-d') . ".xlsx";
+        }
+
+        return Excel::download($export, $filename);
     }
 }
