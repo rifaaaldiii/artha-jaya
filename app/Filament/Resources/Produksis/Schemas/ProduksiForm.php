@@ -121,6 +121,7 @@ class ProduksiForm
                 ->required()
                 ->dehydrated(true)
                 ->reactive()
+                ->visible(fn ($get, $record) => !$record && !$get('create_new_pelanggan'))
                 ->afterStateUpdated(function ($state, callable $set, callable $get) {
                     if ($state) {
                         $pelanggan = Pelanggan::find($state);
@@ -245,7 +246,7 @@ class ProduksiForm
                 ->minItems(1),
         
             Textarea::make('alamat')
-                ->label('Alamat Produksi')
+                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Produksi')
                 ->required()
                 ->reactive()
                 ->dehydrated(true)

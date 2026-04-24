@@ -67,6 +67,15 @@ class DatabaseSeeder extends Seeder
             'createdAt' => now(),
         ]);
 
+        User::create([
+            'name' => 'Admin AJC',
+            'email' => 'adminajc@artha-jaya.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin_toko',
+            'username' => 'adminajc',
+            'createdAt' => now(),
+        ]);
+
         // Team seeding - directly create
         $teams = [
             ['nama' => 'Team DC', 'order' => '0'],
