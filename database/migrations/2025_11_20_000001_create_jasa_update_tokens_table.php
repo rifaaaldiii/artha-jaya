@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('jasa_update_tokens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('jasa_id')->constrained('jasas')->onDelete('cascade');
+            // Use unsignedBigInteger to match jasas.id type exactly
+            $table->unsignedBigInteger('jasa_id');
             $table->string('token', 64)->unique(); // SHA-256 hash
             $table->string('target_status')->default('selesai dikerjakan');
             $table->boolean('is_used')->default(false);
@@ -22,6 +23,12 @@ return new class extends Migration
             $table->string('used_by_device')->nullable();
             $table->dateTime('expires_at');
             $table->timestamps();
+            
+            // Add foreign key constraint separately
+            $table->foreign('jasa_id')
+                  ->references('id')
+                  ->on('jasas')
+                  ->onDelete('cascade');
             
             $table->index(['token', 'is_used']);
             $table->index(['jasa_id', 'expires_at']);

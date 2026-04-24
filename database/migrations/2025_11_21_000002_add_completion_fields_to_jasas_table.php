@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('jasas', function (Blueprint $table) {
-            $table->json('completion_images')->nullable()->after('progress_images');
-            $table->text('completion_notes')->nullable()->after('completion_images');
+            $table->json('completion_images')->nullable();
+            $table->text('completion_notes')->nullable();
         });
     }
 
