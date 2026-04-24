@@ -252,6 +252,69 @@
             flex-direction: column;
             gap: 10px;
         }
+        
+        /* Items Table Styles */
+        .items-table-container {
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--aj-card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .items-table thead {
+            background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+            border-bottom: 2px solid var(--aj-card-border);
+        }
+        .dark .items-table thead,
+        [data-theme="dark"] .items-table thead,
+        .filament-theme-dark .items-table thead {
+            background: linear-gradient(135deg, #0f172a, #0b1120);
+        }
+        .items-table-header {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--aj-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .items-table-row {
+            border-bottom: 1px solid var(--aj-card-divider);
+            transition: background-color 0.2s ease;
+        }
+        .items-table-row:hover {
+            background-color: var(--aj-soft-bg);
+        }
+        .items-table-row:last-child {
+            border-bottom: none;
+        }
+        .items-table-cell {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--aj-text);
+        }
+        .items-table-price {
+            font-weight: 700;
+            color: #059669;
+            font-family: 'Courier New', monospace;
+        }
+        .dark .items-table-price,
+        [data-theme="dark"] .items-table-price,
+        .filament-theme-dark .items-table-price {
+            color: #34d399;
+        }
+        @media (max-width: 768px) {
+            .items-table-header,
+            .items-table-cell {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
         .item-card {
             background: #f9fafb;
             border-radius: 8px;
@@ -1104,21 +1167,31 @@
                                     <span class="detail-item-label">No. Ref</span>
                                     <span class="detail-item-value">{{ $record->no_ref ?? '-' }}</span>
                                 </li>
+                            </ul>
+                        </div>
+                        <div class="info-section">
+                            <div class="info-section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+                                </svg>
+                                Informasi Customer
+                            </div>
+                            <ul class="detail-list">
                                 @if($record->pelanggan)
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Customer</span>
                                     <span class="detail-item-value">{{ $record->pelanggan->nama }}</span>
                                 </li>
-                                @if($record->pelanggan->kontak)
+                                @if($record->pelanggan?->kontak)
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Kontak</span>
                                     <span class="detail-item-value">{{ $record->pelanggan->kontak }}</span>
                                 </li>
                                 @endif
-                                @if($record->pelanggan->alamat)
+                                @if($record->alamat || $record->pelanggan?->alamat)
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Alamat</span>
-                                    <span class="detail-item-value" style="text-align: right; max-width: 300px;">{{ $record->pelanggan->alamat }}</span>
+                                    <span class="detail-item-value" style="text-align: right; max-width: 300px;">{{ $record->alamat ?? $record->pelanggan?->alamat ?? '-' }}</span>
                                 </li>
                                 @endif
                                 @endif
@@ -1134,28 +1207,27 @@
                                 </svg>
                                 Detail Item ({{ $record->items->count() }})
                             </div>
-                            <div class="items-container">
-                                @foreach($record->items as $index => $item)
-                                <div class="item-card">
-                                    <div class="item-card-header">
-                                        <span class="item-badge">Item {{ $index + 1 }}</span>
-                                    </div>
-                                    <div class="item-card-body">
-                                        <div class="item-row">
-                                            <span class="item-label">Jenis Jasa</span>
-                                            <span class="item-value">{{ $item->jenis_layanan }}</span>
-                                        </div>
-                                        <div class="item-row">
-                                            <span class="item-label">Jumlah</span>
-                                            <span class="item-value">{{ number_format($item->jumlah, 0, ',', '.') }} Unit</span>
-                                        </div>
-                                        <div class="item-row">
-                                            <span class="item-label">Harga</span>
-                                            <span class="item-value item-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
+                            <div class="items-table-container">
+                                <table class="items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="items-table-header">No</th>
+                                            <th class="items-table-header">Jenis Jasa & Layanan</th>
+                                            <th class="items-table-header">Jumlah</th>
+                                            <th class="items-table-header">Harga</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($record->items as $index => $item)
+                                        <tr class="items-table-row">
+                                            <td class="items-table-cell">{{ $index + 1 }}</td>
+                                            <td class="items-table-cell">{{ $item->jenis_layanan }}</td>
+                                            <td class="items-table-cell">{{ number_format($item->jumlah, 0, ',', '.') }} Unit</td>
+                                            <td class="items-table-cell items-table-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                         @endif
@@ -1195,6 +1267,16 @@
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Penjadwalan Petugas</span>
                                     <span class="detail-item-value">{{ $this->record->jadwal_petugas->format('d F Y, H:i')}} WIB</span>
+                                </li>
+                                @endif
+                                @if($this->record->petugasMany && $this->record->petugasMany->count() > 0)
+                                <li class="detail-list-item">
+                                    <span class="detail-item-label">Petugas</span>
+                                    <span class="detail-item-value">
+                                        @foreach($this->record->petugasMany as $index => $petugas)
+                                            {{ $petugas->nama }}@if(!$loop->last), @endif
+                                        @endforeach
+                                    </span>
                                 </li>
                                 @endif
                                 <li class="detail-list-item">

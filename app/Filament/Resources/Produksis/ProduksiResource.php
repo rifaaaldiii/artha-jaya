@@ -126,54 +126,6 @@ class ProduksiResource extends Resource
 
     public static function mutateFormDataBeforeCreate(array $data): array
     {
-        if (empty($data['no_produksi'])) {
-            $prefix = 'P-';
-            $padLength = 5;
-
-            $lastNo = Produksi::query()
-                ->where('no_produksi', 'like', $prefix . '%')
-                ->orderByDesc('id')
-                ->value('no_produksi');
-
-            $nextNum = $lastNo
-                ? (int) substr($lastNo, strlen($prefix)) + 1
-                : 1;
-
-            $data['no_produksi'] = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
-        }
-
-        if (empty($data['status'])) {
-            $data['status'] = 'baru';
-        }
-
-        if (!empty($data['create_new_pelanggan'])) {
-            $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'] ?? null)
-                ->where('kontak', $data['new_pelanggan_kontak'] ?? null)
-                ->where('alamat', $data['alamat'] ?? null)
-                ->first();
-
-            if ($existingPelanggan) {
-                throw ValidationException::withMessages([
-                    'new_pelanggan_nama' => ['Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.'],
-                ]);
-            }
-
-            $pelanggan = Pelanggan::create([
-                'nama' => $data['new_pelanggan_nama'],
-                'kontak' => $data['new_pelanggan_kontak'],
-                'alamat' => $data['alamat'],
-                'createdAt' => now(),
-            ]);
-
-            $data['pelanggan_id'] = $pelanggan->id;
-        }
-
-        unset(
-            $data['create_new_pelanggan'],
-            $data['new_pelanggan_nama'],
-            $data['new_pelanggan_kontak'],
-        );
-
         return $data;
     }
 

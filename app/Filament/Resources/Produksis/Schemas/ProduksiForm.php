@@ -151,45 +151,13 @@ class ProduksiForm
                 ->label('Nama Customer')
                 ->required(fn ($get) => $get('create_new_pelanggan'))
                 ->visible(fn ($get, $record) => !$record && $get('create_new_pelanggan'))
-                ->dehydrated(fn ($get) => $get('create_new_pelanggan'))
-                ->rules([
-                    function ($get) {
-                        return function (string $attribute, $value, \Closure $fail) use ($get) {
-                            if ($get('create_new_pelanggan') && $value) {
-                                $exists = Pelanggan::where('nama', $value)
-                                    ->where('kontak', $get('new_pelanggan_kontak'))
-                                    ->where('alamat', $get('alamat'))
-                                    ->exists();
-                                
-                                if ($exists) {
-                                    $fail('Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.');
-                                }
-                            }
-                        };
-                    },
-                ]),
+                ->dehydrated(fn ($get) => $get('create_new_pelanggan')),
             
             TextInput::make('new_pelanggan_kontak')
                 ->label('Kontak')
                 ->required(fn ($get) => $get('create_new_pelanggan'))
                 ->visible(fn ($get, $record) => !$record && $get('create_new_pelanggan'))
-                ->dehydrated(fn ($get) => $get('create_new_pelanggan'))
-                ->rules([
-                    function ($get) {
-                        return function (string $attribute, $value, \Closure $fail) use ($get) {
-                            if ($get('create_new_pelanggan') && $value) {
-                                $exists = Pelanggan::where('nama', $get('new_pelanggan_nama'))
-                                    ->where('kontak', $value)
-                                    ->where('alamat', $get('alamat'))
-                                    ->exists();
-                                
-                                if ($exists) {
-                                    $fail('Pelanggan dengan nama, kontak, dan alamat yang sama sudah ada.');
-                                }
-                            }
-                        };
-                    },
-                ]),
+                ->dehydrated(fn ($get) => $get('create_new_pelanggan')),
             Repeater::make('items')
                 ->relationship('items')
                 ->schema([

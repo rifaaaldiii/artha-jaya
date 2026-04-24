@@ -11,6 +11,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
@@ -280,19 +281,29 @@ class ProgressJasa extends Page implements HasForms
         if ($this->updateStatusValue === 'terjadwal') {
             $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
             
+            \Log::info('ProgressJasa updateStatus - terjadwal', [
+                'role' => $normalizedRole,
+                'is_superadmin' => in_array($normalizedRole, ['superadmin'], true),
+                'jadwalPetugas_property' => $this->jadwalPetugas,
+                'selectedPetugasIds' => $this->selectedPetugasIds,
+            ]);
+            
             if (in_array($normalizedRole, ['superadmin'], true)) {
                 // Coba ambil dari Filament form terlebih dahulu, fallback ke blade form
                 try {
                     $terjadwalData = $this->terjadwalForm->getState();
                     $jadwalPetugas = $terjadwalData['jadwalPetugas'] ?? null;
                     $petugasIds = $terjadwalData['petugasIds'] ?? [];
+                    \Log::info('Got data from terjadwalForm', ['jadwalPetugas' => $jadwalPetugas, 'petugasIds' => $petugasIds]);
                 } catch (\Exception $e) {
                     // Fallback ke blade form data
                     $jadwalPetugas = $this->jadwalPetugas;
                     $petugasIds = $this->selectedPetugasIds;
+                    \Log::info('Using fallback blade form data', ['jadwalPetugas' => $jadwalPetugas, 'petugasIds' => $petugasIds]);
                 }
 
                 if (empty($petugasIds) || !$jadwalPetugas) {
+                    \Log::warning('Form data incomplete', ['jadwalPetugas' => $jadwalPetugas, 'petugasIds' => $petugasIds]);
                     Notification::make()
                         ->title('Form terjadwal belum lengkap')
                         ->danger()
@@ -303,9 +314,28 @@ class ProgressJasa extends Page implements HasForms
 
                 $oldPetugasIds = $this->record->petugasMany->pluck('id')->toArray();
 
-                $this->record->jadwal_petugas = \Carbon\Carbon::parse($jadwalPetugas);
-                $this->record->status = $this->updateStatusValue;
-                $this->record->save();
+                // Parse jadwal
+                $jadwalParsed = \Carbon\Carbon::parse($jadwalPetugas);
+                
+                // Direct database update untuk memastikan data tersimpan
+                DB::table('jasas')
+                    ->where('id', $this->record->id)
+                    ->update([
+                        'jadwal_petugas' => $jadwalParsed,
+                        'petugas_id' => !empty($petugasIds) ? $petugasIds[0] : null,
+                        'status' => $this->updateStatusValue,
+                        'updateAt' => now(),
+                    ]);
+
+                \Log::info('Direct DB update completed', [
+                    'jasa_id' => $this->record->id,
+                    'jadwal_petugas' => $jadwalParsed,
+                    'petugas_id' => !empty($petugasIds) ? $petugasIds[0] : null,
+                    'status' => $this->updateStatusValue,
+                ]);
+                
+                // Refresh record
+                $this->record->refresh();
 
                 $this->record->petugasMany()->sync($petugasIds);
 

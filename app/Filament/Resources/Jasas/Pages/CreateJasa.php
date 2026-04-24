@@ -47,9 +47,9 @@ class CreateJasa extends CreateRecord
         // Jika user memilih untuk membuat pelanggan baru
         if (!empty($data['create_new_pelanggan']) && $data['create_new_pelanggan']) {
             // Validasi: cek apakah pelanggan dengan data yang sama sudah ada
-            $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'])
-                ->where('kontak', $data['new_pelanggan_kontak'])
-                ->where('alamat', $data['new_pelanggan_alamat'])
+            $existingPelanggan = Pelanggan::where('nama', $data['new_pelanggan_nama'] ?? null)
+                ->where('kontak', $data['new_pelanggan_kontak'] ?? null)
+                ->where('alamat', $data['alamat'] ?? null)
                 ->first();
             
             if ($existingPelanggan) {
@@ -63,7 +63,7 @@ class CreateJasa extends CreateRecord
             $pelanggan = Pelanggan::create([
                 'nama' => $data['new_pelanggan_nama'],
                 'kontak' => $data['new_pelanggan_kontak'],
-                'alamat' => $data['new_pelanggan_alamat'],
+                'alamat' => $data['alamat'],
                 'createdAt' => now(),
             ]);
 
@@ -75,7 +75,6 @@ class CreateJasa extends CreateRecord
         unset($data['create_new_pelanggan']);
         unset($data['new_pelanggan_nama']);
         unset($data['new_pelanggan_kontak']);
-        unset($data['new_pelanggan_alamat']);
 
         return $data;
     }

@@ -268,9 +268,11 @@ class FonteWhatsAppService
         $message .= "No. Jasa: *{$data['no_jasa']}*\n";
         $message .= "No. Ref: {$data['no_ref']}\n";
         $message .= "Branch: {$data['branch']}\n\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
         
         $message .= "👤 *Data Pelanggan*\n";
         $message .= "Nama: {$data['pelanggan']}\n";
+        $message .= "Kontak: {$data['kontak']}\n";
         $message .= "Alamat: {$data['alamat']}\n\n";
         
         // Items section - ENSURE THIS WORKS
@@ -327,7 +329,13 @@ class FonteWhatsAppService
         $message .= "No. Jasa: *{$data['no_jasa']}*\n";
         $message .= "No. Ref: {$data['no_ref']}\n";
         $message .= "Branch: {$data['branch']}\n";
-        $message .= "Pelanggan: {$data['pelanggan']}\n\n";
+        $message .= "Pelanggan: {$data['pelanggan']}\n";
+
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $message .= "👤 *Data Pelanggan*\n";
+        $message .= "Nama: {$data['pelanggan']}\n";
+        $message .= "Kontak: {$data['kontak']}\n";
+        $message .= "Alamat: {$data['alamat']}\n";
         
         $message .= "📊 *Perubahan Status*\n";
         $message .= "Dari: {$data['old_status']}\n";
