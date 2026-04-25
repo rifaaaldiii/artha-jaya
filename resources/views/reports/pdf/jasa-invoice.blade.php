@@ -19,18 +19,17 @@
         body {
             font-family: 'Courier New', monospace;
             font-size: 8pt;
-            line-height: 1.1;
+            /* line-height: 1.1; */
             color: #000;
             background: #fff;
         }
         
         .container {
-            width: 148mm;
-            height: 210mm;
+            /* border: 1px solid red; */
+            /* width: 148mm;
+            height: 210mm; */
             padding: 2mm 5mm 0;
             margin: 0 auto;
-            border: 1px solid #000;
-            border-radius: 0;
             background: #fff;
             position: relative;
         }
@@ -52,10 +51,25 @@
         }
         
         .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 8px;
+        }
+        
+        .header-top .company-name {
+            float: left;
+            width: 50%;
+            text-align: left;
+        }
+        
+        .header-top .header-title {
+            float: right;
+            width: 50%;
+            text-align: right;
+        }
+        
+        .header-top:after {
+            content: "";
+            display: table;
+            clear: both;
         }
         
         .company-name {
@@ -73,10 +87,6 @@
         }
         
         .header-title {
-            /* font-size: 14pt;
-            font-weight: bold;
-            text-decoration: underline;
-            letter-spacing: 1px; */
             font-size: 12pt;
             font-weight: bold;
             margin-bottom: 2px;
@@ -93,9 +103,7 @@
         
         .info-section {
             margin-bottom: 8px;
-            /* border: 1px solid #000; */
             padding: 5px;
-            /* background-color: #fafafa; */
         }
         
         .section-header {
@@ -109,28 +117,62 @@
         }
         
         .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            width: 100%;
+        }
+        
+        .info-grid-left {
+            float: left;
+            width: 50%;
+            padding-right: 4px;
+        }
+        
+        .info-grid-right {
+            float: right;
+            width: 50%;
+            padding-left: 4px;
+        }
+        
+        .info-grid:after {
+            content: "";
+            display: table;
+            clear: both;
         }
         
         .info-item {
             margin-bottom: 2px;
             font-size: 7pt;
-            display: flex;
-            align-items: flex-start;
+        }
+        
+        .info-item-address {
+            margin-bottom: 2px;
+            font-size: 7pt;
+            position: relative;
+            padding-left: 85px;
+            min-height: 12px;
+        }
+        
+        .info-item-address .info-label-address {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 80px;
+            font-weight: bold;
+        }
+        
+        .info-item-address .info-value-address {
+            display: block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
         .info-label {
             font-weight: bold;
+            display: inline-block;
             min-width: 80px;
-            flex-shrink: 0;
         }
         
         .info-value {
-            flex: 1;
-            /* border: 1px solid #000;
-            padding: 2px; */
+            display: inline-block;
         }
         
         .table-section {
@@ -160,7 +202,6 @@
         }
         
         th {
-            /* background-color: #d9d9d9; */
             font-weight: bold;
             text-align: center;
             font-size: 7pt;
@@ -168,7 +209,6 @@
         }
         
         .total-row {
-            /* background-color: #f2f2f2; */
             font-weight: bold;
             font-size: 7pt;
         }
@@ -177,7 +217,6 @@
             margin-top: 5px;
             padding: 4px;
             border: 1px solid #000;
-            /* background-color: #fafafa; */
             font-size: 7pt;
         }
         
@@ -196,14 +235,30 @@
         
         .signature-section {
             margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
+            width: 95%;
+            position: absolute;
+            bottom: 40px;
         }
         
         .signature-box {
             width: 30%;
             text-align: center;
             font-size: 7pt;
+            float: left;
+        }
+        
+        .signature-box:first-child {
+            margin-right: 5%;
+        }
+        
+        .signature-box:nth-child(2) {
+            margin-right: 5%;
+        }
+        
+        .signature-section:after {
+            content: "";
+            display: table;
+            clear: both;
         }
         
         .signature-title {
@@ -232,11 +287,14 @@
         }
         
         .formal-closing {
-            margin-top: 8px;
+            /* margin-top: 8px; */
             font-size: 7pt;
             font-style: italic;
             text-align: center;
             color: #555;
+            position: absolute;
+            bottom: 10px;
+            width: 95%;
         }
         
         /* Epson LX310 & Butterfly paper optimizations */
@@ -277,53 +335,56 @@
                 <div class="header-title">SURAT PERINTAH KERJA</div>
             </div>
             <div>
-                <div class="company-info">Jl. Contoh Alamat No. 123, Kota, Provinsi 12345</div>
-                <div class="company-info">Telp: (021) 12345678 | Email: info@arthajayamas.co.id</div>
+                <div class="company-info">Jl. Raya Pandeglang No.km3, Cipare, Kec. Serang, Kota Serang, Banten 42117</div>
+                <div class="company-info">Telp: +81287107768 | Email: info@arthajayamas.co.id</div>
                 <!-- <div class="company-info">NPWP: 12.345.678.9-012.345</div> -->
             </div>
         </div>
         
         <!-- Document Number -->
         <div class="referensi-number">
-            No. Referensi: <strong>SPK/001/AJM/IV/2024</strong>
+            No. Referensi: <strong>{{ $row['no_ref'] ?? '-' }}</strong>
+        </div>
+        <div class="referensi-number">
+            <strong>Serang, {{ $generatedAt->timezone(config('app.timezone','Asia/Jakarta'))->format('d/m/Y') }}</strong>
         </div>
 
         <!-- Info Section: Work Order & Customer Data -->
         <div class="info-section">
             <div class="info-grid">
                 <!-- Work Order Info -->
-                <div>
+                <div class="info-grid-left">
                     <div class="info-item">
                         <span class="info-label">No. Jasa</span>
-                        <span class="info-value">: JSA/2024/001</span>
+                        <span class="info-value">: {{ $row['number'] ?? '-' }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Tanggal</span>
-                        <span class="info-value">: 24 April 2024</span>
+                        <span class="info-label">Instalasi</span>
+                        <span class="info-value">: {{ $row['scheduled_at'] ?? '-' }}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Branch</span>
-                        <span class="info-value">: AJC ( Artha Jaya Ciwaru )</span>
+                        <span class="info-value">: {{ $row['branch'] ?? '-' }}</span>
                     </div>
                 </div>
                 
                 <!-- Customer Info -->
-                <div>
+                <div class="info-grid-right">
                     <div class="info-item">
                         <span class="info-label">Nama Customer</span>
-                        <span class="info-value">: Nama Pelanggan</span>
+                        <span class="info-value">: {{ $row['pelanggan'] ?? '-' }}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Telepon</span>
-                        <span class="info-value">: 081234567890</span>
+                        <span class="info-value">: {{ $row['pelanggan_telepon'] ?? '-' }}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Jadwal</span>
-                        <span class="info-value">: 08 April 2024, 10:00 WIB</span>
+                        <span class="info-value">: {{ $row['jadwal'] ?? '-' }} WIB</span>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Alamat</span>
-                        <span class="info-value">: Jl. Alamat Pelanggan No. 45 sdsadsasdasdsadsadasd</span>
+                    <div class="info-item-address">
+                        <span class="info-label-address">Alamat</span>
+                        <span class="info-value-address">: {{ $row['alamat'] ?? '-' }}</span>
                     </div>
                 </div>
             </div>
@@ -336,30 +397,38 @@
                 <thead>
                     <tr>
                         <th style="width: 5%;">No.</th>
-                        <th style="width: 35%;">Nama Jasa & layanan</th>
+                        <th style="width: 35%;">Nama Jasa & Layanan</th>
                         <th style="width: 10%;">Qty</th>
                         <th style="width: 25%;">Harga</th>
                         <th style="width: 25%;">Total Harga</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td>Pemasangan Closet sdsadsadsadsadasdsadsadsadasdasdsadsadsadas</td>
-                        <td class="text-center">2</td>
-                        <td class="text-right">Rp 1.000.000.000</td>
-                        <td class="text-right">Rp 2.000.000.000</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">2</td>
-                        <td>Pemasangan AC 1/2 PK</td>
-                        <td class="text-center">2</td>
-                        <td class="text-right">Rp 1.000.000.000</td>
-                        <td class="text-right">Rp 5.000.000.000</td>
-                    </tr>
+                    @php
+                        $grandTotal = 0;
+                    @endphp
+                    @if(isset($row['items']) && count($row['items']) > 0)
+                        @foreach($row['items'] as $index => $item)
+                            @php
+                                $itemTotal = ($item['jumlah'] ?? 0) * ($item['harga'] ?? 0);
+                                $grandTotal += $itemTotal;
+                            @endphp
+                            <tr>
+                                <td class="text-center">{{ $index + 1 }}</td>
+                                <td>{{ $item['jenis_layanan'] ?? '-' }}</td>
+                                <td class="text-center">{{ $item['jumlah'] ?? 0 }}</td>
+                                <td class="text-right">Rp {{ number_format($item['harga'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="text-right">Rp {{ number_format($itemTotal, 0, ',', '.') }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="5" class="text-center">Tidak ada item jasa</td>
+                        </tr>
+                    @endif
                     <tr class="total-row">
                         <td colspan="4" class="text-center"><strong>SUB TOTAL</strong></td>
-                        <td class="text-right"><strong>Rp 7.000.000.000</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($grandTotal, 0, ',', '.') }}</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -367,36 +436,34 @@
             <!-- Amount in Words -->
             <div class="amount-words">
                 <div class="amount-label">Terbilang:</div>
-                <div><em># Tujuh Miliar Rupiah #</em></div>
+                <div><em># {{ terbilang($grandTotal) }} Rupiah #</em></div>
             </div>
         </div>
 
         <!-- Signatures -->
         <div class="signature-section">
             <div class="signature-box">
-                <div class="signature-title">Admin Toko</div>
-                <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">Penanggung Jawab</div>
-                <div class="signature-line">
-                    <div class="signature-name">(Nama Admin Toko)</div>
-                    <div class="signature-position">Customer Services</div>
-                </div>
-            </div>
-            
-            <div class="signature-box">
                 <div class="signature-title">Admin</div>
                 <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">Koordinator</div>
                 <div class="signature-line">
-                    <div class="signature-name">(Nama Admin)</div>
+                    <div class="signature-name">(___________________)</div>
                     <div class="signature-position">Administrator</div>
                 </div>
             </div>
-            
             <div class="signature-box">
                 <div class="signature-title">Kepala Teknisi Lapangan</div>
                 <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">Pelaksana</div>
                 <div class="signature-line">
-                    <div class="signature-name">(Nama Kepala Teknisi Lapangan)</div>
+                    <div class="signature-name">(___________________)</div>
                     <div class="signature-position">Ketua Tim Pelaksana</div>
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-title">Customer</div>
+                <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">Penerima Jasa</div>
+                <div class="signature-line">
+                    <div class="signature-name">(___________________)</div>
+                    <!-- <div class="signature-position">{{ $row['pelanggan'] ?? 'Pelanggan' }}</div> -->
                 </div>
             </div>
         </div>

@@ -20,23 +20,29 @@ class CreateProduksi extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Pastikan no_produksi terisi
+        // Pastikan no_produksi terisi - Format baru: PRD/DDMMYYYY/0001
         if (empty($data['no_produksi'])) {
-            $prefix = 'P-';
-            $padLength = 5;
+            // Format: PRD/DDMMYYYY/0001
+            $prefix = 'PRD';
+            $date = now()->format('dmy'); // DDMMYYYY
+            $fullPrefix = $prefix . '/' . $date . '/';
+            $padLength = 4;
+
             $lastNo = Produksi::query()
-                ->where('no_produksi', 'like', $prefix . '%')
+                ->where('no_produksi', 'like', $fullPrefix . '%')
                 ->orderByDesc('id')
                 ->value('no_produksi');
 
             if ($lastNo) {
-                $num = intval(substr($lastNo, strlen($prefix)));
+                // Extract sequence number
+                $parts = explode('/', $lastNo);
+                $num = intval(end($parts));
                 $nextNum = $num + 1;
             } else {
                 $nextNum = 1;
             }
 
-            $data['no_produksi'] = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+            $data['no_produksi'] = $fullPrefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
         }
 
         // Pastikan status terisi

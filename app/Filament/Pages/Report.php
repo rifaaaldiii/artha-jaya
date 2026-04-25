@@ -143,21 +143,26 @@ class Report extends Page implements HasForms
 
     protected function loadPreviewData(): void
     {
-        // Security: Prevent superadmin from accessing Jasa reports
         $user = Auth::user();
-        if ($user && $user->role === 'superadmin' && $this->filters['report_type'] === 'jasa') {
-            Notification::make()
-                ->title('Access Denied')
-                ->body('You do not have permission to view Jasa reports.')
-                ->danger()
-                ->send();
-            
-            $this->filters['report_type'] = 'produksi';
-        }
-
+        
+        // Determine query based on report type
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['team', 'items'])
             : Jasa::with(['pelanggan', 'petugasMany', 'items']);
+
+        // Apply role-based filtering
+        if ($user && $user->role === 'admin_toko') {
+            // admin_toko can only see data matching their branch
+            if ($user->branch) {
+                $query->where('branch', $user->branch);
+            } else {
+                // If admin_toko has no branch assigned, show no data
+                $this->previewRows = [];
+                $this->resultCount = 0;
+                return;
+            }
+        }
+        // administrator and superadmin can see all data (no branch filter)
 
         // Apply date filters
         if (!empty($this->filters['start_date'])) {
@@ -237,31 +242,13 @@ class Report extends Page implements HasForms
                 Select::make('report_type')
                     ->label('Jenis Laporan')
                     ->options(function () {
-                        $user = Auth::user();
-                        
-                        // superadmin hanya bisa melihat Produksi
-                        if ($user && $user->role === 'superadmin') {
-                            return [
-                                'produksi' => 'Produksi',
-                            ];
-                        }
-                        
-                        // Users lain bisa melihat semua
+                        // All authorized users can see both Jasa and Produksi
                         return [
                             'produksi' => 'Produksi',
                             'jasa' => 'Jasa',
                         ];
                     })
-                    ->default(function () {
-                        $user = Auth::user();
-                        
-                        // superadmin default ke produksi
-                        if ($user && $user->role === 'superadmin') {
-                            return 'produksi';
-                        }
-                        
-                        return 'produksi';
-                    })
+                    ->default('produksi')
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->filters['report_type'] = $state;
@@ -321,7 +308,7 @@ class Report extends Page implements HasForms
         
         // Generate invoice PDF dan stream ke browser untuk preview
         if ($reportType === 'produksi') {
-            $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $number)->first();
+            $produksi = Produksi::with(['team', 'pelanggan', 'items'])->where('no_produksi', $number)->first();
             if (!$produksi) {
                 Notification::make()
                     ->title('Data tidak ditemukan')
@@ -336,6 +323,9 @@ class Report extends Page implements HasForms
                     'no_ref' => $produksi->no_ref,
                     'branch' => $produksi->branch,
                     'status' => $produksi->status,
+                    'pelanggan' => $produksi->pelanggan?->nama ?? '-',
+                    'pelanggan_telepon' => $produksi->pelanggan?->kontak ?? '-',
+                    'alamat' => $produksi->alamat ?? $produksi->pelanggan?->alamat ?? '-',
                     'team' => $produksi->team?->nama ?? '-',
                     'catatan' => $produksi->catatan,
                     'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
@@ -348,7 +338,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
-            $filename = "invoice-produksi-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "invoice-produksi-{$safeNumber}.pdf";
         } else {
             $jasa = Jasa::with(['pelanggan', 'petugasMany', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) {
@@ -366,6 +357,9 @@ class Report extends Page implements HasForms
                     'branch' => $jasa->branch,
                     'status' => $jasa->status,
                     'pelanggan' => $jasa->pelanggan?->nama ?? '-',
+                    'pelanggan_telepon' => $jasa->pelanggan?->kontak ?? '-',
+                    'alamat' => $jasa->alamat ?? $jasa->pelanggan?->alamat ?? '-',
+                    'jadwal' => $jasa->jadwal?->format('d/m/Y H:i') ?? '-',
                     'petugas' => $jasa->petugasMany->isNotEmpty() 
                         ? $jasa->petugasMany->pluck('nama')->join(', ') 
                         : '-',
@@ -381,7 +375,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
-            $filename = "invoice-jasa-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "invoice-jasa-{$safeNumber}.pdf";
         }
 
         // Stream PDF inline untuk preview di tab baru
@@ -400,7 +395,7 @@ class Report extends Page implements HasForms
         
         // Generate invoice PDF untuk preview inline
         if ($reportType === 'produksi') {
-            $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $number)->first();
+            $produksi = Produksi::with(['team', 'pelanggan', 'items'])->where('no_produksi', $number)->first();
             if (!$produksi) {
                 Notification::make()
                     ->title('Data tidak ditemukan')
@@ -415,6 +410,9 @@ class Report extends Page implements HasForms
                     'no_ref' => $produksi->no_ref,
                     'branch' => $produksi->branch,
                     'status' => $produksi->status,
+                    'pelanggan' => $produksi->pelanggan?->nama ?? '-',
+                    'pelanggan_telepon' => $produksi->pelanggan?->kontak ?? '-',
+                    'alamat' => $produksi->alamat ?? $produksi->pelanggan?->alamat ?? '-',
                     'team' => $produksi->team?->nama ?? '-',
                     'catatan' => $produksi->catatan,
                     'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
@@ -427,7 +425,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
-            $filename = "invoice-produksi-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "invoice-produksi-{$safeNumber}.pdf";
         } else {
             $jasa = Jasa::with(['pelanggan', 'petugasMany', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) {
@@ -445,6 +444,9 @@ class Report extends Page implements HasForms
                     'branch' => $jasa->branch,
                     'status' => $jasa->status,
                     'pelanggan' => $jasa->pelanggan?->nama ?? '-',
+                    'pelanggan_telepon' => $jasa->pelanggan?->kontak ?? '-',
+                    'alamat' => $jasa->alamat ?? $jasa->pelanggan?->alamat ?? '-',
+                    'jadwal' => $jasa->jadwal?->format('d/m/Y H:i') ?? '-',
                     'petugas' => $jasa->petugasMany->isNotEmpty() 
                         ? $jasa->petugasMany->pluck('nama')->join(', ') 
                         : '-',
@@ -460,18 +462,35 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
-            $filename = "invoice-jasa-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "invoice-jasa-{$safeNumber}.pdf";
         }
 
         // Output PDF inline untuk preview di browser
         return $pdf->stream($filename);
     }
 
-    public function downloadFilteredPdf()
+    public function downloadSinglePdf()
     {
+        $user = Auth::user();
+        
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['team', 'items'])
             : Jasa::with(['pelanggan', 'petugasMany', 'items']);
+
+        // Apply role-based filtering
+        if ($user && $user->role === 'admin_toko') {
+            if ($user->branch) {
+                $query->where('branch', $user->branch);
+            } else {
+                Notification::make()
+                    ->title('Tidak ada data')
+                    ->body('Anda tidak memiliki branch yang ditetapkan.')
+                    ->warning()
+                    ->send();
+                return;
+            }
+        }
 
         if (!empty($this->filters['start_date'])) {
             $query->whereDate('createdAt', '>=', $this->filters['start_date']);
@@ -608,17 +627,59 @@ class Report extends Page implements HasForms
         $this->loadPreviewData();
     }
 
-    public function downloadPdfByDateRange()
+    public function downloadPdf()
     {
+        $user = Auth::user();
+        
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['team', 'items'])
             : Jasa::with(['pelanggan', 'petugasMany', 'items']);
+
+        // Apply role-based filtering
+        if ($user && $user->role === 'admin_toko') {
+            if ($user->branch) {
+                $query->where('branch', $user->branch);
+            } else {
+                Notification::make()
+                    ->title('Tidak ada data')
+                    ->body('Anda tidak memiliki branch yang ditetapkan.')
+                    ->warning()
+                    ->send();
+                return;
+            }
+        }
 
         if (!empty($this->filters['start_date'])) {
             $query->whereDate('createdAt', '>=', $this->filters['start_date']);
         }
         if (!empty($this->filters['end_date'])) {
             $query->whereDate('createdAt', '<=', $this->filters['end_date']);
+        }
+
+        // Apply search filter
+        if (!empty($this->searchQuery)) {
+            $searchTerm = '%' . $this->searchQuery . '%';
+            
+            if ($this->filters['report_type'] === 'produksi') {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('no_produksi', 'like', $searchTerm)
+                      ->orWhere('no_ref', 'like', $searchTerm)
+                      ->orWhere('branch', 'like', $searchTerm)
+                      ->orWhere('status', 'like', $searchTerm);
+                });
+            } else {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('no_jasa', 'like', $searchTerm)
+                      ->orWhere('no_ref', 'like', $searchTerm)
+                      ->orWhere('status', 'like', $searchTerm)
+                      ->orWhereHas('pelanggan', function($q) use ($searchTerm) {
+                          $q->where('nama', 'like', $searchTerm);
+                      })
+                      ->orWhereHas('petugasMany', function($q) use ($searchTerm) {
+                          $q->where('nama', 'like', $searchTerm);
+                      });
+                });
+            }
         }
 
         $items = $query->orderBy('createdAt', 'desc')->get();
@@ -699,11 +760,27 @@ class Report extends Page implements HasForms
         ]);
     }
 
-    public function downloadInvoiceByDateRange()
+    public function downloadInvoicePdf()
     {
+        $user = Auth::user();
+        
         $query = $this->filters['report_type'] === 'produksi' 
             ? Produksi::with(['team', 'items'])
             : Jasa::with(['pelanggan', 'petugas', 'items']);
+
+        // Apply role-based filtering
+        if ($user && $user->role === 'admin_toko') {
+            if ($user->branch) {
+                $query->where('branch', $user->branch);
+            } else {
+                Notification::make()
+                    ->title('Tidak ada data')
+                    ->body('Anda tidak memiliki branch yang ditetapkan.')
+                    ->warning()
+                    ->send();
+                return;
+            }
+        }
 
         if (!empty($this->filters['start_date'])) {
             $query->whereDate('createdAt', '>=', $this->filters['start_date']);
@@ -758,7 +835,7 @@ class Report extends Page implements HasForms
         $this->downloadingNumbers[$number] = true;
 
         if ($this->filters['report_type'] === 'produksi') {
-            $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $number)->first();
+            $produksi = Produksi::with(['team', 'pelanggan', 'items'])->where('no_produksi', $number)->first();
             if (!$produksi) return;
 
             $data = [
@@ -767,6 +844,9 @@ class Report extends Page implements HasForms
                     'no_ref' => $produksi->no_ref,
                     'branch' => $produksi->branch,
                     'status' => $produksi->status,
+                    'pelanggan' => $produksi->pelanggan?->nama ?? '-',
+                    'pelanggan_telepon' => $produksi->pelanggan?->kontak ?? '-',
+                    'alamat' => $produksi->alamat ?? $produksi->pelanggan?->alamat ?? '-',
                     'team' => $produksi->team?->nama ?? '-',
                     'catatan' => $produksi->catatan,
                     'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
@@ -779,7 +859,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/produksi', $data);
-            $filename = "produksi-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "produksi-{$safeNumber}.pdf";
         } else {
             $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) return;
@@ -804,7 +885,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/jasa', $data);
-            $filename = "jasa-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "jasa-{$safeNumber}.pdf";
         }
 
         return response()->streamDownload(function () use ($pdf) {
@@ -819,7 +901,7 @@ class Report extends Page implements HasForms
         $this->downloadingNumbers[$number . '_invoice'] = true;
 
         if ($this->filters['report_type'] === 'produksi') {
-            $produksi = Produksi::with(['team', 'items'])->where('no_produksi', $number)->first();
+            $produksi = Produksi::with(['team', 'pelanggan', 'items'])->where('no_produksi', $number)->first();
             if (!$produksi) return;
 
             $data = [
@@ -828,6 +910,9 @@ class Report extends Page implements HasForms
                     'no_ref' => $produksi->no_ref,
                     'branch' => $produksi->branch,
                     'status' => $produksi->status,
+                    'pelanggan' => $produksi->pelanggan?->nama ?? '-',
+                    'pelanggan_telepon' => $produksi->pelanggan?->kontak ?? '-',
+                    'alamat' => $produksi->alamat ?? $produksi->pelanggan?->alamat ?? '-',
                     'team' => $produksi->team?->nama ?? '-',
                     'catatan' => $produksi->catatan,
                     'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
@@ -840,7 +925,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
-            $filename = "invoice-produksi-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "invoice-produksi-{$safeNumber}.pdf";
         } else {
             $jasa = Jasa::with(['pelanggan', 'petugas', 'items'])->where('no_jasa', $number)->first();
             if (!$jasa) return;
@@ -865,7 +951,8 @@ class Report extends Page implements HasForms
             ];
 
             $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
-            $filename = "invoice-jasa-{$number}.pdf";
+            $safeNumber = str_replace('/', '-', $number);
+            $filename = "invoice-jasa-{$safeNumber}.pdf";
         }
 
         return response()->streamDownload(function () use ($pdf) {

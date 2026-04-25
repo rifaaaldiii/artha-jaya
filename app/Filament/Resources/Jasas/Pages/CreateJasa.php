@@ -20,23 +20,29 @@ class CreateJasa extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Pastikan no_jasa terisi
+        // Pastikan no_jasa terisi - Format baru: JSA/DDMMYYYY/0001
         if (empty($data['no_jasa'])) {
-            $prefix = 'J-';
-            $padLength = 5;
+            // Format: JSA/DDMMYYYY/0001
+            $prefix = 'JSA';
+            $date = now()->format('dmy'); // DDMMYYYY
+            $fullPrefix = $prefix . '/' . $date . '/';
+            $padLength = 4;
+
             $lastNo = Jasa::query()
-                ->where('no_jasa', 'like', $prefix . '%')
+                ->where('no_jasa', 'like', $fullPrefix . '%')
                 ->orderByDesc('id')
                 ->value('no_jasa');
 
             if ($lastNo) {
-                $num = intval(substr($lastNo, strlen($prefix)));
+                // Extract sequence number
+                $parts = explode('/', $lastNo);
+                $num = intval(end($parts));
                 $nextNum = $num + 1;
             } else {
                 $nextNum = 1;
             }
 
-            $data['no_jasa'] = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+            $data['no_jasa'] = $fullPrefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
         }
 
         // Pastikan status terisi

@@ -138,26 +138,101 @@ class ProgressJasa extends Page implements HasForms
                 Select::make('selectedJasaId')
                     ->label('Cari & Pilih Jasa')
                     ->options(function () {
-                        return Jasa::query()
-                            ->select('id', 'no_jasa', 'no_ref')
-                            ->orderBy('createdAt', 'desc')
+                        $user = Auth::user();
+                        if (!$user) {
+                            return [];
+                        }
+
+                        $query = Jasa::query()
+                            ->with(['pelanggan', 'items'])
+                            ->where('status', '!=', 'selesai');
+
+                        // Filter by branch for admin_toko users
+                        if ($user->role === 'admin_toko' && $user->branch) {
+                            $query->where('branch', $user->branch);
+                        }
+
+                        return $query->orderBy('createdAt', 'desc')
                             ->limit(50)
-                            ->pluck('no_jasa', 'id')
+                            ->get()
+                            ->mapWithKeys(function ($jasa) {
+                                $customerName = $jasa->pelanggan?->nama ?? 'No Customer';
+                                $itemsInfo = '';
+                                if ($jasa->items && $jasa->items->count() > 0) {
+                                    $firstItem = $jasa->items->first();
+                                    $itemsInfo = $firstItem->jenis_layanan ?? 'Item';
+                                    if ($jasa->items->count() > 1) {
+                                        $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
+                                    }
+                                }
+                                return [
+                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $customerName . ' - ' . $itemsInfo
+                                ];
+                            })
                             ->toArray();
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search) {
-                        return Jasa::query()
-                            ->select('id', 'no_jasa', 'no_ref')
-                            ->where('no_jasa', 'like', '%' . $search . '%')
-                            ->orWhere('no_ref', 'like', '%' . $search . '%')
-                            ->orderBy('createdAt', 'desc')
+                        $user = Auth::user();
+                        if (!$user) {
+                            return [];
+                        }
+
+                        $query = Jasa::query()
+                            ->with(['pelanggan', 'items'])
+                            ->where('status', '!=', 'selesai');
+
+                        // Filter by branch for admin_toko users
+                        if ($user->role === 'admin_toko' && $user->branch) {
+                            $query->where('branch', $user->branch);
+                        }
+
+                        $searchTerm = '%' . trim($search) . '%';
+                        $query->where(function ($q) use ($searchTerm) {
+                            $q->where('no_jasa', 'like', $searchTerm)
+                                ->orWhere('no_ref', 'like', $searchTerm)
+                                ->orWhereHas('pelanggan', function ($q) use ($searchTerm) {
+                                    $q->where('nama', 'like', $searchTerm);
+                                })
+                                ->orWhereHas('items', function ($q) use ($searchTerm) {
+                                    $q->where('jenis_layanan', 'like', $searchTerm);
+                                });
+                        });
+
+                        return $query->orderBy('createdAt', 'desc')
                             ->limit(50)
-                            ->pluck('no_jasa', 'id')
+                            ->get()
+                            ->mapWithKeys(function ($jasa) {
+                                $customerName = $jasa->pelanggan?->nama ?? 'No Customer';
+                                $itemsInfo = '';
+                                if ($jasa->items && $jasa->items->count() > 0) {
+                                    $firstItem = $jasa->items->first();
+                                    $itemsInfo = $firstItem->jenis_layanan ?? 'Item';
+                                    if ($jasa->items->count() > 1) {
+                                        $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
+                                    }
+                                }
+                                return [
+                                    $jasa->id => $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $customerName . ' - ' . $itemsInfo
+                                ];
+                            })
                             ->toArray();
                     })
+                    ->preload()
                     ->getOptionLabelUsing(function ($value): ?string {
-                        return Jasa::where('id', $value)->value('no_jasa');
+                        $jasa = Jasa::with(['pelanggan', 'items'])->find($value);
+                        if (!$jasa) return null;
+                        
+                        $customerName = $jasa->pelanggan?->nama ?? 'No Customer';
+                        $itemsInfo = '';
+                        if ($jasa->items && $jasa->items->count() > 0) {
+                            $firstItem = $jasa->items->first();
+                            $itemsInfo = $firstItem->jenis_layanan ?? 'Item';
+                            if ($jasa->items->count() > 1) {
+                                $itemsInfo .= ' (+' . ($jasa->items->count() - 1) . ')';
+                            }
+                        }
+                        return $jasa->no_jasa . ' | ' . $jasa->no_ref . ' - ' . $customerName . ' - ' . $itemsInfo;
                     })
                     ->live()
                     ->afterStateUpdated(function ($state) {
@@ -176,8 +251,11 @@ class ProgressJasa extends Page implements HasForms
                     ->label('Jadwal Petugas')
                     ->required()
                     ->native(false)
-                    ->displayFormat('d F Y, H:i')
-                    ->timezone('Asia/Jakarta'),
+                    ->timezone('Asia/Jakarta')
+                    ->displayFormat('d/m/Y H:i')
+                    ->format('Y-m-d H:i:s')
+                    ->default(now())
+                    ->required(),
                 
                 Select::make('petugasIds')
                     ->label('Pilih Petugas')

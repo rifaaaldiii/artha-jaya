@@ -65,23 +65,32 @@ class Produksi extends Model
     protected static function booted(): void
     {
         static::creating(function (Produksi $produksi): void {
+            \Log::info('Produksi creating event triggered', ['no_produksi' => $produksi->no_produksi]);
+            
             if (blank($produksi->no_produksi)) {
-                $prefix = 'P-';
-                $padLength = 5;
+                \Log::info('Generating new Produksi number');
+                // Format: PRD/DDMMYYYY/0001
+                $prefix = 'PRD';
+                $date = now()->format('dmy'); // DDMMYYYY
+                $fullPrefix = $prefix . '/' . $date . '/';
+                $padLength = 4;
 
                 $lastNo = static::query()
-                    ->where('no_produksi', 'like', $prefix . '%')
+                    ->where('no_produksi', 'like', $fullPrefix . '%')
                     ->orderByDesc('id')
                     ->value('no_produksi');
 
                 if ($lastNo) {
-                    $num = (int) substr($lastNo, strlen($prefix));
+                    // Extract sequence number
+                    $parts = explode('/', $lastNo);
+                    $num = intval(end($parts));
                     $nextNum = $num + 1;
                 } else {
                     $nextNum = 1;
                 }
 
-                $produksi->no_produksi = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+                $produksi->no_produksi = $fullPrefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+                \Log::info('Generated Produksi number', ['no_produksi' => $produksi->no_produksi]);
             }
 
             if (blank($produksi->createdAt)) {

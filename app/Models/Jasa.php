@@ -87,23 +87,32 @@ class Jasa extends Model
     protected static function booted(): void
     {
         static::creating(function (Jasa $jasa): void {
+            \Log::info('Jasa creating event triggered', ['no_jasa' => $jasa->no_jasa]);
+            
             if (blank($jasa->no_jasa)) {
-                $prefix = 'J-';
-                $padLength = 5;
+                \Log::info('Generating new Jasa number');
+                // Format: JSA/DDMMYYYY/0001
+                $prefix = 'JSA';
+                $date = now()->format('dmy'); // DDMMYYYY
+                $fullPrefix = $prefix . '/' . $date . '/';
+                $padLength = 4;
 
                 $lastNo = static::query()
-                    ->where('no_jasa', 'like', $prefix . '%')
+                    ->where('no_jasa', 'like', $fullPrefix . '%')
                     ->orderByDesc('id')
                     ->value('no_jasa');
 
                 if ($lastNo) {
-                    $num = (int) substr($lastNo, strlen($prefix));
+                    // Extract sequence number
+                    $parts = explode('/', $lastNo);
+                    $num = intval(end($parts));
                     $nextNum = $num + 1;
                 } else {
                     $nextNum = 1;
                 }
 
-                $jasa->no_jasa = $prefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+                $jasa->no_jasa = $fullPrefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+                \Log::info('Generated Jasa number', ['no_jasa' => $jasa->no_jasa]);
             }
 
             if (blank($jasa->createdAt)) {
