@@ -63,6 +63,23 @@ class Team extends Model
     }
 
     /**
+     * Update the order field based on active produksis count.
+     * Order = number of active produksis (non-selesai status).
+     * Reset to 0 when all produksis are completed.
+     */
+    public function updateOrder(): void
+    {
+        $activeCount = $this->getActiveProduksisCount();
+        
+        // Only update if the value has changed
+        if ($this->order !== $activeCount) {
+            $this->order = $activeCount;
+            // Use saveQuietly to avoid triggering observer again
+            $this->saveQuietly();
+        }
+    }
+
+    /**
      * Get all pelanggans for this team.
      */
     public function pelanggans()

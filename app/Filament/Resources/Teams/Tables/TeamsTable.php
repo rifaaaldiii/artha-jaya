@@ -16,33 +16,23 @@ class TeamsTable
     {
         return $table
             ->columns([
-                TextColumn::make("order")
-                    ->label('Urutan')
-                    ->sortable()
-                    ->badge()
-                    ->color('info')
-                    ->alignment('center'),
                 TextColumn::make("nama")
                     ->label('Nama Team')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('active_produksis')
-                    ->label('Produksi Aktif')
-                    ->getStateUsing(fn ($record) => $record->getActiveProduksisCount())
+
+                TextColumn::make("order")
+                    ->label('Order')
+                    ->sortable()
                     ->badge()
                     ->color(fn ($state) => match (true) {
                         $state === 0 => 'success',
                         $state <= 2 => 'warning',
                         default => 'danger',
                     })
-                    ->sortable(query: function ($query, $direction) {
-                        $query->orderBy(
-                            Produksi::selectRaw('COUNT(*)')
-                                ->whereColumn('team_id', 'teams.id')
-                                ->where('status', '!=', 'selesai'),
-                            $direction
-                        );
-                    }),
+                    ->alignment('center')
+                    ->description(fn ($state) => $state === 0 ? 'Non Active' : 'Aktif'),
+                    
                 TextColumn::make('capacity_status')
                     ->label('Status')
                     ->getStateUsing(fn ($record) => $record->hasAvailableCapacity() ? 'Tersedia' : 'Penuh')

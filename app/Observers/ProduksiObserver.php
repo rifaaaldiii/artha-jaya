@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Produksi;
+use App\Models\Team;
 use App\Services\FonteWhatsAppService;
 use App\Services\WhatsAppNotificationHelper;
 use App\Support\Polling\PollChannel;
@@ -15,6 +16,9 @@ class ProduksiObserver
     {
         PollTriggerStore::bump([PollChannel::PRODUKSI, PollChannel::DASHBOARD]);
         
+        // Update team order based on active produksis count
+        $this->updateTeamOrder($produksi);
+        
         // Send WhatsApp notification
         $this->sendWhatsAppNotification($produksi);
     }
@@ -22,6 +26,37 @@ class ProduksiObserver
     public function deleted(Produksi $produksi): void
     {
         PollTriggerStore::bump([PollChannel::PRODUKSI, PollChannel::DASHBOARD]);
+        
+        // Update team order when produksi is deleted
+        if ($produksi->team_id) {
+            $team = $produksi->team;
+            if ($team) {
+                $team->updateOrder();
+            }
+        }
+    }
+
+    /**
+     * Update the team order based on active produksis count
+     */
+    protected function updateTeamOrder(Produksi $produksi): void
+    {
+        // Update order for the current team
+        if ($produksi->team_id) {
+            $team = $produksi->team;
+            if ($team) {
+                $team->updateOrder();
+            }
+        }
+        
+        // If team_id changed, also update the old team's order
+        $oldTeamId = $produksi->getOriginal('team_id');
+        if ($oldTeamId && $oldTeamId != $produksi->team_id) {
+            $oldTeam = Team::find($oldTeamId);
+            if ($oldTeam) {
+                $oldTeam->updateOrder();
+            }
+        }
     }
 
     /**

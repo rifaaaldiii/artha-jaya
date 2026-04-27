@@ -12,7 +12,6 @@ use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
-use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Actions;
@@ -40,7 +39,6 @@ class Report extends Page implements HasForms
         'report_type' => 'jasa',
         'start_date' => null,
         'end_date' => null,
-        'date_range' => null,
     ];
 
     public array $previewRows = [];
@@ -259,35 +257,29 @@ class Report extends Page implements HasForms
                     })
                     ->placeholder('Pilih jenis laporan'),
                 
-                TextInput::make('date_range')
-                    ->label('Rentang Tanggal')
-                    ->placeholder('Pilih rentang tanggal')
-                    ->hint('Klik untuk memilih tanggal mulai dan akhir')
-                    ->suffixIcon('heroicon-m-calendar')
-                    ->extraInputAttributes([
-                        'class' => 'date-range-input',
-                        'id' => 'date-range-picker',
-                    ])
-                    ->live(debounce: 300)
+                DatePicker::make('start_date')
+                    ->label('Tanggal Mulai')
+                    ->native(false)
+                    ->live()
                     ->afterStateUpdated(function ($state) {
-                        \Log::info('Date range changed', ['state' => $state]);
-                        
-                        if ($state && strpos($state, ' - ') !== false) {
-                            $dates = explode(' - ', $state);
-                            $this->filters['start_date'] = $dates[0] ?? null;
-                            $this->filters['end_date'] = $dates[1] ?? null;
-                            \Log::info('Dates set', ['start' => $dates[0], 'end' => $dates[1]]);
-                        } else {
-                            $this->filters['start_date'] = null;
-                            $this->filters['end_date'] = null;
-                            \Log::info('Dates cleared');
-                        }
+                        $this->filters['start_date'] = $state;
                         $this->currentPage = 1;
                         $this->loadPreviewData();
-                        \Log::info('Data loaded', ['count' => $this->resultCount]);
-                    }),
+                    })
+                    ->placeholder('Pilih tanggal mulai'),
+                
+                DatePicker::make('end_date')
+                    ->label('Tanggal Akhir')
+                    ->native(false)
+                    ->live()
+                    ->afterStateUpdated(function ($state) {
+                        $this->filters['end_date'] = $state;
+                        $this->currentPage = 1;
+                        $this->loadPreviewData();
+                    })
+                    ->placeholder('Pilih tanggal akhir'),
             ])
-            ->columns(2)
+            ->columns(3)
             ->statePath('filters');
     }
 
@@ -297,14 +289,10 @@ class Report extends Page implements HasForms
             'report_type' => 'jasa',
             'start_date' => null,
             'end_date' => null,
-            'date_range' => null,
         ];
         $this->currentPage = 1;
         $this->loadPreviewData();
         $this->filterForm->fill($this->filters);
-        
-        // Dispatch event to clear date picker
-        $this->dispatch('clear-date-range');
     }
 
     public function applyFilters(): void
