@@ -11,7 +11,7 @@
     <h1>Update Berhasil!</h1>
     
     <p>
-        Status pengerjaan <strong>{{ $jasa->no_jasa }}</strong> telah berhasil diperbarui menjadi<br>
+        Status pengerjaan <strong>{{ $jasa->no_jasa }}</strong> telah berhasil diperbarui<br>
         <strong style="color: var(--aj-primary); font-size: 18px; display: inline-block; margin-top: 8px;">✓ Selesai Dikerjakan</strong>
     </p>
     
@@ -24,6 +24,6 @@
     </div>
     @endif
     
-    <a href="/" class="btn-home">← Kembali ke Home</a>
+    {{-- <a href="/" class="btn-home">← Kembali ke Home</a> --}}
 </div>
 @endsection

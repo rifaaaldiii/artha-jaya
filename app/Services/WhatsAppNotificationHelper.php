@@ -101,7 +101,7 @@ class WhatsAppNotificationHelper
     {
         return match ($eventType) {
             'produksi_created' => [
-                'superadmin',
+                'superadmin'
             ],
             
             'produksi_status_updated' => match ($newStatus) {
@@ -113,12 +113,12 @@ class WhatsAppNotificationHelper
             },
 
             'jasa_created' => [
-                'superadmin',
+                'superadmin'
             ],
 
             'jasa_status_updated' => match ($newStatus) {
                 'jasa baru' => ['superadmin'],
-                'terjadwal' => ['kepala_lapangan', 'admin_toko'],
+                'terjadwal' => ['kepala_lapangan'],
                 'selesai dikerjakan' => ['superadmin', 'admin_toko'],
                 'selesai' => [],
                 default => [],

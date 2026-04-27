@@ -173,20 +173,20 @@ class JasaForm
                 ->minItems(1),
         
             Textarea::make('alamat')
-                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Jasa')
+                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Jasa Instalasi')
                 ->required()
                 ->reactive()
                 ->dehydrated(true)
-                ->helperText('Alamat otomatis terisi dari data customer. Ubah jika alamat jasa berbeda.'),
+                ->helperText('Abaikan jika alamat jasa instalasi sama dengan alamat customer.'),
             
             DateTimePicker::make("jadwal")
-                ->label("Jadwal Customer")
+                ->label("Penjadwalan Customer")
                 ->native(false)
                 ->displayFormat('d/m/Y H:i')
                 ->format('Y-m-d H:i:s')
                 ->default(now())
                 ->required()
-                ->helperText('Jadwal pelaksanaan produksi'),
+                ->helperText('Penjadwalan jasa instalasi customer'),
                 
             Textarea::make("catatan")
                 ->label("Catatan"),

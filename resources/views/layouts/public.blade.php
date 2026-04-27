@@ -53,42 +53,26 @@
             background: var(--aj-surface);
             border-bottom: 1px solid var(--aj-border);
             padding: 20px 0;
-            margin-bottom: 40px;
             box-shadow: var(--aj-shadow-sm);
         }
         
         .header-content {
             max-width: 900px;
             margin: 0 auto;
-            padding: 0 20px;
+            /* padding: 0 100px; */
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: center;
         }
         
         .logo {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--aj-primary) 0%, var(--aj-success) 100%);
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
             font-weight: bold;
-        }
-        
-        .header-text h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--aj-text);
-            margin-bottom: 2px;
-        }
-        
-        .header-text p {
-            font-size: 13px;
-            color: var(--aj-text-secondary);
         }
         
         /* Card */
@@ -124,28 +108,47 @@
         
         /* Alert */
         .alert {
-            padding: 16px 20px;
-            border-radius: 8px;
+            padding: 20px 24px;
+            border-radius: 10px;
             margin-bottom: 24px;
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 16px;
             font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         
         .alert-icon {
-            font-size: 20px;
+            font-size: 24px;
             flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-content strong {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        
+        .alert-content p {
+            margin: 0;
+            line-height: 1.6;
+            opacity: 0.95;
         }
         
         .alert-error {
-            background: var(--aj-error-light);
+            background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
             border: 1px solid #fecaca;
-            color: var(--aj-error);
+            color: #991b1b;
         }
         
         .alert-success {
-            background: var(--aj-primary-light);
+            background: linear-gradient(135deg, var(--aj-primary-light) 0%, #ecfdf5 100%);
             border: 1px solid #a7f3d0;
             color: var(--aj-primary-dark);
         }
@@ -494,10 +497,8 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <div class="logo">AJ</div>
-            <div class="header-text">
-                <h1>Artha Jaya</h1>
-                <p>@yield('subtitle', 'Sistem Manajemen Jasa & Produksi')</p>
+            <div class="logo">
+                <img src="{{ asset('logo.png') }}" alt="Artha Jaya Logo">
             </div>
         </div>
     </div>

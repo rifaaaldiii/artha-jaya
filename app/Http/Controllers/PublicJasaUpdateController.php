@@ -20,28 +20,28 @@ class PublicJasaUpdateController extends Controller
             ->first();
         
         if (!$updateToken) {
-            return view('public.jasa-update', [
-                'error' => 'Link tidak valid. Token tidak ditemukan.'
-            ]);
+            return response()->view('errors.access-denied', [
+                'message' => 'Link yang Anda akses tidak valid. Pastikan Anda menggunakan link yang benar dari sistem kami.'
+            ], 404);
         }
         
         // Validate token
         if ($updateToken->is_used) {
-            return view('public.jasa-update', [
-                'error' => 'Link ini sudah tidak valid karena sudah digunakan.'
-            ]);
+            return response()->view('errors.access-denied', [
+                'message' => 'Link ini sudah tidak dapat digunakan karena telah digunakan sebelumnya.'
+            ], 404);
         }
         
         if ($updateToken->isExpired()) {
-            return view('public.jasa-update', [
-                'error' => 'Link ini sudah expired (lebih dari 7 hari).'
-            ]);
+            return response()->view('errors.access-denied', [
+                'message' => 'Link ini sudah tidak berlaku karena telah melewati batas waktu 7 hari.'
+            ], 404);
         }
         
         if ($updateToken->jasa->status !== 'terjadwal') {
-            return view('public.jasa-update', [
-                'error' => 'Jasa ini tidak dalam status yang benar untuk diupdate. Status saat ini: ' . ucwords($updateToken->jasa->status)
-            ]);
+            return response()->view('errors.access-denied', [
+                'message' => 'Jasa ini tidak dapat diupdate karena status saat ini adalah ' . ucwords($updateToken->jasa->status) . '. Update hanya dapat dilakukan pada jasa dengan status terjadwal.'
+            ], 404);
         }
         
         return view('public.jasa-update', [
@@ -76,11 +76,15 @@ class PublicJasaUpdateController extends Controller
             ->first();
         
         if (!$updateToken || !$updateToken->isValid()) {
-            return back()->withErrors(['error' => 'Link tidak valid atau sudah expired.']);
+            return response()->view('errors.access-denied', [
+                'message' => 'Link yang Anda akses tidak valid atau sudah tidak berlaku.'
+            ], 404);
         }
         
         if ($updateToken->jasa->status !== 'terjadwal') {
-            return back()->withErrors(['error' => 'Jasa sudah diupdate atau status tidak valid.']);
+            return response()->view('errors.access-denied', [
+                'message' => 'Jasa ini sudah diupdate atau status tidak valid. Silakan hubungi administrator jika memerlukan bantuan.'
+            ], 404);
         }
         
         DB::beginTransaction();
@@ -169,7 +173,9 @@ class PublicJasaUpdateController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
             
-            return back()->withErrors(['error' => 'Terjadi kesalahan sistem. Silakan coba lagi.']);
+            return response()->view('errors.access-denied', [
+                'message' => 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi atau hubungi administrator jika masalah berlanjut.'
+            ], 500);
         }
     }
     
@@ -179,19 +185,22 @@ class PublicJasaUpdateController extends Controller
     protected function sendCompletionNotification($jasa, $oldStatus)
     {
         try {
-            // Send to superadmin when kepala_lapangan completes the work
-            $recipients = \App\Models\User::where('role', 'superadmin')
-                ->whereNotNull('kontak')
-                ->get();
+            // Get recipients based on branch and event type
+            // superadmin: receives from all branches
+            // admin_toko: receives only from their own branch (matching jasa.branch)
+            $recipients = \App\Services\WhatsAppNotificationHelper::getRecipientsByBranch(
+                $jasa->branch ?? 'AJP',
+                'jasa_status_updated',
+                'selesai dikerjakan'
+            );
             
             if ($recipients->isEmpty()) {
-                \Log::warning('No superadmin found to notify', [
+                \Log::warning('No recipients found to notify', [
                     'jasa_id' => $jasa->id,
+                    'branch' => $jasa->branch,
                 ]);
                 return;
             }
-            
-            $helper = new WhatsAppNotificationHelper();
             
             $jasaData = [
                 'jasa_id' => $jasa->id,
@@ -206,13 +215,20 @@ class PublicJasaUpdateController extends Controller
                 'jadwal_petugas' => $jasa->jadwal_petugas ? $jasa->jadwal_petugas->format('d/m/Y H:i') : '-',
             ];
             
-            // Send notification to superadmin
+            // Send notification to recipients (superadmin + admin_toko with matching branch)
             \App\Services\WhatsAppNotificationHelper::sendJasaStatusUpdate($recipients, $jasaData);
             
-            \Log::info('Completion notification sent to superadmin', [
+            \Log::info('Completion notification sent successfully', [
                 'jasa_id' => $jasa->id,
                 'no_jasa' => $jasa->no_jasa,
+                'branch' => $jasa->branch,
                 'recipients_count' => $recipients->count(),
+                'recipients' => $recipients->map(fn($u) => [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'role' => $u->role,
+                    'branch' => $u->branch,
+                ])->toArray(),
             ]);
             
         } catch (\Exception $e) {

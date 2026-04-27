@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Halaman Tidak Ditemukan | Artha Jaya Mas</title>
+    <title>Akses Tidak Valid | Artha Jaya Mas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -17,6 +17,8 @@
             --primary-dark: #059669;
             --primary-light: #34d399;
             --accent: #06b6d4;
+            --error: #ef4444;
+            --error-dark: #dc2626;
             --dark: #0f172a;
             --gray-900: #1e293b;
             --gray-700: #334155;
@@ -47,8 +49,8 @@
             right: 0;
             bottom: 0;
             background-image: 
-                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(239, 68, 68, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239, 68, 68, 0.03) 1px, transparent 1px);
             background-size: 60px 60px;
             z-index: 0;
         }
@@ -66,7 +68,7 @@
         .gradient-orb-1 {
             width: 400px;
             height: 400px;
-            background: var(--primary);
+            background: var(--error);
             top: -100px;
             right: -100px;
             animation-delay: 0s;
@@ -114,44 +116,36 @@
             }
         }
 
-        /* 404 Number Display */
-        .error-number {
-            margin: 40px 0;
-            position: relative;
+        /* Error Icon */
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, var(--error) 0%, var(--error-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .error-number-main {
-            font-size: 120px;
-            font-weight: 800;
-            line-height: 1;
-            letter-spacing: -4px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            display: inline-block;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
-        .error-number-shadow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 120px;
-            font-weight: 800;
-            line-height: 1;
-            letter-spacing: -4px;
-            color: var(--primary);
-            opacity: 0.08;
-            z-index: -1;
+        .error-icon svg {
+            width: 50px;
+            height: 50px;
+            color: white;
         }
 
         /* Animated Line */
         .animated-line {
             width: 80px;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            background: linear-gradient(90deg, var(--error) 0%);
             border-radius: 2px;
             margin: 30px auto;
             position: relative;
@@ -188,61 +182,9 @@
             color: var(--gray-500);
             line-height: 1.6;
             margin-bottom: 40px;
-            max-width: 450px;
+            max-width: 500px;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        /* Buttons */
-        .button-container {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 14px 28px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: -0.2px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--gray-700);
-            border: 1.5px solid var(--gray-300);
-        }
-
-        .btn-ghost:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: rgba(16, 185, 129, 0.05);
-            transform: translateY(-2px);
         }
 
         /* Icon */
@@ -272,10 +214,10 @@
             background: var(--primary);
             border-radius: 50%;
             display: inline-block;
-            animation: pulse 2s ease-in-out infinite;
+            animation: pulse-dot 2s ease-in-out infinite;
         }
 
-        @keyframes pulse {
+        @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(0.8); }
         }
@@ -286,10 +228,14 @@
                 padding: 50px 30px;
             }
 
-            .error-number-main,
-            .error-number-shadow {
-                font-size: 90px;
-                letter-spacing: -3px;
+            .error-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .error-icon svg {
+                width: 40px;
+                height: 40px;
             }
 
             .error-title {
@@ -300,14 +246,6 @@
                 font-size: 15px;
             }
 
-            .button-container {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
         }
 
         /* Dark Mode Support */
@@ -346,24 +284,24 @@
 
     <div class="container">
         <div class="error-card">
-
-            <!-- Error Number -->
-            <div class="error-number">
-                <div class="error-number-shadow">404</div>
-                <div class="error-number-main">404</div>
+            <!-- Error Icon -->
+            <div class="error-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
             </div>
 
             <!-- Animated Line -->
             <div class="animated-line"></div>
 
             <!-- Error Message -->
-            <h1 class="error-title">Halaman Tidak Ditemukan</h1>
+            <h1 class="error-title">Akses Tidak Valid</h1>
             <p class="error-subtitle">
-                Halaman yang Anda cari mungkin telah dipindahkan, dihapus, atau tidak pernah ada.
+                {{ $message ?? 'Link yang Anda akses tidak valid atau sudah tidak berlaku. Silakan periksa kembali link yang Anda gunakan.' }}
             </p>
 
             <!-- Action Buttons -->
-            <div class="button-container">
+            {{-- <div class="button-container">
                 <a href="/admin" class="btn btn-primary">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -377,7 +315,7 @@
                     </svg>
                     <span>Kembali</span>
                 </a>
-            </div>
+            </div> --}}
 
             <!-- Footer -->
             <div class="footer-text">

@@ -2,28 +2,24 @@
 
 @section('title', 'Update Status Jasa - ' . ($jasa->no_jasa ?? 'Artha Jaya'))
 
-@section('subtitle', 'Update Status Pengerjaan')
+{{-- @section('subtitle', 'Update Status Pengerjaan') --}}
 
 @section('content')
 <div class="card">
     @if(isset($error))
     <div class="card-body">
         <div class="alert alert-error">
-            <span class="alert-icon">⚠️</span>
-            <div>
-                <strong>Error:</strong> {{ $error }}
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+                <strong>Terjadi Kesalahan</strong>
+                <p>{{ $error }}</p>
             </div>
-        </div>
-        <div style="text-align: center; margin-top: 32px;">
-            <a href="/" style="color: var(--aj-primary); text-decoration: none; font-weight: 600; font-size: 14px;">
-                ← Kembali ke Home
-            </a>
         </div>
     </div>
     @else
     <div class="card-header">
         <h2>Update Status Pengerjaan</h2>
-        <p>Lengkapi form berikut untuk mengupdate status pengerjaan jasa</p>
+        <p>Lengkapi form berikut untuk mengupdate status pengerjaan jasa instalasi</p>
     </div>
     
     <div class="card-body">
@@ -36,20 +32,24 @@
                 <h3 style="font-size: 15px; font-weight: 600; color: var(--aj-text); margin: 0;">Informasi Jasa</h3>
             </div>
             <div style="display: grid; gap: 12px; font-size: 14px;">
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--aj-divider);">
+                <div style="display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px solid var(--aj-divider);">
                     <span style="color: var(--aj-text-secondary);">No. Jasa</span>
                     <strong style="color: var(--aj-text);">{{ $jasa->no_jasa }}</strong>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--aj-divider);">
+                <div style="display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px solid var(--aj-divider);">
                     <span style="color: var(--aj-text-secondary);">No. Ref</span>
                     <strong style="color: var(--aj-text);">{{ $jasa->no_ref ?? '-' }}</strong>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--aj-divider);">
-                    <span style="color: var(--aj-text-secondary);">Pelanggan</span>
+                <div style="display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px solid var(--aj-divider);">
+                    <span style="color: var(--aj-text-secondary);">Nama Customer</span>
                     <strong style="color: var(--aj-text);">{{ $jasa->pelanggan->nama ?? '-' }}</strong>
                 </div>
+                <div style="display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px solid var(--aj-divider);">
+                    <span style="color: var(--aj-text-secondary);">Kontak</span>
+                    <strong style="color: var(--aj-text);">{{ $jasa->pelanggan->kontak ?? '-' }}</strong>
+                </div>
                 <div style="padding: 8px 0;">
-                    <span style="color: var(--aj-text-secondary); display: block; margin-bottom: 4px;">Alamat</span>
+                    <span style="color: var(--aj-text-secondary); display: block; margin-bottom: 4px;">Alamat Jasa Instalasi</span>
                     <strong style="color: var(--aj-text);">{{ $jasa->alamat ?? $jasa->pelanggan->alamat ?? '-' }}</strong>
                 </div>
                 @if($jasa->jadwal_petugas)
@@ -116,12 +116,17 @@
             <!-- Confirmation -->
             <div class="form-group">
                 <label class="checkbox-label">
-                    <input type="checkbox" 
-                           name="confirm" 
-                           value="1" 
-                           required
-                           id="confirmCheckbox">
-                    <span>Saya menyatakan bahwa pengerjaan jasa ini sudah <strong>selesai dengan baik dan benar</strong> sesuai standar kualitas Artha Jaya.</span>
+                    <div style="align-items: center; display: flex; gap: 15px;">
+                        <input type="checkbox" 
+                               name="confirm" 
+                               value="1" 
+                               required
+                               id="confirmCheckbox">
+                        <span>
+                            Saya menyatakan bahwa pengerjaan jasa ini sudah <strong>selesai.</strong> sesuai standar kualitas Artha Jaya.
+                        </span>
+                        
+                    </div>
                 </label>
                 @error('confirm')
                     <span style="color: var(--aj-error); font-size: 13px; margin-top: 8px; display: block;">{{ $message }}</span>
@@ -132,7 +137,7 @@
                     class="btn-submit" 
                     id="submitBtn"
                     disabled>
-                ✓ Update Status ke "Selesai Dikerjakan"
+                Kirim Hasil Pengerjaan
             </button>
         </form>
     </div>

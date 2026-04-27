@@ -1024,12 +1024,12 @@
             $statuses = [
                 'jasa baru' => [
                     'label' => 'Jasa Baru',
-                    'subtitle' => 'Pesanan jasa baru masuk (CS)',
+                    'subtitle' => 'Jasa & Layanan baru telah masuk (CS)',
                     'step' => 1,
                 ],
                 'terjadwal' => [
                     'label' => 'Terjadwal',
-                    'subtitle' => 'Sudah dijadwalkan (Admin)',
+                    'subtitle' => 'Jasa & Layanan terjadwal (Admin)',
                     'step' => 2,
                 ],
                 'selesai dikerjakan' => [
@@ -1039,7 +1039,7 @@
                 ],
                 'selesai' => [
                     'label' => 'Selesai',
-                    'subtitle' => 'Jasa selesai (CS)',
+                    'subtitle' => 'Jasa & Layanan selesai dikerjakan (CS)',
                     'step' => 4,
                 ],
             ];
@@ -1193,7 +1193,7 @@
                             <ul class="detail-list">
                                 @if($record->pelanggan)
                                 <li class="detail-list-item">
-                                    <span class="detail-item-label">Customer</span>
+                                    <span class="detail-item-label">Nama</span>
                                     <span class="detail-item-value">{{ $record->pelanggan->nama }}</span>
                                 </li>
                                 @if($record->pelanggan?->kontak)
@@ -1204,7 +1204,7 @@
                                 @endif
                                 @if($record->alamat || $record->pelanggan?->alamat)
                                 <li class="detail-list-item">
-                                    <span class="detail-item-label">Alamat</span>
+                                    <span class="detail-item-label">Alamat Jasa Instalasi</span>
                                     <span class="detail-item-value" style="text-align: right; max-width: 300px;">{{ $record->alamat ?? $record->pelanggan?->alamat ?? '-' }}</span>
                                 </li>
                                 @endif
@@ -1270,11 +1270,11 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Waktu
+                                Jadwal Jasa Instalasi
                             </div>
                             <ul class="detail-list">
                                 <li class="detail-list-item">
-                                    <span class="detail-item-label">Jadwal Customer</span>
+                                    <span class="detail-item-label">Penjadawalan Customer</span>
                                     <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y, H:i') : '-' }} WIB</span>
                                 </li>
                                 @if($this->record->jadwal_petugas)
@@ -1401,7 +1401,7 @@
                                 <div>
                                     <div class="update-status-title">Update Status Jasa & Layanan</div>
                                     <p class="update-status-subtitle">
-                                        Status hanya dapat bergerak ke langkah berikutnya.
+                                        Status otomatis bergerak ke langkah berikutnya.
                                     </p>
                                 </div>
                             </div>
@@ -1416,7 +1416,7 @@
                                             <!-- Input Tanggal dan Waktu -->
                                             <div class="terjadwal-field">
                                                 <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                    Tanggal & Waktu Pelaksanaan <span style="color: #dc2626;">*</span>
+                                                    Penjadwalan Jasa Instalasi Petugas <span style="color: #dc2626;">*</span>
                                                 </label>
                                                 <input type="datetime-local"
                                                        wire:model.defer="jadwalPetugas"
@@ -1428,7 +1428,7 @@
                                             <!-- Multi-select Petugas with Tags -->
                                             <div class="terjadwal-field">
                                                 <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
-                                                    Petugas Jasa <span style="color: #dc2626;">*</span>
+                                                    Petugas Jasa Instalasi <span style="color: #dc2626;">*</span>
                                                 </label>
                                                 
                                                 <!-- Custom Multi-Select with Tags -->
@@ -1539,7 +1539,7 @@
                                                     wire:loading.attr="disabled"
                                                     wire:target="updateStatus"
                                                 >
-                                                    Simpan Status
+                                                    Update Status
                                                 </x-filament::button>
                                             </div>
                                         </div>
@@ -1562,14 +1562,14 @@
                                                 wire:target="updateStatus"
                                                 size="lg"
                                             >
-                                                Simpan Status
+                                                Update Status
                                             </x-filament::button>
 
                                             <span class="update-status-helper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                                                 </svg>
-                                                Status akan otomatis berubah ke <strong>{{ $statuses[$nextSequentialStatus]['label'] }}</strong>
+                                                Status otomatis berubah ke <strong>{{ $statuses[$nextSequentialStatus]['label'] }}</strong>
                                             </span>
 
                                             <div class="update-status-loading" wire:loading.flex wire:target="updateStatus">
