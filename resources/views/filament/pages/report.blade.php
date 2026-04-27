@@ -1060,69 +1060,83 @@
         function initDateRangePicker() {
             const dateRangeInput = document.getElementById('date-range-picker');
             
-            if (dateRangeInput && !dateRangeInput._flatpickr) {
-                console.log('Initializing Flatpickr...');
-                
-                // Initialize Flatpickr
-                const fp = flatpickr(dateRangeInput, {
-                    mode: "range",
-                    dateFormat: "Y-m-d",
-                    altInput: true,
-                    altFormat: "d M Y",
-                    locale: "id",
-                    conjunction: " - ",
-                    clickOpens: true,
-                    allowInput: false,
-                    disableMobile: true,
-                    onOpen: function(selectedDates, dateStr, instance) {
-                        console.log('Calendar opened');
-                    },
-                    onClose: function(selectedDates, dateStr, instance) {
-                        console.log('Calendar closed, selected:', dateStr);
-                    },
-                    onChange: function(selectedDates, dateStr, instance) {
-                        console.log('Date changed:', dateStr, selectedDates);
-                        
-                        // Update Livewire component
-                        const wireElement = dateRangeInput.closest('[wire\\:id]') || dateRangeInput.closest('[wire:id]');
-                        if (wireElement) {
-                            const wireId = wireElement.getAttribute('wire:id');
-                            const livewireComponent = Livewire.find(wireId);
+            if (dateRangeInput) {
+                // Only initialize if not already initialized (preserve existing instance and recent selection)
+                if (!dateRangeInput._flatpickr) {
+                    console.log('Initializing Flatpickr...');
+                    
+                    // Initialize Flatpickr
+                    const fp = flatpickr(dateRangeInput, {
+                        mode: "range",
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "d M Y",
+                        locale: "id",
+                        conjunction: " - ",
+                        clickOpens: true,
+                        allowInput: false,
+                        disableMobile: true,
+                        onOpen: function(selectedDates, dateStr, instance) {
+                            console.log('Calendar opened');
+                        },
+                        onClose: function(selectedDates, dateStr, instance) {
+                            console.log('Calendar closed, selected:', dateStr, 'Number of dates:', selectedDates.length);
                             
-                            if (livewireComponent) {
-                                if (dateStr && selectedDates.length === 2) {
-                                    const startDate = selectedDates[0].toISOString().split('T')[0];
-                                    const endDate = selectedDates[1].toISOString().split('T')[0];
+                            // Only trigger Livewire update if we have BOTH start and end dates
+                            if (selectedDates.length === 2) {
+                                const startDate = selectedDates[0].toISOString().split('T')[0];
+                                const endDate = selectedDates[1].toISOString().split('T')[0];
+                                
+                                console.log('Complete range selected:', startDate, 'to', endDate);
+                                
+                                // Update Livewire component to reload table
+                                const wireElement = dateRangeInput.closest('[wire\\:id]') || dateRangeInput.closest('[wire:id]');
+                                if (wireElement) {
+                                    const wireId = wireElement.getAttribute('wire:id');
+                                    const livewireComponent = Livewire.find(wireId);
                                     
-                                    console.log('Setting dates:', startDate, endDate);
-                                    
-                                    // Update the input value first
-                                    dateRangeInput.value = dateStr;
-                                    
-                                    // Call Livewire to update filters and refresh data
-                                    livewireComponent.set('filters.date_range', dateStr);
-                                    livewireComponent.set('filters.start_date', startDate);
-                                    livewireComponent.set('filters.end_date', endDate);
-                                    
-                                    console.log('Filters updated, waiting for Livewire to process...');
-                                } else if (!dateStr || selectedDates.length === 0) {
-                                    console.log('Clearing dates');
-                                    dateRangeInput.value = '';
-                                    livewireComponent.set('filters.date_range', null);
-                                    livewireComponent.set('filters.start_date', null);
-                                    livewireComponent.set('filters.end_date', null);
+                                    if (livewireComponent) {
+                                        livewireComponent.set('filters.date_range', dateStr);
+                                        livewireComponent.set('filters.start_date', startDate);
+                                        livewireComponent.set('filters.end_date', endDate);
+                                        
+                                        console.log('Filters updated with complete range, reloading data...');
+                                    } else {
+                                        console.error('Livewire component not found');
+                                    }
+                                } else {
+                                    console.error('Wire element not found');
                                 }
+                            } else if (selectedDates.length === 1) {
+                                console.log('Only first date selected, waiting for end date...');
+                                // Don't trigger reload yet - user needs to select second date
                             } else {
-                                console.error('Livewire component not found');
+                                console.log('Clearing dates');
+                                // User cleared the dates
+                                const wireElement = dateRangeInput.closest('[wire\\:id]') || dateRangeInput.closest('[wire:id]');
+                                if (wireElement) {
+                                    const wireId = wireElement.getAttribute('wire:id');
+                                    const livewireComponent = Livewire.find(wireId);
+                                    
+                                    if (livewireComponent) {
+                                        livewireComponent.set('filters.date_range', null);
+                                        livewireComponent.set('filters.start_date', null);
+                                        livewireComponent.set('filters.end_date', null);
+                                        
+                                        console.log('Dates cleared, reloading data...');
+                                    }
+                                }
                             }
-                        } else {
-                            console.error('Wire element not found');
+                        },
+                        onChange: function(selectedDates, dateStr, instance) {
+                            console.log('Date changed:', dateStr, 'Number of dates:', selectedDates.length);
+                            // Don't trigger update here - wait for onClose
                         }
-                    }
-                });
-                
-                dateRangeInput._flatpickr = fp;
-                console.log('Flatpickr initialized successfully');
+                    });
+                    
+                    dateRangeInput._flatpickr = fp;
+                    console.log('Flatpickr initialized successfully');
+                }
             }
         }
     </script>
