@@ -716,54 +716,134 @@
         }
     </style>
 
-    {{-- Date Range Picker Styles --}}
-    <style>
-        .date-range-input {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 44px !important;
-        }
-
-        .date-range-input:hover {
-            border-color: var(--aj-report-primary) !important;
-        }
-
-        .date-range-input:focus {
-            border-color: var(--aj-report-primary) !important;
-            box-shadow: 0 0 0 3px var(--aj-report-primary-light) !important;
-        }
-
-        .flatpickr-calendar {
-            border-radius: 12px !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-            border: 1px solid var(--aj-report-card-border) !important;
-        }
-
-        .flatpickr-day.selected,
-        .flatpickr-day.startRange,
-        .flatpickr-day.endRange {
-            background-color: var(--aj-report-primary) !important;
-            border-color: var(--aj-report-primary) !important;
-        }
-
-        .flatpickr-day.inRange {
-            background-color: var(--aj-report-primary-light) !important;
-            border-color: transparent !important;
-            box-shadow: -5px 0 0 var(--aj-report-primary-light), 5px 0 0 var(--aj-report-primary-light) !important;
-        }
-
-        .flatpickr-day.selected.startRange + .flatpickr-day.inRange {
-            box-shadow: -5px 0 0 var(--aj-report-primary-light), 5px 0 0 var(--aj-report-primary-light) !important;
-        }
-    </style>
-
     {{-- Flatpickr CDN --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+    
+    <style>
+        /* Filter Card Content */
+        .report-filter-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        /* Calendar Section */
+        .calendar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .calendar-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--aj-report-text);
+        }
+        
+        .calendar-label svg {
+            flex-shrink: 0;
+            color: var(--aj-report-primary);
+        }
+        
+        /* Inline Calendar Container */
+        /* #inline-calendar-container {
+            background: var(--aj-report-surface);
+            border: 2px solid var(--aj-report-card-border);
+            border-radius: 10px;
+            padding: 16px;
+            display: inline-block;
+            max-width: 100%;
+            overflow-x: auto;
+        } */
+        
+        /* Flatpickr Inline Calendar */
+        #inline-calendar-container .flatpickr-calendar {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 320px;
+        }
+        
+        #inline-calendar-container .flatpickr-days {
+            width: 100% !important;
+        }
+        
+        #inline-calendar-container .dayContainer {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        #inline-calendar-container .flatpickr-day {
+            max-width: 100% !important;
+        }
+        
+        /* Report Actions */
+        .report-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--aj-report-divider);
+        }
+        
+        .report-actions button {
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .report-filter-card {
+                padding: 20px !important;
+            }
+            
+            .report-filter-content {
+                gap: 20px;
+            }
+            
+            #inline-calendar-container {
+                width: 100%;
+                padding: 12px;
+            }
+            
+            #inline-calendar-container .flatpickr-calendar {
+                max-width: 100% !important;
+            }
+            
+            .report-actions {
+                flex-direction: column;
+            }
+            
+            .report-actions button {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .report-filter-card {
+                padding: 16px !important;
+            }
+            
+            .calendar-label {
+                font-size: 13px;
+            }
+            
+            #inline-calendar-container {
+                padding: 10px;
+            }
+        }
+    </style>
 
     <div class="report-page">
         {{-- Filter Section --}}
@@ -777,7 +857,23 @@
                 <h2 class="report-filter-title">Filter Laporan</h2>
             </div>
             
-            {{ $this->filterForm }}
+            <div class="report-filter-content">
+                {{ $this->filterForm }}
+                
+                {{-- Inline Date Range Calendar --}}
+                <div class="calendar-section">
+                    <label class="calendar-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Pilih Rentang Tanggal
+                    </label>
+                    <div id="inline-calendar-container"></div>
+                </div>
+            </div>
             
             <div class="report-actions">
                 <x-filament::button color="gray" wire:click="resetFilters">
@@ -823,7 +919,8 @@
                             Total: {{ $resultCount }} record
                         </span>
                         @if($filters['start_date'] || $filters['end_date'])
-                            <span class="report-period-badge">
+                            <span class="report-period-badge"
+                            style="gap: 8px;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                     <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -1037,125 +1134,169 @@
 
     {{-- Date Range Picker Script --}}
     <script>
+        let flatpickrInstance = null;
+        let selectedDates = [];
+
         document.addEventListener('livewire:initialized', function () {
+            console.log('Livewire initialized, setting up listener');
+            
+            // Listen for Livewire updates
+            Livewire.hook('commit', ({ component, succeed }) => {
+                succeed(() => {
+                    console.log('✓ Livewire update completed, checking calendar...');
+                    setTimeout(() => {
+                        reinitializeCalendarIfNeeded();
+                    }, 100);
+                });
+            });
+            
             setTimeout(() => {
                 initDateRangePicker();
-            }, 300);
+            }, 500);
         });
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 initDateRangePicker();
-            }, 300);
+            }, 500);
         });
 
-        // Listen for clear event
-        document.addEventListener('clear-date-range', function () {
-            const dateRangeInput = document.getElementById('date-range-picker');
-            if (dateRangeInput && dateRangeInput._flatpickr) {
-                dateRangeInput._flatpickr.clear();
-            }
-        });
-
-        function initDateRangePicker() {
-            const dateRangeInput = document.getElementById('date-range-picker');
+        function reinitializeCalendarIfNeeded() {
+            const calendarContainer = document.getElementById('inline-calendar-container');
             
-            if (!dateRangeInput) {
-                console.log('Date range input not found');
+            if (!calendarContainer) {
+                console.log('❌ Calendar container not found for re-initialization');
                 return;
             }
             
-            // Destroy existing instance if exists to allow re-initialization with updated values
-            if (dateRangeInput._flatpickr) {
-                dateRangeInput._flatpickr.destroy();
-                dateRangeInput._flatpickr = null;
-                console.log('Destroyed existing Flatpickr instance');
+            // Check if calendar element exists
+            const calendarElement = calendarContainer.querySelector('.flatpickr-calendar');
+            
+            if (!calendarElement) {
+                console.log('⚠️ Calendar element missing, re-initializing...');
+                initDateRangePicker();
+            } else {
+                console.log('✓ Calendar element still exists, no re-initialization needed');
+            }
+        }
+
+        function initDateRangePicker() {
+            const calendarContainer = document.getElementById('inline-calendar-container');
+            const dateDisplay = document.getElementById('selected-date-display');
+            
+            if (!calendarContainer) {
+                console.log('❌ Calendar container not found');
+                return;
             }
             
-            console.log('Initializing Flatpickr...');
+            // Destroy existing instance if exists
+            if (flatpickrInstance) {
+                try {
+                    flatpickrInstance.destroy();
+                } catch (e) {
+                    // Ignore errors
+                }
+                flatpickrInstance = null;
+            }
             
-            // Get current date range value from the input
-            const currentValue = dateRangeInput.value;
-            console.log('Current date range value:', currentValue);
-            
-            // Initialize Flatpickr with default date if exists
-            const fp = flatpickr(dateRangeInput, {
-                mode: "range",
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d M Y",
-                locale: "id",
-                conjunction: " - ",
-                clickOpens: true,
-                allowInput: false,
-                disableMobile: true,
-                defaultDate: currentValue && currentValue.includes(' - ') ? currentValue.split(' - ') : null,
-                onOpen: function(selectedDates, dateStr, instance) {
-                    console.log('Calendar opened', {
-                        selectedDates: selectedDates,
-                        dateStr: dateStr
-                    });
-                },
-                onClose: function(selectedDates, dateStr, instance) {
-                    console.log('Calendar closed, selected:', dateStr, 'Number of dates:', selectedDates.length);
-                    
-                    // Only trigger Livewire update if we have BOTH start and end dates
-                    if (selectedDates.length === 2) {
-                        const startDate = selectedDates[0].toISOString().split('T')[0];
-                        const endDate = selectedDates[1].toISOString().split('T')[0];
+            // Initialize Inline Flatpickr with previously selected dates if any
+            try {
+                flatpickrInstance = flatpickr(calendarContainer, {
+                    mode: "range",
+                    dateFormat: "Y-m-d",
+                    altInput: false,
+                    inline: true,
+                    locale: "id",
+                    conjunction: " - ",
+                    allowInput: false,
+                    disableMobile: false,
+                    defaultDate: selectedDates.length === 2 ? selectedDates : null,
+                    onChange: function(selectedDatesArg, dateStr, instance) {
+                        selectedDates = selectedDatesArg; // Save selected dates
                         
-                        console.log('Complete range selected:', startDate, 'to', endDate);
-                        
-                        // Update Livewire component to reload table
-                        const wireElement = dateRangeInput.closest('[wire\\:id]') || dateRangeInput.closest('[wire:id]');
-                        if (wireElement) {
-                            const wireId = wireElement.getAttribute('wire:id');
-                            const livewireComponent = Livewire.find(wireId);
+                        // Update display
+                        if (selectedDatesArg.length === 2) {
+                            // Use flatpickr's formatDate to avoid timezone issues
+                            const startDate = instance.formatDate(selectedDatesArg[0], 'Y-m-d');
+                            const endDate = instance.formatDate(selectedDatesArg[1], 'Y-m-d');
                             
-                            if (livewireComponent) {
-                                livewireComponent.set('filters.date_range', dateStr);
-                                livewireComponent.set('filters.start_date', startDate);
-                                livewireComponent.set('filters.end_date', endDate);
+                            // Update display text
+                            if (dateDisplay) {
+                                const startFormatted = selectedDatesArg[0].toLocaleDateString('id-ID', { 
+                                    day: 'numeric', 
+                                    month: 'short', 
+                                    year: 'numeric' 
+                                });
+                                const endFormatted = selectedDatesArg[1].toLocaleDateString('id-ID', { 
+                                    day: 'numeric', 
+                                    month: 'short', 
+                                    year: 'numeric' 
+                                });
+                                dateDisplay.innerHTML = `
+                                    <span style="color: var(--aj-report-primary); font-weight: 600;">
+                                        ✓ ${startFormatted} - ${endFormatted}
+                                    </span>
+                                `;
+                            }
+                            
+                            // Update Livewire
+                            const wireElement = calendarContainer.closest('[wire\\:id]') || calendarContainer.closest('[wire:id]');
+                            if (wireElement) {
+                                const wireId = wireElement.getAttribute('wire:id');
+                                const livewireComponent = Livewire.find(wireId);
                                 
-                                console.log('Filters updated with complete range, reloading data...');
-                            } else {
-                                console.error('Livewire component not found');
+                                if (livewireComponent) {
+                                    livewireComponent.set('filters.date_range', dateStr);
+                                    livewireComponent.set('filters.start_date', startDate);
+                                    livewireComponent.set('filters.end_date', endDate);
+                                    
+                                    // Trigger data reload
+                                    setTimeout(() => {
+                                        livewireComponent.loadPreviewData();
+                                    }, 100);
+                                }
+                            }
+                        } else if (selectedDatesArg.length === 1) {
+                            if (dateDisplay) {
+                                const dateFormatted = selectedDatesArg[0].toLocaleDateString('id-ID', { 
+                                    day: 'numeric', 
+                                    month: 'short', 
+                                    year: 'numeric' 
+                                });
+                                dateDisplay.innerHTML = `
+                                    <span style="color: var(--aj-report-muted);">
+                                        Memilih tanggal awal: ${dateFormatted}... (klik tanggal kedua)
+                                    </span>
+                                `;
                             }
                         } else {
-                            console.error('Wire element not found');
-                        }
-                    } else if (selectedDates.length === 1) {
-                        console.log('Only first date selected, waiting for end date...');
-                        // Don't trigger reload yet - user needs to select second date
-                    } else {
-                        console.log('Clearing dates');
-                        // User cleared the dates
-                        const wireElement = dateRangeInput.closest('[wire\\:id]') || dateRangeInput.closest('[wire:id]');
-                        if (wireElement) {
-                            const wireId = wireElement.getAttribute('wire:id');
-                            const livewireComponent = Livewire.find(wireId);
+                            if (dateDisplay) {
+                                dateDisplay.innerHTML = '';
+                            }
                             
-                            if (livewireComponent) {
-                                livewireComponent.set('filters.date_range', null);
-                                livewireComponent.set('filters.start_date', null);
-                                livewireComponent.set('filters.end_date', null);
+                            // Clear in Livewire
+                            const wireElement = calendarContainer.closest('[wire\\:id]') || calendarContainer.closest('[wire:id]');
+                            if (wireElement) {
+                                const wireId = wireElement.getAttribute('wire:id');
+                                const livewireComponent = Livewire.find(wireId);
                                 
-                                console.log('Dates cleared, reloading data...');
+                                if (livewireComponent) {
+                                    livewireComponent.set('filters.date_range', null);
+                                    livewireComponent.set('filters.start_date', null);
+                                    livewireComponent.set('filters.end_date', null);
+                                    
+                                    // Trigger data reload
+                                    setTimeout(() => {
+                                        livewireComponent.loadPreviewData();
+                                    }, 100);
+                                }
                             }
                         }
                     }
-                },
-                onChange: function(selectedDates, dateStr, instance) {
-                    console.log('Date changed:', dateStr, 'Number of dates:', selectedDates.length);
-                    // Don't trigger update here - wait for onClose
-                }
-            });
-            
-            dateRangeInput._flatpickr = fp;
-            console.log('Flatpickr initialized successfully', {
-                hasDefaultDate: !!fp.selectedDates,
-                selectedDates: fp.selectedDates
-            });
+                });
+            } catch (error) {
+                console.error('Failed to initialize Flatpickr:', error);
+            }
         }
     </script>
 </x-filament-panels::page>

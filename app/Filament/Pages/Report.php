@@ -143,7 +143,7 @@ class Report extends Page implements HasForms
         }
     }
 
-    protected function loadPreviewData(): void
+    public function loadPreviewData(): void
     {
         $user = Auth::user();
         
@@ -258,36 +258,8 @@ class Report extends Page implements HasForms
                         $this->loadPreviewData();
                     })
                     ->placeholder('Pilih jenis laporan'),
-                
-                TextInput::make('date_range')
-                    ->label('Rentang Tanggal')
-                    ->placeholder('Pilih rentang tanggal')
-                    ->hint('Klik untuk memilih tanggal mulai dan akhir')
-                    ->suffixIcon('heroicon-m-calendar')
-                    ->extraInputAttributes([
-                        'class' => 'date-range-input',
-                        'id' => 'date-range-picker',
-                    ])
-                    ->live(debounce: 300)
-                    ->afterStateUpdated(function ($state) {
-                        \Log::info('Date range changed', ['state' => $state]);
-                        
-                        if ($state && strpos($state, ' - ') !== false) {
-                            $dates = explode(' - ', $state);
-                            $this->filters['start_date'] = $dates[0] ?? null;
-                            $this->filters['end_date'] = $dates[1] ?? null;
-                            \Log::info('Dates set', ['start' => $dates[0], 'end' => $dates[1]]);
-                        } else {
-                            $this->filters['start_date'] = null;
-                            $this->filters['end_date'] = null;
-                            \Log::info('Dates cleared');
-                        }
-                        $this->currentPage = 1;
-                        $this->loadPreviewData();
-                        \Log::info('Data loaded', ['count' => $this->resultCount]);
-                    }),
             ])
-            ->columns(2)
+            ->columns(1)
             ->statePath('filters');
     }
 
