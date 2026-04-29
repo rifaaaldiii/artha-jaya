@@ -7,6 +7,7 @@ final class PollChannel
     public const JASA = 'jasa';
     public const PRODUKSI = 'produksi';
     public const DASHBOARD = 'dashboard';
+    public const NAVIGATION_BADGE = 'navigation_badge';
 
     public static function all(): array
     {
@@ -14,6 +15,7 @@ final class PollChannel
             self::JASA,
             self::PRODUKSI,
             self::DASHBOARD,
+            self::NAVIGATION_BADGE,
         ]);
     }
 

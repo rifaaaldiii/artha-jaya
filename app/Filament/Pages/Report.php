@@ -18,6 +18,9 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Notifications\Notification;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProduksiReportExport;
+use App\Exports\JasaReportExport;
 
 class Report extends Page implements HasForms
 {
@@ -38,6 +41,7 @@ class Report extends Page implements HasForms
     // Properties for list view
     public array $filters = [
         'report_type' => 'jasa',
+        'branch' => null,
         'start_date' => null,
         'end_date' => null,
         'date_range' => null,
@@ -78,6 +82,13 @@ class Report extends Page implements HasForms
             $this->loadReportData();
         } else {
             $this->filters['report_type'] = $this->reportType;
+            
+            // Auto-select branch if user has branch assigned
+            $user = Auth::user();
+            if ($user && $user->branch) {
+                $this->filters['branch'] = $user->branch;
+            }
+            
             $this->loadPreviewData();
         }
 
@@ -163,8 +174,12 @@ class Report extends Page implements HasForms
                 $this->resultCount = 0;
                 return;
             }
+        } else {
+            // administrator and superadmin can filter by branch if selected
+            if (!empty($this->filters['branch'])) {
+                $query->where('branch', $this->filters['branch']);
+            }
         }
-        // administrator and superadmin can see all data (no branch filter)
 
         // Apply date filters
         if (!empty($this->filters['start_date'])) {
@@ -239,6 +254,8 @@ class Report extends Page implements HasForms
 
     public function filterForm(Schema $form): Schema
     {
+        $user = Auth::user();
+        
         return $form
             ->schema([
                 Select::make('report_type')
@@ -258,15 +275,37 @@ class Report extends Page implements HasForms
                         $this->loadPreviewData();
                     })
                     ->placeholder('Pilih jenis laporan'),
+                Select::make('branch')
+                    ->label('Branch')
+                    ->options(function () {
+                        return [
+                            'AJP' => 'AJP',
+                            'AJC' => 'AJC',
+                            'AJK' => 'AJK',
+                            'AJR' => 'AJR',
+                        ];
+                    })
+                    ->live()
+                    ->afterStateUpdated(function ($state) {
+                        $this->filters['branch'] = $state;
+                        $this->currentPage = 1;
+                        $this->loadPreviewData();
+                    })
+                    ->placeholder('Pilih branch')
+                    ->default(fn () => $user && $user->branch ? $user->branch : null)
+                    ->disabled(fn () => $user && $user->branch !== null),
             ])
-            ->columns(1)
+            ->columns(2)
             ->statePath('filters');
     }
 
     public function resetFilters(): void
     {
+        $user = Auth::user();
+        
         $this->filters = [
             'report_type' => 'jasa',
+            'branch' => $user && $user->branch ? $user->branch : null,
             'start_date' => null,
             'end_date' => null,
             'date_range' => null,
@@ -275,8 +314,8 @@ class Report extends Page implements HasForms
         $this->loadPreviewData();
         $this->filterForm->fill($this->filters);
         
-        // Dispatch event to clear date picker
-        $this->dispatch('clear-date-range');
+        // Dispatch event to destroy and recreate calendar
+        $this->dispatch('destroy-calendar');
     }
 
     public function applyFilters(): void
@@ -586,6 +625,37 @@ class Report extends Page implements HasForms
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    public function downloadFilteredExcel()
+    {
+        $user = Auth::user();
+        
+        // Apply role-based filtering
+        if ($user && $user->role === 'admin_toko') {
+            if (!$user->branch) {
+                Notification::make()
+                    ->title('Tidak ada data')
+                    ->body('Anda tidak memiliki branch yang ditetapkan.')
+                    ->warning()
+                    ->send();
+                return;
+            }
+        }
+
+        $startDate = $this->filters['start_date'] ?? null;
+        $endDate = $this->filters['end_date'] ?? null;
+        $branch = $this->filters['branch'] ?? null;
+
+        if ($this->filters['report_type'] === 'produksi') {
+            $export = new ProduksiReportExport($startDate, $endDate, $branch);
+            $filename = "Laporan-Produksi-" . now()->format('Y-m-d') . ".xlsx";
+        } else {
+            $export = new JasaReportExport($startDate, $endDate, $branch);
+            $filename = "Laporan-Jasa-" . now()->format('Y-m-d') . ".xlsx";
+        }
+
+        return Excel::download($export, $filename);
     }
 
     public function previousPage(): void

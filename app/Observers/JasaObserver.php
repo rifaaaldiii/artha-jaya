@@ -13,7 +13,7 @@ class JasaObserver
 {
     public function saved(Jasa $jasa): void
     {
-        PollTriggerStore::bump([PollChannel::JASA, PollChannel::DASHBOARD]);
+        PollTriggerStore::bump([PollChannel::JASA, PollChannel::DASHBOARD, PollChannel::NAVIGATION_BADGE]);
         
         // Send WhatsApp notification
         $this->sendWhatsAppNotification($jasa);
@@ -21,7 +21,7 @@ class JasaObserver
 
     public function deleted(Jasa $jasa): void
     {
-        PollTriggerStore::bump([PollChannel::JASA, PollChannel::DASHBOARD]);
+        PollTriggerStore::bump([PollChannel::JASA, PollChannel::DASHBOARD, PollChannel::NAVIGATION_BADGE]);
     }
 
     /**

@@ -13,6 +13,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\Attributes\Computed;
 
 class Progress extends Page implements HasForms
 {
@@ -132,8 +133,8 @@ class Progress extends Page implements HasForms
                             ->with('items')
                             ->where('status', '!=', 'selesai');
 
-                        // Filter by branch for non-administrator users
-                        if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+                        // Filter by branch: if user has branch, filter by it; otherwise fetch all
+                        if ($user->branch) {
                             $query->where('branch', $user->branch);
                         }
 
@@ -166,8 +167,8 @@ class Progress extends Page implements HasForms
                             ->with('items')
                             ->where('status', '!=', 'selesai');
 
-                        // Filter by branch for non-administrator users
-                        if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
+                        // Filter by branch: if user has branch, filter by it; otherwise fetch all
+                        if ($user->branch) {
                             $query->where('branch', $user->branch);
                         }
 
@@ -201,7 +202,19 @@ class Progress extends Page implements HasForms
                     })
                     ->preload()
                     ->getOptionLabelUsing(function ($value): ?string {
-                        $produksi = Produksi::with('items')->find($value);
+                        $user = Auth::user();
+                        if (!$user) {
+                            return null;
+                        }
+
+                        $query = Produksi::with('items');
+                        
+                        // Filter by branch: if user has branch, filter by it
+                        if ($user->branch) {
+                            $query->where('branch', $user->branch);
+                        }
+                        
+                        $produksi = $query->find($value);
                         if (!$produksi) return null;
                         
                         $itemsInfo = '';
@@ -473,6 +486,10 @@ class Progress extends Page implements HasForms
         // Refresh the record and dispatch event instead of full reload
         $this->refresh();
         $this->dispatch('$refresh');
+        
+        // Dispatch event to refresh navigation badge globally
+        $this->dispatch('refresh-navigation-badge');
+        
         \Log::info('=== UPDATE COMPLETE ===');
     }
 
@@ -542,6 +559,17 @@ class Progress extends Page implements HasForms
     }
     public static function getNavigationBadge(): ?string
     {
+        return static::getNavigationBadgeCount();
+    }
+
+    #[Computed]
+    public function navigationBadgeCount(): ?string
+    {
+        return static::getNavigationBadgeCount();
+    }
+
+    protected static function getNavigationBadgeCount(): ?string
+    {
         $user = Auth::user();
         if (!$user) {
             return null;
@@ -591,6 +619,12 @@ class Progress extends Page implements HasForms
             ->count();
 
         return $count > 0 ? (string) $count : null;
+    }
+
+    #[On('refresh-navigation-badge')]
+    public function refreshNavigationBadge(): void
+    {
+        $this->dispatch('$refresh');
     }
 
     public static function getNavigationBadgeColor(): ?string

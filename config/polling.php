@@ -7,12 +7,14 @@ return [
         'jasa',
         'produksi',
         'dashboard',
+        'navigation_badge',
     ],
 
     'events' => [
         'jasa' => ['aj-refresh-jasa'],
         'produksi' => ['aj-refresh-produksi'],
         'dashboard' => ['aj-refresh-dashboard'],
+        'navigation_badge' => ['refresh-navigation-badge'],
     ],
 ];
 

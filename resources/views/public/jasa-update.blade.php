@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Update Status Jasa - ' . ($jasa->no_jasa ?? 'Artha Jaya'))
+@section('title', 'Jasa & Layanan - ' . ($jasa->no_jasa ?? 'Artha Jaya Mas'))
 
 {{-- @section('subtitle', 'Update Status Pengerjaan') --}}
 
@@ -29,7 +29,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px; color: var(--aj-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 style="font-size: 15px; font-weight: 600; color: var(--aj-text); margin: 0;">Informasi Jasa</h3>
+                <h3 style="font-size: 15px; font-weight: 600; color: var(--aj-text); margin: 0;">Informasi Jasa & Layanan</h3>
             </div>
             <div style="display: grid; gap: 12px; font-size: 14px;">
                 <div style="display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px solid var(--aj-divider);">
@@ -51,6 +51,10 @@
                 <div style="padding: 8px 0;">
                     <span style="color: var(--aj-text-secondary); display: block; margin-bottom: 4px;">Alamat Jasa Instalasi</span>
                     <strong style="color: var(--aj-text);">{{ $jasa->alamat ?? $jasa->pelanggan->alamat ?? '-' }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--aj-bg); border-radius: 6px; margin-top: 8px;">
+                    <span style="color: #bf2626; font-weight: 500;">Catatan</span>
+                    <strong style="color: #bf2626;">{{ $jasa->catatan ?? '-' }}</strong>
                 </div>
                 @if($jasa->jadwal_petugas)
                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--aj-primary-light); border-radius: 6px; margin-top: 8px;">

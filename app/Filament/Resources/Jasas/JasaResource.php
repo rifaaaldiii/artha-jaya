@@ -93,7 +93,15 @@ class JasaResource extends Resource
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->withCount('items');
+        $query = parent::getEloquentQuery()->withCount('items');
+        
+        // Apply branch filtering based on authenticated user
+        $user = Auth::user();
+        if ($user && $user->branch) {
+            $query->where('branch', $user->branch);
+        }
+        
+        return $query;
     }
 
     public static function getPages(): array

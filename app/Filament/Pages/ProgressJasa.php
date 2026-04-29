@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Computed;
 
 class ProgressJasa extends Page implements HasForms
 {
@@ -147,8 +148,8 @@ class ProgressJasa extends Page implements HasForms
                             ->with(['pelanggan', 'items'])
                             ->where('status', '!=', 'selesai');
 
-                        // Filter by branch for admin_toko users
-                        if ($user->role === 'admin_toko' && $user->branch) {
+                        // Filter by branch: if user has branch, filter by it; otherwise fetch all
+                        if ($user->branch) {
                             $query->where('branch', $user->branch);
                         }
 
@@ -182,8 +183,8 @@ class ProgressJasa extends Page implements HasForms
                             ->with(['pelanggan', 'items'])
                             ->where('status', '!=', 'selesai');
 
-                        // Filter by branch for admin_toko users
-                        if ($user->role === 'admin_toko' && $user->branch) {
+                        // Filter by branch: if user has branch, filter by it; otherwise fetch all
+                        if ($user->branch) {
                             $query->where('branch', $user->branch);
                         }
 
@@ -220,7 +221,19 @@ class ProgressJasa extends Page implements HasForms
                     })
                     ->preload()
                     ->getOptionLabelUsing(function ($value): ?string {
-                        $jasa = Jasa::with(['pelanggan', 'items'])->find($value);
+                        $user = Auth::user();
+                        if (!$user) {
+                            return null;
+                        }
+
+                        $query = Jasa::with(['pelanggan', 'items']);
+                        
+                        // Filter by branch: if user has branch, filter by it
+                        if ($user->branch) {
+                            $query->where('branch', $user->branch);
+                        }
+                        
+                        $jasa = $query->find($value);
                         if (!$jasa) return null;
                         
                         $customerName = $jasa->pelanggan?->nama ?? 'No Customer';
@@ -531,11 +544,29 @@ class ProgressJasa extends Page implements HasForms
         // Refresh the record and dispatch event instead of full reload
         $this->refresh();
         $this->dispatch('$refresh');
+        
+        // Dispatch event to refresh navigation badge globally
+        $this->dispatch('refresh-navigation-badge');
     }
 
     protected function getAllowedStatusesForRole(): array
     {
         $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
+
+        $roleStatusMap = [
+            'admin_toko' => ['jasa baru'],
+            'superadmin' => ['terjadwal', 'selesai'],
+            'kepala_lapangan' => ['selesai dikerjakan'],
+            'administrator' => self::STATUS_FLOW,
+        ];
+
+        return $roleStatusMap[$normalizedRole] ?? [];
+    }
+
+    protected static function getAllowedStatusesForRoleStatic(): array
+    {
+        $user = Auth::user();
+        $normalizedRole = str_replace(' ', '_', strtolower($user?->role ?? ''));
 
         $roleStatusMap = [
             'admin_toko' => ['jasa baru'],
@@ -570,8 +601,61 @@ class ProgressJasa extends Page implements HasForms
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Jasa::where('status', '!=', 'selesai')->count();
+        return static::getNavigationBadgeCount();
+    }
+
+    #[Computed]
+    public function navigationBadgeCount(): ?string
+    {
+        return static::getNavigationBadgeCount();
+    }
+
+    protected static function getNavigationBadgeCount(): ?string
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return null;
+        }
+
+        // Check if user has permission to update status
+        $allowedStatuses = self::getAllowedStatusesForRoleStatic();
+        
+        // If user cannot update any status, hide the badge
+        if (empty($allowedStatuses)) {
+            return null;
+        }
+
+        // Build query for counting jasas
+        $query = Jasa::query()
+            ->where('status', '!=', 'selesai');
+
+        // Filter by branch: if user has branch, filter by it; otherwise fetch all
+        if ($user->branch) {
+            $query->where('branch', $user->branch);
+        }
+
+        $statusFlow = self::STATUS_FLOW;
+        
+        $count = $query->get()
+            ->filter(function ($jasa) use ($statusFlow, $allowedStatuses) {
+                $currentStatus = $jasa->status;
+                $currentIndex = array_search($currentStatus, $statusFlow, true);
+                if ($currentIndex === false) {
+                    return false;
+                }
+
+                $nextStatus = $statusFlow[$currentIndex + 1] ?? null;
+                return $nextStatus && in_array($nextStatus, $allowedStatuses, true);
+            })
+            ->count();
+
         return $count > 0 ? (string) $count : null;
+    }
+
+    #[On('refresh-navigation-badge')]
+    public function refreshNavigationBadge(): void
+    {
+        $this->dispatch('$refresh');
     }
 
     public static function getNavigationBadgeColor(): ?string

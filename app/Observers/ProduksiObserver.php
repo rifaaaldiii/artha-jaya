@@ -14,7 +14,7 @@ class ProduksiObserver
 {
     public function saved(Produksi $produksi): void
     {
-        PollTriggerStore::bump([PollChannel::PRODUKSI, PollChannel::DASHBOARD]);
+        PollTriggerStore::bump([PollChannel::PRODUKSI, PollChannel::DASHBOARD, PollChannel::NAVIGATION_BADGE]);
         
         // Update team order based on active produksis count
         $this->updateTeamOrder($produksi);
@@ -25,7 +25,7 @@ class ProduksiObserver
 
     public function deleted(Produksi $produksi): void
     {
-        PollTriggerStore::bump([PollChannel::PRODUKSI, PollChannel::DASHBOARD]);
+        PollTriggerStore::bump([PollChannel::PRODUKSI, PollChannel::DASHBOARD, PollChannel::NAVIGATION_BADGE]);
         
         // Update team order when produksi is deleted
         if ($produksi->team_id) {
