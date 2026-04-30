@@ -76,7 +76,7 @@
     .aj-calendar-month-year {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
     }
 
     .aj-calendar-select {
@@ -95,6 +95,18 @@
         background-position: right 8px center;
         background-repeat: no-repeat;
         background-size: 16px;
+    }
+
+    .aj-calendar-select option {
+        max-height: 20px;
+        outline: none;
+        overflow: hidden;
+        border-color: var(--aj-cal-primary);
+        box-shadow: 0 0 0 3px var(--aj-cal-primary-light);
+    }
+
+    .aj-calendar-select::-webkit-scrollbar {
+        display: none;
     }
 
     .aj-calendar-select:hover {
@@ -262,7 +274,7 @@
                 </template>
             </select>
             
-            <select x-model="year" @change="updateCalendar()" class="aj-calendar-select" aria-label="Select year">
+            <select x-model="year" @change="updateCalendar()" class="aj-calendar-select" aria-label="Select year" style="max-height: 150px; overflow-y: hidden;">
                 <template x-for="y in yearRange" :key="y">
                     <option :value="y" x-text="y"></option>
                 </template>
@@ -333,9 +345,10 @@
             dayNames: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
             
             get yearRange() {
-                // Custom range: 2000 to 2050 (50 years)
+                // Dynamic range: current year - 10 to current year + 10
+                const currentYear = new Date().getFullYear();
                 const years = [];
-                for (let i = 2000; i <= 2050; i++) {
+                for (let i = currentYear - 10; i <= currentYear + 10; i++) {
                     years.push(i);
                 }
                 return years;
