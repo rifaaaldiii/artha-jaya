@@ -108,7 +108,8 @@ class ProgressJasa extends Page implements HasForms
         if ($selectedJasaId) {
             $this->selectedJasaId = (int) $selectedJasaId;
         } else {
-            $this->selectedJasaId = Jasa::orderBy('createdAt', 'desc')->value('id');
+            // Don't auto-select - let user choose manually
+            $this->selectedJasaId = null;
         }
 
         $this->loadRecord();
@@ -554,7 +555,7 @@ class ProgressJasa extends Page implements HasForms
         $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
 
         $roleStatusMap = [
-            'admin_toko' => ['jasa baru'],
+            'admin_toko' => ['jasa baru', 'selesai'],
             'superadmin' => ['terjadwal', 'selesai'],
             'kepala_lapangan' => ['selesai dikerjakan'],
             'administrator' => self::STATUS_FLOW,
@@ -569,7 +570,7 @@ class ProgressJasa extends Page implements HasForms
         $normalizedRole = str_replace(' ', '_', strtolower($user?->role ?? ''));
 
         $roleStatusMap = [
-            'admin_toko' => ['jasa baru'],
+            'admin_toko' => ['jasa baru', 'selesai'],
             'superadmin' => ['terjadwal', 'selesai'],
             'kepala_lapangan' => ['selesai dikerjakan'],
             'administrator' => self::STATUS_FLOW,

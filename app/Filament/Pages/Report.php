@@ -343,6 +343,12 @@ class Report extends Page implements HasForms
         $this->loadPreviewData();
     }
 
+    public function updatedSearchQuery(): void
+    {
+        $this->currentPage = 1;
+        $this->loadPreviewData();
+    }
+
     public function openInvoice(string $number, ?string $type = null)
     {
         // Gunakan type dari parameter atau dari filters

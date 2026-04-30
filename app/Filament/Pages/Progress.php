@@ -77,24 +77,9 @@ class Progress extends Page implements HasForms
             $this->selectedProduksiId = (int) $selectedProduksiId;
             $this->loadRecord();
         } else {
-            $user = Auth::user();
-            if (!$user) {
-                return;
-            }
-
-            // Get first produksi based on user role and branch
-            $query = Produksi::query()->orderBy('createdAt', 'desc');
-            
-            // Filter by branch for non-administrator users
-            if (!in_array($user->role, ['administrator', 'superadmin'], true)) {
-                $query->where('branch', $user->branch);
-            }
-
-            $firstProduksi = $query->first();
-            if ($firstProduksi) {
-                $this->selectedProduksiId = $firstProduksi->id;
-                $this->loadRecord();
-            }
+            // Don't auto-select - let user choose manually
+            $this->selectedProduksiId = null;
+            $this->record = null;
         }
 
         $this->produksiForm->fill([

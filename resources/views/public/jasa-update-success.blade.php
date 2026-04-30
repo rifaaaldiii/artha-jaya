@@ -12,7 +12,7 @@
     
     <p>
         Status pengerjaan <strong>{{ $jasa->no_jasa }}</strong> telah berhasil diperbarui<br>
-        <strong style="color: var(--aj-primary); font-size: 18px; display: inline-block; margin-top: 8px;">✓ Selesai Dikerjakan</strong>
+        <strong style="color: var(--aj-primary); font-size: 18px; display: inline-block; margin-top: 8px;">Selesai Dikerjakan</strong>
     </p>
     
     <p style="margin-top: 16px;">Terima kasih telah mengupdate status pengerjaan.</p>

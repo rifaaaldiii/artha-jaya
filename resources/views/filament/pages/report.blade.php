@@ -240,19 +240,19 @@
             top: 50%;
             transform: translateY(-50%);
             padding: 8px 16px;
-            background: var(--aj-report-soft-bg);
-            border: 2px solid var(--aj-report-card-border);
+            background: #fee2e2;
+            border: 2px solid #ef4444;
             border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
-            color: var(--aj-report-muted);
+            color: #dc2626;
             transition: all 0.2s ease;
         }
 
         .aj-search-clear:hover {
-            background: var(--aj-report-card-border);
-            color: var(--aj-report-text);
+            background: #ef4444;
+            color: #ffffff;
         }
 
         /* Table */
@@ -672,13 +672,13 @@
                         </svg>
                         <input type="text"
                                wire:model.live.debounce.300ms="searchQuery"
-                               placeholder="Cari no, pelanggan, status..."
+                               placeholder="Search"
                                class="aj-search-input">
                         
                         @if(!empty($searchQuery))
-                        <button wire:click="$set('searchQuery', ''); loadPreviewData()"
+                        <button wire:click="$set('searchQuery', ''); $wire.loadPreviewData()"
                                 class="aj-search-clear">
-                            Clear
+                            X
                         </button>
                         @endif
                     </div>
