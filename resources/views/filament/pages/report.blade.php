@@ -921,10 +921,6 @@
         /* Inline Calendar Container */
         #inline-calendar-container {
             width: 100%;
-            /* background: var(--aj-report-surface);
-            border: 2px solid var(--aj-report-card-border);
-            border-radius: 12px;
-            padding: 20px; */
             overflow: hidden;
             transition: all 0.2s ease;
             box-shadow: var(--aj-report-shadow);
