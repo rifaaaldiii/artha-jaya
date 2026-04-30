@@ -32,11 +32,6 @@ class Report extends Page implements HasForms
     protected static ?string $navigationLabel = 'Report';
     protected static ?int $navigationSort = 10;
 
-    public function __construct()
-    {
-        $this->calendarCurrentYear = date('Y'); // Set default to current year
-    }
-
     public ?string $reportType = 'jasa';
     public ?string $singleNumber = null;
     public ?string $format = 'report'; // 'report' or 'invoice'
@@ -51,12 +46,6 @@ class Report extends Page implements HasForms
         'end_date' => null,
         'date_range' => null,
     ];
-
-    // Calendar state
-    public ?string $calendarStartDate = null;
-    public ?string $calendarEndDate = null;
-    public int $calendarCurrentMonth = 1; // Default January
-    public int $calendarCurrentYear; // Will be set in constructor
 
     public array $previewRows = [];
     public int $resultCount = 0;
@@ -99,10 +88,6 @@ class Report extends Page implements HasForms
             if ($user && $user->branch) {
                 $this->filters['branch'] = $user->branch;
             }
-            
-            // Initialize calendar to January of current year
-            $this->calendarCurrentMonth = $this->calendarCurrentMonth ?? 1; // January
-            $this->calendarCurrentYear = $this->calendarCurrentYear ?? date('Y'); // Current year
             
             $this->loadPreviewData();
         }
@@ -325,16 +310,12 @@ class Report extends Page implements HasForms
             'end_date' => null,
             'date_range' => null,
         ];
-        
-        // Reset calendar state
-        $this->calendarStartDate = null;
-        $this->calendarEndDate = null;
-        $this->calendarCurrentMonth = 1; // January
-        $this->calendarCurrentYear = date('Y'); // Current year
-        
         $this->currentPage = 1;
         $this->loadPreviewData();
         $this->filterForm->fill($this->filters);
+        
+        // Dispatch event to destroy and recreate calendar
+        $this->dispatch('destroy-calendar');
     }
 
     public function applyFilters(): void
