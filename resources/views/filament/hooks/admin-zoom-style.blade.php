@@ -26,6 +26,7 @@
     
     .fi-global-search-field {
         width: 350px;
+        /* max-width: calc(100vw - 600px); */
     }
 
     .fi-page {
@@ -61,11 +62,10 @@
     }
 
     .fi-dropdown-panel {
-        /* right: 0; */
-        left: none !important;
-        top: 50px !important;
+        left: auto !important;
+        right: 20px !important;
+        top: 53px !important;
         zoom: 100%;
-        left: 1440px !important;
     }
 
     /* Responsive adjustments */
@@ -77,10 +77,15 @@
             zoom: 90%;
         }
 
+        .fi-global-search-field {
+            width: 300px;
+            /* max-width: calc(100vw - 400px); */
+        }
+        
         .fi-dropdown-panel {
-            /* right: 0; */
-            left: 1045px !important;
-            top: 50px !important;
+            left: auto !important;
+            right: 20px !important;
+            top: 65px !important;
             zoom: 80%;
         }
     }
@@ -97,11 +102,14 @@
             padding: 0 10px;
         }
         .fi-global-search-field {
-        width: 270px;
+            width: 270px;
+            /* max-width: calc(100vw - 300px); */
         }
+        
         .fi-dropdown-panel {
-            left: 140px !important;
-            top: 50px !important;
+            left: auto !important;
+            right: 20px !important;
+            top: 65px !important;
         }
     }
 </style>

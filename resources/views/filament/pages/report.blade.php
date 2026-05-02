@@ -158,7 +158,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-bottom: 20px;
+        }
+
+        .aj-badges-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .aj-main-title {
@@ -177,12 +186,14 @@
         .aj-count-badge {
             display: inline-flex;
             align-items: center;
+            gap: 6px;
             padding: 6px 14px;
             background: var(--aj-report-primary-light);
             color: var(--aj-report-primary-dark);
             border-radius: 9999px;
             font-size: 14px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .aj-period-badge {
@@ -195,6 +206,10 @@
             border-radius: 9999px;
             font-size: 13px;
             font-weight: 500;
+            white-space: nowrap;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Search Input */
@@ -536,6 +551,26 @@
                 gap: 12px;
             }
 
+            .aj-badges-container {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .aj-count-badge,
+            .aj-period-badge {
+                font-size: 12px;
+                padding: 5px 12px;
+                flex-shrink: 0;
+            }
+
+            .aj-period-badge {
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
             .aj-table th,
             .aj-table td {
                 padding: 12px 16px;
@@ -622,7 +657,7 @@
                             @endif
                         </h2>
                         
-                        <div style="display: flex; gap: 12px; align-items: center;">
+                        <div class="aj-badges-container">
                             <span class="aj-count-badge">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>

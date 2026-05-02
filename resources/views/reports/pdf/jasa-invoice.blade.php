@@ -342,9 +342,9 @@
         </div>
         
         <!-- Document Number -->
-        <div class="referensi-number">
+        <!-- <div class="referensi-number">
             No. Referensi: <strong>{{ $row['no_ref'] ?? '-' }}</strong>
-        </div>
+        </div> -->
         <div class="referensi-number">
             <strong>Serang, {{ $generatedAt->timezone(config('app.timezone','Asia/Jakarta'))->format('d/m/Y') }}</strong>
         </div>
@@ -359,12 +359,12 @@
                         <span class="info-value">: {{ $row['number'] ?? '-' }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Instalasi</span>
-                        <span class="info-value">: {{ $row['scheduled_at'] ?? '-' }}</span>
-                    </div>
-                    <div class="info-item">
                         <span class="info-label">Branch</span>
                         <span class="info-value">: {{ $row['branch'] ?? '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">No. Referensi</span>
+                        <span class="info-value">: {{ $row['no_ref'] ?? '-' }}</span>
                     </div>
                 </div>
                 

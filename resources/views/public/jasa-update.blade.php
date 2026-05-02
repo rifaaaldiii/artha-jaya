@@ -92,7 +92,7 @@
                             </svg>
                         </div>
                         <p>Klik atau drag foto ke sini</p>
-                        <small>Format: JPG, PNG, WEBP (Max 2MB per file)</small>
+                        <small>Format: JPG, PNG, WEBP (Max 5MB per file)</small>
                     </div>
                 </div>
                 <div class="image-preview" id="imagePreview"></div>

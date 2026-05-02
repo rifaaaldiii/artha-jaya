@@ -299,7 +299,7 @@ class ProgressJasa extends Page implements HasForms
                     ->disk('public_html_progress')
                     ->directory('jasa')
                     ->visibility('public')
-                    ->maxSize(2048)
+                    ->maxSize(5120)
                     ->maxFiles(10)
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp'])
                     ->downloadable()
