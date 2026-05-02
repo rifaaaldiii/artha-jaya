@@ -1,18 +1,36 @@
 <style>
     /* Apply zoom to entire Filament admin interface */
-    /* .fi-sidebar, */
     .fi-topbar,
     .fi-header,
-    /* .fi-page, */
     .fi-main,
+    .fi-login,
     .fi-resource-page {
         zoom: 80%;
     }
+
+    /* Ensure user menu/profile is positioned on the right side of topbar */
+    .fi-topbar-end {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin-left: auto !important;
+    }
+    
+    .fi-user-menu .show {
+        margin-left: auto;
+    }
+    .fi-user-menu {
+        margin-left: auto;
+    }
+    
+    
+    .fi-global-search-field {
+        width: 350px;
+    }
+
     .fi-page {
-        /* border: 1px solid #ccc; */
         zoom: 80%;
         width: 100%;
-        /* margin-left: -37px; */
     }
 
     /* Sidebar navigation */
@@ -24,7 +42,6 @@
         height: 100vh;
         zoom: 65%;
     }
-
 
     /* Tables and content */
     .fi-table {
@@ -43,6 +60,14 @@
         overflow-x: auto;
     }
 
+    .fi-dropdown-panel {
+        /* right: 0; */
+        left: none !important;
+        top: 50px !important;
+        zoom: 100%;
+        left: 1440px !important;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 1024px) {
         .fi-main,
@@ -50,6 +75,13 @@
         .fi-page,
         .fi-header {
             zoom: 90%;
+        }
+
+        .fi-dropdown-panel {
+            /* right: 0; */
+            left: 1045px !important;
+            top: 50px !important;
+            zoom: 80%;
         }
     }
 
@@ -63,6 +95,13 @@
         }
         .fi-main {
             padding: 0 10px;
+        }
+        .fi-global-search-field {
+        width: 270px;
+        }
+        .fi-dropdown-panel {
+            left: 140px !important;
+            top: 50px !important;
         }
     }
 </style>
