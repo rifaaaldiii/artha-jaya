@@ -55,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 \App\Filament\Widgets\CustomInfoWidget::class,
+                \App\Filament\Widgets\ScheduleCalendarWidget::class,
             ])
             ->renderHook(
                 PanelsRenderHook::BODY_END,
