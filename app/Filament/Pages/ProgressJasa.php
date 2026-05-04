@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +46,19 @@ class ProgressJasa extends Page implements HasForms
     public array $imageData = [];
     public array $terjadwalData = [];
     public array $data = [];
+
+    #[Computed]
+    public function disabledJadwalDates(): array
+    {
+        return Jasa::whereNotNull('jadwal_petugas')
+            ->when($this->record, fn ($query) => $query->where('id', '!=', $this->record->id))
+            ->pluck('jadwal_petugas')
+            ->filter()
+            ->map(fn ($date) => \Carbon\Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 
     public static function getNavigationGroup(): ?string
     {
@@ -407,6 +421,22 @@ class ProgressJasa extends Page implements HasForms
                         ->title('Form terjadwal belum lengkap')
                         ->danger()
                         ->body('Silakan isi jadwal dan pilih petugas.')
+                        ->send();
+                    return;
+                }
+
+                // Validate disabled dates - prevent scheduling on already booked dates
+                $jadwalDate = \Carbon\Carbon::parse($jadwalPetugas)->format('Y-m-d');
+                $conflictExists = Jasa::whereNotNull('jadwal_petugas')
+                    ->where('id', '!=', $this->record->id)
+                    ->get()
+                    ->contains(fn ($jasa) => \Carbon\Carbon::parse($jasa->jadwal_petugas)->format('Y-m-d') === $jadwalDate);
+
+                if ($conflictExists) {
+                    Notification::make()
+                        ->title('Tanggal sudah terjadwal')
+                        ->danger()
+                        ->body('Tanggal ' . \Carbon\Carbon::parse($jadwalPetugas)->format('d/m/Y') . ' sudah memiliki jadwal petugas. Silakan pilih tanggal lain.')
                         ->send();
                     return;
                 }

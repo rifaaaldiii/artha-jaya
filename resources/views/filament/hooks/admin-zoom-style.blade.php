@@ -26,7 +26,6 @@
     
     .fi-global-search-field {
         width: 350px;
-        /* max-width: calc(100vw - 600px); */
     }
 
     .fi-page {
@@ -68,6 +67,28 @@
         zoom: 100%;
     }
 
+    .fi-fo-date-time-picker-panel {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        z-index: 9999 !important;
+    }
+
+    /* Disabled dates in calendar picker - red color */
+    .fi-fo-date-time-picker-calendar-day.fi-disabled {
+        color: #ef4444 !important;
+        /* text-decoration: line-through !important; */
+        cursor: not-allowed !important;
+        opacity: 1 !important;
+    }
+
+    /* Wrapper for date-time picker to allow panel flow below input */
+    .fi-fo-date-time-picker {
+        position: relative;
+    }
+
+    
+
     /* Responsive adjustments */
     @media (max-width: 1024px) {
         .fi-main,
@@ -79,9 +100,8 @@
 
         .fi-global-search-field {
             width: 300px;
-            /* max-width: calc(100vw - 400px); */
         }
-        
+
         .fi-dropdown-panel {
             left: auto !important;
             right: 20px !important;
@@ -103,9 +123,12 @@
         }
         .fi-global-search-field {
             width: 270px;
-            /* max-width: calc(100vw - 300px); */
         }
-        
+
+        .fi-fo-date-time-picker-panel {
+            zoom: 100%;
+        }
+
         .fi-dropdown-panel {
             left: auto !important;
             right: 20px !important;

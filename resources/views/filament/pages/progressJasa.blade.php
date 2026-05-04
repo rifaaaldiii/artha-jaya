@@ -735,6 +735,53 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* Custom Datepicker Styles */
+        .datepicker-calendar { 
+            background: var(--aj-select-bg); 
+            border: 1px solid var(--aj-card-border); 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,.15), 0 8px 10px -6px rgba(0,0,0,.1); 
+            padding: 14px; 
+            z-index: 99999;
+        }
+        .datepicker-container { position: relative; width: 100%; }
+        .datepicker-input-wrapper { position: relative; cursor: pointer; }
+        .datepicker-input-wrapper .terjadwal-datetime-input { cursor: pointer; padding-right: 38px; }
+        .datepicker-input-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--aj-muted); pointer-events: none; }
+        .datepicker-error-msg { display: flex; align-items: center; gap: 5px; margin: 5px 0px; font-size: 12px; color: #dc2626; }
+        .datepicker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 4px; }
+        .datepicker-month-year { font-size: 14px; font-weight: 600; color: var(--aj-text); user-select: none; }
+        .datepicker-nav-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--aj-select-border); background: var(--aj-select-bg); color: var(--aj-text); cursor: pointer; transition: all .15s ease; padding: 0; }
+        .datepicker-nav-btn:hover { background: var(--aj-soft-bg); border-color: #22c55e; }
+        .datepicker-daynames { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 4px; }
+        .datepicker-daynames span { text-align: center; font-size: 11px; font-weight: 600; color: var(--aj-muted); padding: 4px 0; user-select: none; }
+        .datepicker-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+        .datepicker-day { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 36px; height: 34px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all .15s ease; color: var(--aj-text); border: none; background: none; margin: 0 auto; padding: 0; user-select: none; }
+        .datepicker-day:not(.datepicker-day-empty):not(.datepicker-day-disabled):hover { background: rgba(34,197,94,.1); color: #22c55e; }
+        .datepicker-day-empty { cursor: default; }
+        .datepicker-day-today { font-weight: 700; border: 1px solid #22c55e; }
+        .datepicker-day-selected { background: #22c55e !important; color: #fff !important; font-weight: 600; }
+        .datepicker-day-selected:hover { background: #16a34a !important; }
+        .datepicker-day-disabled { cursor: not-allowed !important; color: #dc2626 !important; background: rgba(220,38,38,.06) !important; opacity: 1; }
+        .datepicker-day-disabled:hover { background: rgba(220,38,38,.1) !important; }
+        .datepicker-day-booked .datepicker-day-dot { width: 4px; height: 4px; border-radius: 50%; background: #dc2626; margin-top: 1px; }
+        .datepicker-time-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--aj-card-divider); }
+        .datepicker-time-inputs { display: flex; align-items: center; gap: 4px; }
+        .datepicker-time-select { flex: 1; padding: 6px 8px; border: 1px solid var(--aj-select-border); border-radius: 6px; font-size: 13px; background: var(--aj-select-bg); color: var(--aj-select-text); text-align: center; outline: none; }
+        .datepicker-time-select:focus { border-color: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,.15); }
+        .datepicker-time-separator { font-size: 16px; font-weight: 700; color: var(--aj-muted); }
+        .datepicker-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--aj-card-divider); }
+        .datepicker-btn-clear { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--aj-select-border); background: var(--aj-select-bg); color: var(--aj-muted); cursor: pointer; transition: all .15s ease; }
+        .datepicker-btn-clear:hover { background: var(--aj-soft-bg); color: var(--aj-text); }
+        .datepicker-btn-apply { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; background: #22c55e; color: #fff; cursor: pointer; transition: all .15s ease; }
+        .datepicker-btn-apply:hover:not(:disabled) { background: #16a34a; }
+        .datepicker-btn-apply:disabled { opacity: .5; cursor: not-allowed; }
+        .datepicker-info { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 11px; color: var(--aj-muted); padding: 6px 8px; background: var(--aj-soft-bg); border-radius: 6px; }
+        @media (max-width: 640px) {
+            .datepicker-calendar { width: 280px; left: -10px; }
+            .datepicker-day { width: 32px; height: 30px; font-size: 12px; }
+        }
         .terjadwal-submit-container {
             display: flex;
             justify-content: flex-end;
@@ -856,7 +903,7 @@
             font-size: 14px;
         }
         .petugas-dropdown {
-            position: fixed !important;
+            /* position: fixed !important; */
             z-index: 9999 !important;
             width: 100%;
             max-width: 500px;
@@ -868,6 +915,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+
         }
         .petugas-dropdown-search {
             padding: 12px;
@@ -1414,15 +1462,120 @@
                                     <div class="terjadwal-form-container">
                                         <div class="terjadwal-form-fields">
                                             <!-- Input Tanggal dan Waktu -->
-                                            <div class="terjadwal-field">
+                                            <div class="datepicker-container" x-data="jadwalDatePicker" x-init="init()" @click.away="calendarOpen = false" wire:ignore>
                                                 <label class="update-status-label" style="font-size: 12px; margin-bottom: 5px; display: block;">
                                                     Penjadwalan Jasa Instalasi Petugas <span style="color: #dc2626;">*</span>
                                                 </label>
-                                                <input type="datetime-local"
-                                                       wire:model.defer="jadwalPetugas"
-                                                       wire:loading.attr="disabled"
-                                                       class="terjadwal-datetime-input"
-                                                />
+
+                                                <!-- Display Input -->
+                                                <div class="datepicker-input-wrapper" @click="toggleCalendar()">
+                                                    <input type="text"
+                                                           :value="formattedValue"
+                                                           readonly
+                                                           placeholder="Pilih tanggal & waktu..."
+                                                           class="terjadwal-datetime-input"
+                                                    />
+                                                    <div class="datepicker-input-icon">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Conflict Error Message -->
+                                                <div x-show="hasConflict" x-transition class="datepicker-error-msg">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 14px; height: 14px; flex-shrink: 0;">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                                    </svg>
+                                                    <span x-text="conflictMessage"></span>
+                                                </div>
+
+                                                <!-- Calendar Popup -->
+                                                <div x-show="calendarOpen"
+                                                     x-transition:enter="transition ease-out duration-200"
+                                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                                                     x-transition:leave="transition ease-in duration-150"
+                                                     x-transition:leave-start="opacity-100 transform translate-y-0"
+                                                     x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                                     class="datepicker-calendar"
+                                                     :style="calendarStyle"
+                                                     @click.stop>
+
+                                                    <!-- Month Navigation -->
+                                                    <div class="datepicker-header">
+                                                        <button type="button" @click="prevMonth" class="datepicker-nav-btn">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                                            </svg>
+                                                        </button>
+                                                        <span class="datepicker-month-year" x-text="monthYearLabel"></span>
+                                                        <button type="button" @click="nextMonth" class="datepicker-nav-btn">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+
+                                                    <!-- Day Names -->
+                                                    <div class="datepicker-daynames">
+                                                        <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+                                                    </div>
+
+                                                    <!-- Days Grid -->
+                                                    <div class="datepicker-days">
+                                                        <template x-for="(day, index) in days" :key="index">
+                                                            <div class="datepicker-day"
+                                                                 :class="{
+                                                                     'datepicker-day-empty': day.empty,
+                                                                     'datepicker-day-disabled': day.disabled && !day.empty,
+                                                                     'datepicker-day-selected': day.selected && !day.disabled,
+                                                                     'datepicker-day-today': day.isToday && !day.selected && !day.disabled,
+                                                                     'datepicker-day-booked': day.isBooked
+                                                                 }"
+                                                                 @click="selectDate(day)"
+                                                                 :title="day.isBooked ? 'Tanggal sudah terjadwal' : (day.empty ? '' : day.date)"
+                                                            >
+                                                                <span x-text="day.number" x-show="!day.empty"></span>
+                                                                <div x-show="day.isBooked" class="datepicker-day-dot"></div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+
+                                                    <!-- Time Picker -->
+                                                    <div class="datepicker-time-section">
+                                                        <label style="font-size: 11px; color: var(--aj-muted); margin-bottom: 4px; display: block;">Waktu</label>
+                                                        <div class="datepicker-time-inputs">
+                                                            <select x-model="selectedHour" class="datepicker-time-select">
+                                                                <template x-for="h in hours" :key="h">
+                                                                    <option :value="h" x-text="h"></option>
+                                                                </template>
+                                                            </select>
+                                                            <span class="datepicker-time-separator">:</span>
+                                                            <select x-model="selectedMinute" class="datepicker-time-select">
+                                                                <template x-for="m in minutes" :key="m">
+                                                                    <option :value="m" x-text="m"></option>
+                                                                </template>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Actions -->
+                                                    <div class="datepicker-actions">
+                                                        <button type="button" @click="clearValue" class="datepicker-btn-clear">Hapus</button>
+                                                        <button type="button" @click="applyDateTime" class="datepicker-btn-apply" :disabled="!selectedDate">
+                                                            Terapkan
+                                                        </button>
+                                                    </div>
+
+                                                    <!-- Booked dates info -->
+                                                    <div x-show="disabledDates.length > 0" class="datepicker-info">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 12px; height: 12px; flex-shrink: 0;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                                        </svg>
+                                                        <span>Tanggal berwarna <span style="color: #dc2626; font-weight: 600;">merah</span> sudah terjadwal</span>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <!-- Multi-select Petugas with Tags -->
@@ -1853,6 +2006,185 @@
 
     // Register Alpine component for petugas multi-select
     document.addEventListener('alpine:init', () => {
+        // Jadwal Date Picker Component
+        Alpine.data('jadwalDatePicker', () => ({
+            calendarOpen: false,
+            currentMonth: new Date().getMonth(),
+            currentYear: new Date().getFullYear(),
+            selectedDate: null,
+            selectedHour: '08',
+            selectedMinute: '00',
+            hasConflict: false,
+            conflictMessage: '',
+            calendarStyle: '',
+            disabledDates: @js($this->disabledJadwalDates),
+            jadwalValue: @entangle('jadwalPetugas'),
+
+            init() {
+                this.parseExistingValue(this.jadwalValue);
+
+                this.$watch('jadwalValue', (value) => {
+                    this.parseExistingValue(value);
+                });
+
+                // Reposition calendar on scroll/resize
+                window.addEventListener('scroll', () => {
+                    if (this.calendarOpen) this.updateCalendarPosition();
+                }, true);
+                window.addEventListener('resize', () => {
+                    if (this.calendarOpen) this.updateCalendarPosition();
+                });
+            },
+
+            parseExistingValue(value) {
+                if (value) {
+                    const d = new Date(value);
+                    if (!isNaN(d.getTime())) {
+                        this.selectedDate = this.formatDateStr(d);
+                        this.currentMonth = d.getMonth();
+                        this.currentYear = d.getFullYear();
+                        this.selectedHour = String(d.getHours()).padStart(2, '0');
+                        this.selectedMinute = String(d.getMinutes()).padStart(2, '0');
+                    }
+                } else {
+                    this.selectedDate = null;
+                }
+            },
+
+            get monthYearLabel() {
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return months[this.currentMonth] + ' ' + this.currentYear;
+            },
+
+            get days() {
+                const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+                const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+                const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+                const todayStr = this.formatDateStr(new Date());
+                const days = [];
+
+                for (let i = 0; i < adjustedFirstDay; i++) {
+                    days.push({ number: '', date: null, disabled: false, isBooked: false, selected: false, empty: true, isToday: false });
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = this.currentYear + '-' + String(this.currentMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                    const isBooked = this.disabledDates.includes(dateStr);
+                    days.push({
+                        number: d,
+                        date: dateStr,
+                        disabled: isBooked,
+                        isBooked: isBooked,
+                        selected: this.selectedDate === dateStr,
+                        empty: false,
+                        isToday: dateStr === todayStr
+                    });
+                }
+
+                return days;
+            },
+
+            get hours() {
+                return Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
+            },
+
+            get minutes() {
+                return Array.from({length: 12}, (_, i) => String(i * 5).padStart(2, '0'));
+            },
+
+            get formattedValue() {
+                if (!this.selectedDate) return '';
+                const parts = this.selectedDate.split('-');
+                return parts[2] + '/' + parts[1] + '/' + parts[0] + ' ' + this.selectedHour + ':' + this.selectedMinute;
+            },
+
+            get livewireValue() {
+                if (!this.selectedDate) return '';
+                return this.selectedDate + 'T' + this.selectedHour + ':' + this.selectedMinute + ':00';
+            },
+
+            selectDate(day) {
+                if (day.empty) return;
+                if (day.disabled) {
+                    if (day.isBooked) {
+                        this.hasConflict = true;
+                        const parts = day.date.split('-');
+                        this.conflictMessage = 'Tanggal ' + parts[2] + '/' + parts[1] + '/' + parts[0] + ' sudah terjadwal. Pilih tanggal lain.';
+                    }
+                    return;
+                }
+                this.hasConflict = false;
+                this.conflictMessage = '';
+                this.selectedDate = day.date;
+            },
+
+            prevMonth() {
+                this.currentMonth--;
+                if (this.currentMonth < 0) {
+                    this.currentMonth = 11;
+                    this.currentYear--;
+                }
+            },
+
+            nextMonth() {
+                this.currentMonth++;
+                if (this.currentMonth > 11) {
+                    this.currentMonth = 0;
+                    this.currentYear++;
+                }
+            },
+
+            toggleCalendar() {
+                this.calendarOpen = !this.calendarOpen;
+                if (this.calendarOpen) {
+                    if (this.selectedDate) {
+                        const parts = this.selectedDate.split('-');
+                        this.currentYear = parseInt(parts[0]);
+                        this.currentMonth = parseInt(parts[1]) - 1;
+                    }
+                    this.$nextTick(() => this.updateCalendarPosition());
+                }
+            },
+
+            updateCalendarPosition() {
+                const input = this.$el.querySelector('.datepicker-input-wrapper');
+                if (!input) return;
+                const rect = input.getBoundingClientRect();
+                const calendarHeight = 400;
+                const viewportHeight = window.innerHeight;
+                let top = rect.bottom + 6;
+                if (top + calendarHeight > viewportHeight) {
+                    top = rect.top - calendarHeight - 6;
+                    if (top < 0) top = 6;
+                }
+                this.calendarStyle = 'top: ' + top + 'px; left: ' + rect.left + 'px;';
+            },
+
+            applyDateTime() {
+                if (!this.selectedDate) return;
+                this.jadwalValue = this.livewireValue;
+                this.calendarOpen = false;
+                this.hasConflict = false;
+                this.conflictMessage = '';
+            },
+
+            clearValue() {
+                this.selectedDate = null;
+                this.selectedHour = '08';
+                this.selectedMinute = '00';
+                this.jadwalValue = null;
+                this.calendarOpen = false;
+                this.hasConflict = false;
+                this.conflictMessage = '';
+            },
+
+            formatDateStr(d) {
+                return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            }
+        }));
+
+        // Petugas Multi-Select Component
         Alpine.data('petugasMultiSelectComponent', () => ({
             open: false,
             search: '',

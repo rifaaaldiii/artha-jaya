@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Placeholder;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
+use App\Models\Jasa;
 use App\Models\JenisJasa;
 use App\Models\Pelanggan;
 use Illuminate\Support\Facades\Auth;
@@ -184,8 +185,17 @@ class JasaForm
                 ->native(false)
                 ->displayFormat('d/m/Y H:i')
                 ->format('Y-m-d H:i:s')
-                ->default(now())
                 ->required()
+                ->disabledDates(function ($record) {
+                    return Jasa::whereNotNull('jadwal_petugas')
+                        ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
+                        ->pluck('jadwal_petugas')
+                        ->filter()
+                        ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+                        ->unique()
+                        ->values()
+                        ->toArray();
+                })
                 ->helperText('Penjadwalan jasa instalasi customer'),
                 
             Textarea::make("catatan")

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Produksis\Schemas;
 
 use App\Models\JenisProduksi;
 use App\Models\Pelanggan;
+use App\Models\Produksi;
 use App\Models\Team;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -187,9 +188,18 @@ class ProduksiForm
                 ->native(false)
                 ->displayFormat('d/m/Y H:i')
                 ->format('Y-m-d H:i:s')
-                ->default(now())
                 ->required()
-                ->helperText('Jadwal pelaksanaan produksi'),
+                ->disabledDates(function ($record) {
+                    return Produksi::whereNotNull('jadwal')
+                        ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
+                        ->pluck('jadwal')
+                        ->filter()
+                        ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+                        ->unique()
+                        ->values()
+                        ->toArray();
+                })
+                ->helperText('Penjadwalan produksi'),
             
             Select::make('team_id')
                 ->label('Team')
