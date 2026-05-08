@@ -425,22 +425,23 @@ class ProgressJasa extends Page implements HasForms
                     return;
                 }
 
-                // Validate max 5 jadwal per date
-                $jadwalDate = \Carbon\Carbon::parse($jadwalPetugas)->format('Y-m-d');
-                $existingCount = Jasa::whereNotNull('jadwal_petugas')
-                    ->where('id', '!=', $this->record->id)
-                    ->get()
-                    ->filter(fn ($jasa) => \Carbon\Carbon::parse($jasa->jadwal_petugas)->format('Y-m-d') === $jadwalDate)
-                    ->count();
+                // REMOVED: Max 5 jadwal per date validation is no longer needed
+                // // Validate max 5 jadwal per date
+                // $jadwalDate = \Carbon\Carbon::parse($jadwalPetugas)->format('Y-m-d');
+                // $existingCount = Jasa::whereNotNull('jadwal_petugas')
+                //     ->where('id', '!=', $this->record->id)
+                //     ->get()
+                //     ->filter(fn ($jasa) => \Carbon\Carbon::parse($jasa->jadwal_petugas)->format('Y-m-d') === $jadwalDate)
+                //     ->count();
 
-                if ($existingCount >= 5) {
-                    Notification::make()
-                        ->title('Tanggal sudah penuh')
-                        ->danger()
-                        ->body('Tanggal ' . \Carbon\Carbon::parse($jadwalPetugas)->format('d/m/Y') . ' sudah memiliki 5 jadwal petugas. Maksimal 5 jadwal per tanggal.')
-                        ->send();
-                    return;
-                }
+                // if ($existingCount >= 5) {
+                //     Notification::make()
+                //         ->title('Tanggal sudah penuh')
+                //         ->danger()
+                //         ->body('Tanggal ' . \Carbon\Carbon::parse($jadwalPetugas)->format('d/m/Y') . ' sudah memiliki 5 jadwal petugas. Maksimal 5 jadwal per tanggal.')
+                //         ->send();
+                //     return;
+                // }
 
                 $oldPetugasIds = $this->record->petugasMany->pluck('id')->toArray();
 
@@ -530,9 +531,10 @@ class ProgressJasa extends Page implements HasForms
 
                 $this->record->petugasMany()->sync($petugasIds);
 
-                if (!empty($petugasIds)) {
-                    Petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
-                }
+                // REMOVED: Auto-update petugas status to 'busy' is no longer needed
+                // if (!empty($petugasIds)) {
+                //     Petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
+                // }
 
                 if (!empty($oldPetugasIds)) {
                     $petugasToReset = array_diff($oldPetugasIds, $petugasIds);
@@ -546,7 +548,8 @@ class ProgressJasa extends Page implements HasForms
                             ->exists();
 
                         if (!$hasActiveJasa) {
-                            Petugas::where('id', $petugasId)->update(['status' => 'ready']);
+                            // REMOVED: Auto-update petugas status to 'ready' is no longer needed
+                            // Petugas::where('id', $petugasId)->update(['status' => 'ready']);
                         }
                     }
                 }
@@ -583,31 +586,14 @@ class ProgressJasa extends Page implements HasForms
 
     protected function getAllowedStatusesForRole(): array
     {
-        $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
-
-        $roleStatusMap = [
-            'admin_toko' => ['jasa baru', 'selesai'],
-            'superadmin' => ['terjadwal', 'selesai'],
-            'kepala_lapangan' => ['selesai dikerjakan'],
-            'administrator' => self::STATUS_FLOW,
-        ];
-
-        return $roleStatusMap[$normalizedRole] ?? [];
+        // Allow all statuses for all roles - removed strict role-based validation
+        return self::STATUS_FLOW;
     }
 
     protected static function getAllowedStatusesForRoleStatic(): array
     {
-        $user = Auth::user();
-        $normalizedRole = str_replace(' ', '_', strtolower($user?->role ?? ''));
-
-        $roleStatusMap = [
-            'admin_toko' => ['jasa baru', 'selesai'],
-            'superadmin' => ['terjadwal', 'selesai'],
-            'kepala_lapangan' => ['selesai dikerjakan'],
-            'administrator' => self::STATUS_FLOW,
-        ];
-
-        return $roleStatusMap[$normalizedRole] ?? [];
+        // Allow all statuses for all roles - removed strict role-based validation
+        return self::STATUS_FLOW;
     }
 
     public function getNextSequentialStatusProperty(): ?string

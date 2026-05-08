@@ -129,69 +129,73 @@ class Jasa extends Model
             $newStatus = $jasa->status;
 
             // Jika status berubah menjadi 'selesai', update semua petugas terkait menjadi 'ready'
-            if ($originalStatus !== 'selesai' && $newStatus === 'selesai') {
-                $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
-                
-                if (!empty($petugasIds)) {
-                    foreach ($petugasIds as $petugasId) {
-                        // Cek apakah petugas masih memiliki jasa aktif selain yang ini
-                        $hasActiveJasa = static::query()
-                            ->whereHas('petugasMany', function ($query) use ($petugasId) {
-                                $query->where('petugas_id', $petugasId);
-                            })
-                            ->where('id', '!=', $jasa->id)
-                            ->where('status', '!=', 'selesai')
-                            ->exists();
-
-                        if (!$hasActiveJasa) {
-                            Petugas::where('id', $petugasId)->update(['status' => 'ready']);
-                        }
-                    }
-                }
-            }
+            // REMOVED: Auto-update petugas status to 'ready' is no longer needed
+            // if ($originalStatus !== 'selesai' && $newStatus === 'selesai') {
+            //     $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+            //
+            //     if (!empty($petugasIds)) {
+            //         foreach ($petugasIds as $petugasId) {
+            //             // Cek apakah petugas masih memiliki jasa aktif selain yang ini
+            //             $hasActiveJasa = static::query()
+            //                 ->whereHas('petugasMany', function ($query) use ($petugasId) {
+            //                     $query->where('petugas_id', $petugasId);
+            //                 })
+            //                 ->where('id', '!=', $jasa->id)
+            //                 ->where('status', '!=', 'selesai')
+            //                 ->exists();
+            //
+            //             if (!$hasActiveJasa) {
+            //                 Petugas::where('id', $petugasId)->update(['status' => 'ready']);
+            //             }
+            //         }
+            //     }
+            // }
 
             // Jika status berubah menjadi 'terjadwal', update petugas menjadi 'busy'
-            if ($originalStatus !== 'terjadwal' && $newStatus === 'terjadwal') {
-                $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
-                
-                if (!empty($petugasIds)) {
-                    Petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
-                }
-            }
+            // REMOVED: Auto-update petugas status to 'busy' is no longer needed
+            // if ($originalStatus !== 'terjadwal' && $newStatus === 'terjadwal') {
+            //     $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+            //
+            //     if (!empty($petugasIds)) {
+            //         Petugas::whereIn('id', $petugasIds)->update(['status' => 'busy']);
+            //     }
+            // }
         });
 
         static::deleting(function (Jasa $jasa): void {
             // IMPORTANT: Use 'deleting' event (before delete) because pivot table has cascade delete
             // If we use 'deleted' event, the pivot records are already gone
-            $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
-            
+            // REMOVED: Auto-update petugas status is no longer needed
+            // $petugasIds = $jasa->petugasMany()->pluck('petugas_id')->toArray();
+
             // Store in variable for use in deleted event
-            $jasa->setAttribute('_petugas_ids_before_delete', $petugasIds);
+            // $jasa->setAttribute('_petugas_ids_before_delete', $petugasIds);
         });
 
         static::deleted(function (Jasa $jasa): void {
+            // REMOVED: Auto-update petugas status is no longer needed
             // Get petugas IDs that were stored before delete
-            $petugasIds = $jasa->getAttribute('_petugas_ids_before_delete') ?? [];
-            
-            if (!empty($petugasIds)) {
-                foreach ($petugasIds as $petugasId) {
-                    // Cek apakah petugas masih memiliki jasa aktif lainnya
-                    $hasActiveJasa = static::query()
-                        ->whereHas('petugasMany', function ($query) use ($petugasId) {
-                            $query->where('petugas_id', $petugasId);
-                        })
-                        ->where('status', '!=', 'selesai')
-                        ->exists();
+            // $petugasIds = $jasa->getAttribute('_petugas_ids_before_delete') ?? [];
 
-                    // Jika tidak ada jasa aktif lain, update status menjadi 'ready'
-                    if (!$hasActiveJasa) {
-                        Petugas::where('id', $petugasId)->update([
-                            'status' => 'ready',
-                            'updateAt' => now(),
-                        ]);
-                    }
-                }
-            }
+            // if (!empty($petugasIds)) {
+            //     foreach ($petugasIds as $petugasId) {
+            //         // Cek apakah petugas masih memiliki jasa aktif lainnya
+            //         $hasActiveJasa = static::query()
+            //             ->whereHas('petugasMany', function ($query) use ($petugasId) {
+            //                 $query->where('petugas_id', $petugasId);
+            //             })
+            //             ->where('status', '!=', 'selesai')
+            //             ->exists();
+
+            //         // Jika tidak ada jasa aktif lain, update status menjadi 'ready'
+            //         if (!$hasActiveJasa) {
+            //             Petugas::where('id', $petugasId)->update([
+            //                 'status' => 'ready',
+            //                 'updateAt' => now(),
+            //             ]);
+            //         }
+            //     }
+            // }
         });
     }
 

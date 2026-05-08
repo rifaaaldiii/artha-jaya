@@ -18,6 +18,15 @@ Route::prefix('jasa-update')->name('jasa.public.')->group(function () {
         ->name('update.submit');
 });
 
+//public schedule route
+Route::get('/schedule', [\App\Http\Controllers\ScheduleController::class, 'index'])
+    ->name('public.schedule')
+    ->withoutMiddleware([
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ]);
+
 // Custom 404 page route
 Route::get('/404', function () {
     return response()->view('errors.404', [], 404);
