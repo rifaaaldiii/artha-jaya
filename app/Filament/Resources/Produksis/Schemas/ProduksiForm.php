@@ -192,14 +192,14 @@ class ProduksiForm
                 ->disabledDates(function ($record) {
                     return Produksi::whereNotNull('jadwal')
                         ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
-                        ->pluck('jadwal')
-                        ->filter()
-                        ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
-                        ->unique()
+                        ->get()
+                        ->groupBy(fn ($item) => Carbon::parse($item->jadwal)->format('Y-m-d'))
+                        ->filter(fn ($group) => $group->count() >= 5)
+                        ->keys()
                         ->values()
                         ->toArray();
                 })
-                ->helperText('Penjadwalan produksi'),
+                ->helperText('Penjadwalan produksi (maks. 5 jadwal per tanggal)'),
             
             Select::make('team_id')
                 ->label('Team')

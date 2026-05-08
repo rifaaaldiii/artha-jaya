@@ -52,10 +52,10 @@ class ProgressJasa extends Page implements HasForms
     {
         return Jasa::whereNotNull('jadwal_petugas')
             ->when($this->record, fn ($query) => $query->where('id', '!=', $this->record->id))
-            ->pluck('jadwal_petugas')
-            ->filter()
-            ->map(fn ($date) => \Carbon\Carbon::parse($date)->format('Y-m-d'))
-            ->unique()
+            ->get()
+            ->groupBy(fn ($item) => \Carbon\Carbon::parse($item->jadwal_petugas)->format('Y-m-d'))
+            ->filter(fn ($group) => $group->count() >= 5)
+            ->keys()
             ->values()
             ->toArray();
     }
@@ -425,18 +425,19 @@ class ProgressJasa extends Page implements HasForms
                     return;
                 }
 
-                // Validate disabled dates - prevent scheduling on already booked dates
+                // Validate max 5 jadwal per date
                 $jadwalDate = \Carbon\Carbon::parse($jadwalPetugas)->format('Y-m-d');
-                $conflictExists = Jasa::whereNotNull('jadwal_petugas')
+                $existingCount = Jasa::whereNotNull('jadwal_petugas')
                     ->where('id', '!=', $this->record->id)
                     ->get()
-                    ->contains(fn ($jasa) => \Carbon\Carbon::parse($jasa->jadwal_petugas)->format('Y-m-d') === $jadwalDate);
+                    ->filter(fn ($jasa) => \Carbon\Carbon::parse($jasa->jadwal_petugas)->format('Y-m-d') === $jadwalDate)
+                    ->count();
 
-                if ($conflictExists) {
+                if ($existingCount >= 5) {
                     Notification::make()
-                        ->title('Tanggal sudah terjadwal')
+                        ->title('Tanggal sudah penuh')
                         ->danger()
-                        ->body('Tanggal ' . \Carbon\Carbon::parse($jadwalPetugas)->format('d/m/Y') . ' sudah memiliki jadwal petugas. Silakan pilih tanggal lain.')
+                        ->body('Tanggal ' . \Carbon\Carbon::parse($jadwalPetugas)->format('d/m/Y') . ' sudah memiliki 5 jadwal petugas. Maksimal 5 jadwal per tanggal.')
                         ->send();
                     return;
                 }

@@ -189,14 +189,14 @@ class JasaForm
                 ->disabledDates(function ($record) {
                     return Jasa::whereNotNull('jadwal_petugas')
                         ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
-                        ->pluck('jadwal_petugas')
-                        ->filter()
-                        ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
-                        ->unique()
+                        ->get()
+                        ->groupBy(fn ($item) => Carbon::parse($item->jadwal_petugas)->format('Y-m-d'))
+                        ->filter(fn ($group) => $group->count() >= 5)
+                        ->keys()
                         ->values()
                         ->toArray();
                 })
-                ->helperText('Penjadwalan jasa instalasi customer'),
+                ->helperText('Penjadwalan jasa instalasi customer (maks. 5 jadwal per tanggal)'),
                 
             Textarea::make("catatan")
                 ->label("Catatan"),

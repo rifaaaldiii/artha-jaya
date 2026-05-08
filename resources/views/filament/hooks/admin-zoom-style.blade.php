@@ -4,6 +4,7 @@
     .fi-header,
     .fi-main,
     .fi-login,
+    .fi-simple-main,
     .fi-resource-page {
         zoom: 80%;
     }

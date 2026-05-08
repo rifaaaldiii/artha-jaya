@@ -224,6 +224,18 @@
             font-weight: bold;
             margin-bottom: 3px;
         }
+
+        .noted {
+            margin-top: 5px;
+            padding: 4px;
+            border: 1px solid #000;
+            font-size: 7pt;
+        }
+        
+        .noted-label {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
         
         .text-center {
             text-align: center;
@@ -238,21 +250,21 @@
             width: 95%;
             position: absolute;
             bottom: 40px;
+            /* border: 1px solid #000; */
         }
         
         .signature-box {
-            width: 30%;
+            width: 22%;
             text-align: center;
             font-size: 7pt;
             float: left;
+            
         }
-        
-        .signature-box:first-child {
-            margin-right: 5%;
-        }
-        
-        .signature-box:nth-child(2) {
-            margin-right: 5%;
+
+        .signature-box:first-child,
+        .signature-box:nth-child(2),
+        .signature-box:nth-child(3) {
+            margin-right: 4%;
         }
         
         .signature-section:after {
@@ -438,6 +450,12 @@
                 <div class="amount-label">Terbilang:</div>
                 <div><em># {{ terbilang($grandTotal) }} Rupiah #</em></div>
             </div>
+
+            <!-- Noted -->
+            <div class="noted">
+                <div class="noted-label">Catatan:</div>
+                <div>{{ $row['catatan'] ?? 'Tidak ada catatan' }}</div>
+            </div>
         </div>
 
         <!-- Signatures -->
@@ -451,11 +469,19 @@
                 </div>
             </div>
             <div class="signature-box">
-                <div class="signature-title">Kepala Teknisi Lapangan</div>
-                <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">Pelaksana</div>
+                <div class="signature-title">Kepala PIC</div>
+                <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">.</div>
                 <div class="signature-line">
                     <div class="signature-name">(___________________)</div>
                     <div class="signature-position">Ketua Tim Pelaksana</div>
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-title">PIC</div>
+                <div style="font-size: 7pt; color: #666; margin-bottom: 50px;">Pelaksana</div>
+                <div class="signature-line">
+                    <div class="signature-name">(___________________)</div>
+                    <div class="signature-position">Tim Pelaksana</div>
                 </div>
             </div>
             <div class="signature-box">

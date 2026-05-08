@@ -76,7 +76,7 @@ class JasasTable
                 //     ->openUrlInNewTab()
                 //     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 Action::make('invoice')
-                    ->label('Invoice')
+                    ->label('Print')
                     ->icon('heroicon-o-document-text')
                     ->color('primary')
                     ->url(fn ($record) => route('filament.admin.pages.report') . '/preview-invoice?number=' . urlencode($record->no_jasa) . '&type=jasa', true)

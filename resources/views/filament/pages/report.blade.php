@@ -134,8 +134,10 @@
         .aj-report-main {
             min-width: 0;
         }
-
+        
         .aj-main-card {
+            /* border: 1px solid red; */
+            /* height: 970px; */
             background: var(--aj-report-card-bg);
             border-radius: 12px;
             box-shadow: var(--aj-report-shadow);
@@ -841,7 +843,6 @@
                     $totalPages = ceil($resultCount / $perPage);
                 @endphp
                 
-                @if($totalPages > 1)
                 <div class="aj-pagination">
                     <div class="aj-pagination-wrapper">
                         <div class="aj-pagination-info">
@@ -870,7 +871,6 @@
                         </div>
                     </div>
                 </div>
-                @endif
                 @else
                 <div class="aj-empty-state">
                     <div class="aj-empty-state-icon">
