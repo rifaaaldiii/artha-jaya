@@ -49,7 +49,7 @@ class ScheduleController extends Controller
                 'type' => 'produksi',
                 'id' => $p->id,
                 'no_ref' => $p->no_ref,
-                'jadwal' => $p->jadwal ? $p->jadwal->format('Y-m-d') : null,
+                'jadwal' => $p->jadwal ? Carbon::parse($p->jadwal)->format('Y-m-d') : null,
                 'status' => $p->status,
                 'alamat' => $p->alamat,
                 'catatan' => $p->catatan,
@@ -63,7 +63,7 @@ class ScheduleController extends Controller
                 'type' => 'jasa',
                 'id' => $j->id,
                 'no_ref' => $j->no_ref,
-                'jadwal' => $j->jadwal_petugas ? $j->jadwal_petugas->format('Y-m-d') : null,
+                'jadwal' => $j->jadwal_petugas ? Carbon::parse($j->jadwal_petugas)->format('Y-m-d') : null,
                 'status' => $j->status,
                 'alamat' => $j->alamat,
                 'catatan' => $j->catatan,
@@ -74,7 +74,19 @@ class ScheduleController extends Controller
 
         $schedules = $produksis->concat($jasas)
             ->filter(fn ($s) => $s['jadwal'] !== null)
+            ->filter(fn ($s) => $s['status'] !== 'selesai')
             ->sortBy('jadwal');
+
+        // All schedules (including completed) for stats
+        $allSchedules = $produksis->concat($jasas)
+            ->filter(fn ($s) => $s['jadwal'] !== null);
+
+        // Calculate stats for summary (only active schedules, status != selesai)
+        $stats = [
+            'jasa' => $jasas->where('jadwal', '!=', null)->where('status', '!=', 'selesai')->count(),
+            'produksi' => $produksis->where('jadwal', '!=', null)->where('status', '!=', 'selesai')->count(),
+            'selesai' => $allSchedules->whereIn('status', ['selesai'])->count(),
+        ];
 
         $monthName = $selectedMonth->locale('id')->translatedFormat('F Y');
         $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -105,6 +117,7 @@ class ScheduleController extends Controller
                 'customer' => $item['customer'] ?? '-',
                 'workers' => $item['workers'] ?? '-',
                 'status' => $item['status'] ?? '-',
+                'location' => $item['alamat'] ?? null,
             ];
         })->values()->all();
 
@@ -118,7 +131,8 @@ class ScheduleController extends Controller
             'selectedDate',
             'detailItems',
             'prevMonth',
-            'nextMonth'
-        ));
+            'nextMonth',
+            'stats'
+        ))->title('Jadwal Produksi & Jasa - Artha Jaya');
     }
 }
