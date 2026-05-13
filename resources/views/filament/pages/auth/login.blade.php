@@ -173,7 +173,7 @@
         @media (min-width: 1024px) {
             .login-scale-transform {
                 transform: scale(0.8);
-                margin-top: 20px;
+                margin-top: 40px;
             }
         }
 

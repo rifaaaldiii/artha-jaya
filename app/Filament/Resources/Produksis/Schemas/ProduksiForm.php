@@ -177,7 +177,7 @@ class ProduksiForm
                 ->minItems(1),
         
             Textarea::make('alamat')
-                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Produksi')
+                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Customer')
                 ->required()
                 ->reactive()
                 ->dehydrated(true)
