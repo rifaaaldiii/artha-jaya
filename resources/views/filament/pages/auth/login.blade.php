@@ -473,47 +473,19 @@
             position: relative !important;
         }
 
-        /* .fi-icon-btn {
-            position: absolute !important;
-            right: 0.5rem !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            z-index: 20 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 0.25rem !important;
+        .fi-input-wrp-actions {
+            position: relative;
+        }
+
+        .fi-input-wrp-actions button{
+            height: 25px;
+            width: 25px;
+            padding: 0 !important;
             margin: 0 !important;
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        .fi-icon-btn:hover {
-            background: transparent !important;
-            border: none !important;
-        }
-
-        .fi-icon-btn:focus {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        .fi-icon-btn svg {
-            width: 1.25rem !important;
-            height: 1.25rem !important;
-            display: block !important;
-            stroke: currentColor !important;
-        }
-
-        .fi-ac-icon-btn-action {
-            position: absolute !important;
+            position: absolute;
+            z-index: 20 !important;
             right: 0.5rem !important;
-            top: 60% !important;
-            transform: translateY(-50%) !important;
-        } */
+            transform: translateY(-130%) !important;
+        }
     </style>
 </div>
