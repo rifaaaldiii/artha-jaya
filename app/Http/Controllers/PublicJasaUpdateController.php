@@ -94,7 +94,7 @@ class PublicJasaUpdateController extends Controller
             $imagePaths = [];
             if ($request->hasFile('images')) {
                 // Ensure the jasa directory exists
-                $progressPath = base_path('../public_html/progress/jasa');
+                $progressPath = base_path('../public_html');
                 if (!is_dir($progressPath)) {
                     mkdir($progressPath, 0755, true);
                     \Log::info('Created jasa progress directory', ['path' => $progressPath]);
