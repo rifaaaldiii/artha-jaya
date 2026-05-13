@@ -41,7 +41,7 @@
                     </div>
                     
                     <!-- Right Side - Login Form -->
-                    <div class="login-form-section">
+                    <div class="login-form-section" style="border: 1;">
                         <div class="login-form-card">
                             <!-- Form Header -->
                             <div class="login-form-header">
@@ -73,7 +73,7 @@
                             <!-- Footer -->
                             <div class="login-footer">
                                 <p class="login-copyright">
-                                    &copy; {{ date('Y') }} Artha Jaya. All rights reserved.
+                                    &copy; {{ date('Y') }} PT. Artha Jaya Mas. All rights reserved.
                                 </p>
                             </div>
                         </div>
@@ -84,6 +84,8 @@
     </div>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+
         /* Reset */
         * {
             margin: 0;
@@ -95,6 +97,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
+            font-family: 'Roboto', sans-serif;
         }
 
         /* Main Container */
@@ -178,10 +181,12 @@
             grid-template-columns: 1fr;
             gap: 2rem;
             align-items: center;
+            justify-content: space-between;
         }
         
         @media (min-width: 1024px) {
             .login-grid-layout {
+                justify-content: space-between;
                 grid-template-columns: 1fr 1fr;
                 gap: 3rem;
             }
@@ -206,7 +211,14 @@
         .login-logo-wrapper {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1.75rem;
+            margin-bottom: 10px;
+        }
+        
+        @media (min-width: 1024px) {
+            .login-logo-wrapper {
+                gap: 0.75rem;
+            }
         }
 
         .login-logo {
@@ -240,6 +252,7 @@
             color: #1B3A2D;
             line-height: 1.2;
             margin: 0;
+            font-family: 'Roboto', sans-serif;
         }
         
         @media (min-width: 1024px) {
@@ -280,6 +293,7 @@
             line-height: 1.625;
             max-width: 28rem;
             margin: 0;
+            font-family: 'Roboto', sans-serif;
         }
         
         @media (min-width: 1024px) {
@@ -291,7 +305,7 @@
         /* Form Section */
         .login-form-section {
             display: flex;
-            justify-content: center;
+            justify-content: end;
         }
 
         .login-form-card {
@@ -319,6 +333,7 @@
             font-weight: 700;
             color: #1B3A2D;
             margin: 0 0 0.5rem 0;
+            font-family: 'Roboto', sans-serif;
         }
         
         @media (min-width: 1024px) {
@@ -331,6 +346,7 @@
             color: #5A5A5A;
             font-size: 0.875rem;
             margin: 0;
+            font-family: 'Roboto', sans-serif;
         }
 
         .login-form {
@@ -351,6 +367,7 @@
             transition: all 0.2s;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             font-size: 0.875rem;
+            font-family: 'Roboto', sans-serif;
         }
 
         .login-submit-button:hover {
@@ -416,6 +433,7 @@
             font-weight: 600;
             color: #1B3A2D;
             margin-bottom: 0.25rem;
+            font-family: 'Roboto', sans-serif;
         }
 
         .fi-grid-col {
@@ -438,6 +456,7 @@
             transition: all 0.2s;
             width: 100%;
             margin-top: 10px;
+            font-family: 'Roboto', sans-serif !important;
         }
 
         .fi-input:focus {
@@ -451,6 +470,33 @@
             box-shadow: none !important;
             padding: 0 !important;
             margin: 0 !important;
+            position: relative !important;
+        }
+
+        .fi-icon-btn {
+            position: absolute !important;
+            right: 0.5rem !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 20 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0.25rem !important;
+            margin: 0 !important;
+        }
+
+        .fi-icon-btn svg {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            display: block !important;
+        }
+
+        .fi-ac-icon-btn-action {
+            position: absolute !important;
+            right: 0.5rem !important;
+            top: 60% !important;
+            transform: translateY(-50%) !important;
         }
     </style>
 </div>
