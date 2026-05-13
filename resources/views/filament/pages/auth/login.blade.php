@@ -485,7 +485,14 @@
             position: absolute;
             z-index: 20 !important;
             right: 0.5rem !important;
-            transform: translateY(-130%) !important;
+            transform: translateY(-120%) !important;
+            border: none !important;
+            stroke: none !important;
+        }
+
+        .fi-input-wrp-actions button:hover {
+            border: none !important;
+            stroke: none !important;
         }
     </style>
 </div>
