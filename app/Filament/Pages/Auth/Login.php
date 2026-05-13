@@ -9,6 +9,16 @@ use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
+    public function getView(): string
+    {
+        return 'filament.pages.auth.login';
+    }
+
+    public function getLayout(): string
+    {
+        return 'filament.pages.auth.login-layout';
+    }
+
     protected function getEmailFormComponent(): TextInput
     {
         return TextInput::make('email')
