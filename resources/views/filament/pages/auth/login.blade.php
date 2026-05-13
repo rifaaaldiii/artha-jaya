@@ -167,11 +167,13 @@
         .login-scale-transform {
             transform: scale(0.9);
             transform-origin: center;
+            margin-top: 10px;
         }
         
         @media (min-width: 1024px) {
             .login-scale-transform {
                 transform: scale(0.8);
+                margin-top: 20px;
             }
         }
 
@@ -305,7 +307,13 @@
         /* Form Section */
         .login-form-section {
             display: flex;
-            justify-content: end;
+            justify-content: center;
+        }
+        
+        @media (min-width: 1024px) {
+            .login-form-section {
+                justify-content: end;
+            }
         }
 
         .login-form-card {
