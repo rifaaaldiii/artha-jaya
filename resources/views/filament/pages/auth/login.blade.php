@@ -473,7 +473,7 @@
             position: relative !important;
         }
 
-        .fi-icon-btn {
+        /* .fi-icon-btn {
             position: absolute !important;
             right: 0.5rem !important;
             top: 50% !important;
@@ -484,12 +484,29 @@
             justify-content: center !important;
             padding: 0.25rem !important;
             margin: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .fi-icon-btn:hover {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .fi-icon-btn:focus {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         .fi-icon-btn svg {
             width: 1.25rem !important;
             height: 1.25rem !important;
             display: block !important;
+            stroke: currentColor !important;
         }
 
         .fi-ac-icon-btn-action {
@@ -497,6 +514,6 @@
             right: 0.5rem !important;
             top: 60% !important;
             transform: translateY(-50%) !important;
-        }
+        } */
     </style>
 </div>
