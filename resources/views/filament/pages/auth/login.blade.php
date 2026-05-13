@@ -84,12 +84,31 @@
     </div>
 
     <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         /* Main Container */
         .login-container {
-            width: 100%;
+            width: 100vw;
             height: 100vh;
             overflow: hidden;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0;
+            padding: 0;
         }
 
         /* Background */
@@ -99,12 +118,17 @@
             left: 0;
             right: 0;
             bottom: 0;
+            margin: 0;
+            padding: 0;
         }
 
         .login-background-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
+            margin: 0;
+            padding: 0;
         }
 
         .login-background-overlay {
@@ -113,6 +137,8 @@
             left: 0;
             right: 0;
             bottom: 0;
+            margin: 0;
+            padding: 0;
             /* background: linear-gradient(to right, rgba(245,245,240,0.95), rgba(245,245,240,0.90), rgba(245,245,240,0.80)); */
         }
 
@@ -124,13 +150,15 @@
             height: 100%;
             display: flex;
             justify-content: center;
-            padding: 1rem;
+            padding: 0;
+            margin: 0;
         }
 
         .login-content-container {
             width: 100%;
             max-width: 80rem;
             margin: 0 auto;
+            padding: 1rem;
         }
 
         .login-scale-transform {
@@ -364,7 +392,8 @@
 
         /* Filament Form Styles */
         .fi-fo-field-wrp {
-            margin-bottom: 0;
+            margin-bottom: 0 !important;
+            padding: 0 !important;
         }
 
         .fi-fo-field-wrp-error-message {
@@ -402,9 +431,9 @@
         }
 
         .fi-input {
-            border-radius: 0.5rem;
-            border: 1px solid #1B5E3B;
-            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem !important;
+            border: 1px solid #1B5E3B !important;
+            padding: 0.5rem 0.75rem !important;
             font-size: 0.875rem;
             transition: all 0.2s;
             width: 100%;
@@ -412,15 +441,16 @@
         }
 
         .fi-input:focus {
-            border-color: #1B5E3B;
-            box-shadow: 0 0 0 2px rgba(27, 94, 59, 0.1);
-            outline: none;
+            border-color: #1B5E3B !important;
+            box-shadow: 0 0 0 2px rgba(27, 94, 59, 0.1) !important;
+            outline: none !important;
         }
 
         .fi-input-wrp {
-            border: none;
-            box-shadow: none;
-            padding: 0;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
     </style>
 </div>
