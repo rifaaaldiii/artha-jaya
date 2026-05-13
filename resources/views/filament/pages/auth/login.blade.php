@@ -1,7 +1,7 @@
 <div class="login-container">
     <!-- Full Screen Background -->
     <div class="login-background">
-        <img src="{{ asset('background.png') }}" alt="Background" class="login-background-image">
+        <img src="{{ asset('1778679552_6a047f0090194.png') }}" alt="Background" class="login-background-image">
         <!-- Overlay for better text readability -->
         <div class="login-background-overlay"></div>
     </div>
@@ -23,7 +23,7 @@
                         <!-- Headline -->
                         <div class="login-headline-section">
                             <h2 class="login-headline">
-                                System Management<br>
+                                Sistem Stepnosing<br>
                                 Jasa & Layanan
                             </h2>
                             
