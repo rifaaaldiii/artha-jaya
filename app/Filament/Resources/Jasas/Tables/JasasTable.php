@@ -68,13 +68,6 @@ class JasasTable
             ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => ProgressJasa::getUrl() . '?selectedJasaId=' . $record->id),
-                // Action::make('print')
-                //     ->label('Print')
-                //     ->icon('heroicon-o-printer')
-                //     ->color('success')
-                //     ->url(fn ($record) => Report::getUrl() . '?report_type=jasa&single_number=' . $record->no_jasa, true)
-                //     ->openUrlInNewTab()
-                //     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 Action::make('invoice')
                     ->label('Print')
                     ->icon('heroicon-o-document-text')
@@ -85,7 +78,7 @@ class JasasTable
                 EditAction::make()
                     ->authorize(fn ($record) => JasaResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) !== 'selesai'),
+                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'jasa baru'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -94,7 +87,7 @@ class JasasTable
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation()
                         ->action(function ($records) {
-                            $records->filter(fn ($record) => strtolower($record->status) !== 'selesai')
+                            $records->filter(fn ($record) => strtolower($record->status) === 'jasa baru')
                                 ->each(fn ($record) => $record->delete());
                         }),
                 ]),

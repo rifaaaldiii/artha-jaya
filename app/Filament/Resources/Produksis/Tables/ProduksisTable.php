@@ -77,13 +77,6 @@ class ProduksisTable
             ->actions([
                 ViewAction::make()
                     ->url(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id),
-                // Action::make('print')
-                //     ->label('Print')
-                //     ->icon('heroicon-o-printer')
-                //     ->color('success')
-                //     ->url(fn ($record) => Report::getUrl() . '?report_type=produksi&single_number=' . $record->no_produksi, true)
-                //     ->openUrlInNewTab()
-                //     ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 Action::make('invoice')
                     ->label('Print')
                     ->icon('heroicon-o-document-text')
@@ -94,7 +87,7 @@ class ProduksisTable
                 EditAction::make()
                     ->authorize(fn ($record) => ProduksiResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => ProduksiResource::canDelete($record) && strtolower($record->status) !== 'selesai'),
+                    ->authorize(fn ($record) => ProduksiResource::canDelete($record) && strtolower($record->status) === 'baru'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -103,7 +96,7 @@ class ProduksisTable
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation()
                         ->action(function ($records) {
-                            $records->filter(fn ($record) => strtolower($record->status) !== 'selesai')
+                            $records->filter(fn ($record) => strtolower($record->status) === 'baru')
                                 ->each(fn ($record) => $record->delete());
                         }),
                 ]),

@@ -22,6 +22,8 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -80,6 +82,18 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->loginRouteName('filament.admin.auth.login')
+            ->routes(function ($routes) {
+                // Register login route without session middleware
+                $routes->get('login', function () {
+                    return redirect()->route('filament.admin.auth.login');
+                })->withoutMiddleware([
+                    StartSession::class,
+                    AuthenticateSession::class,
+                    ShareErrorsFromSession::class,
+                    SmartSessionHandler::class,
+                ]);
+            })
 
             ->navigationGroups([
                 NavigationGroup::make()

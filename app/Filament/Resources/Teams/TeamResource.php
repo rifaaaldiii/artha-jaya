@@ -64,7 +64,7 @@ class TeamResource extends Resource
     {
         $user = Auth::user();
 
-        return in_array($user->role, ['administrator', 'superadmin'], true);
+        return in_array($user->role, [''], true);
     }
 
     protected static ?int $navigationSort = 4;
