@@ -6,6 +6,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Checkbox;
@@ -180,11 +181,12 @@ class JasaForm
                 ->dehydrated(true)
                 ->helperText('Abaikan jika alamat jasa instalasi sama dengan alamat customer.'),
             
-            DateTimePicker::make("jadwal")
+            DatePicker::make("jadwal")
                 ->label("Penjadwalan Customer")
                 ->native(false)
-                ->displayFormat('d/m/Y H:i')
-                ->format('Y-m-d H:i:s')
+                ->displayFormat('d/m/Y')
+                ->format('Y-m-d')
+                ->minDate(today())
                 ->required()
                 ->disabledDates(function ($record) {
                     return Jasa::whereNotNull('jadwal_petugas')
@@ -196,7 +198,15 @@ class JasaForm
                         ->values()
                         ->toArray();
                 })
-                ->helperText('Penjadwalan jasa instalasi customer (maks. 5 jadwal per tanggal)'),
+                ->helperText('Penjadwalan jasa instalasi customer (maks. 5 jadwal per tanggal)')
+                ->afterStateHydrated(function ($component, $state) {
+                    if ($state) {
+                        $component->state(Carbon::parse($state)->format('Y-m-d'));
+                    }
+                })
+                ->dehydrateStateUsing(function ($state) {
+                    return $state ? Carbon::parse($state)->format('Y-m-d') . ' ' . Carbon::now()->format('H:i:s') : null;
+                }),
                 
             Textarea::make("catatan")
                 ->label("Catatan"),

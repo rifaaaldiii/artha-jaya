@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Components\Section;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
@@ -183,11 +184,12 @@ class ProduksiForm
                 ->dehydrated(true)
                 ->helperText('Alamat otomatis terisi dari data customer. Ubah jika alamat produksi berbeda.'),
             
-            DateTimePicker::make('jadwal')
+            DatePicker::make('jadwal')
                 ->label('Jadwal Produksi')
                 ->native(false)
-                ->displayFormat('d/m/Y H:i')
-                ->format('Y-m-d H:i:s')
+                ->displayFormat('d/m/Y')
+                ->format('Y-m-d')
+                ->minDate(today())
                 ->required()
                 ->disabledDates(function ($record) {
                     return Produksi::whereNotNull('jadwal')
@@ -199,7 +201,15 @@ class ProduksiForm
                         ->values()
                         ->toArray();
                 })
-                ->helperText('Penjadwalan produksi (maks. 5 jadwal per tanggal)'),
+                ->helperText('Penjadwalan produksi (maks. 5 jadwal per tanggal)')
+                ->afterStateHydrated(function ($component, $state) {
+                    if ($state) {
+                        $component->state(Carbon::parse($state)->format('Y-m-d'));
+                    }
+                })
+                ->dehydrateStateUsing(function ($state) {
+                    return $state ? $state . ' 00:00:00' : null;
+                }),
             
             Select::make('team_id')
                 ->label('Team')

@@ -280,9 +280,9 @@ class ProgressJasa extends Page implements HasForms
                     ->required()
                     ->native(false)
                     ->timezone('Asia/Jakarta')
-                    ->displayFormat('d/m/Y H:i')
-                    ->format('Y-m-d H:i:s')
-                    ->default(now())
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->minDate(today())
                     ->required(),
                 
                 Select::make('petugasIds')

@@ -201,7 +201,7 @@
                                             $hiddenCount = count($dayEvents) - 2;
                                         @endphp
                                         @if ($hiddenCount > 0)
-                                            <span class="event-more-badge" data-date="{{ $day['date'] }}">More +{{ $hiddenCount }}</span>
+                                            <span class="event-more-badge" data-date="{{ $day['date'] }}">+{{ $hiddenCount }} More</span>
                                         @endif
                                     @endif
                                 </div>
@@ -725,11 +725,11 @@
         }
         
         .main-day-cell.today {
-            background: #e8f0fe;
+            /* background: #e8f0fe; */
         }
         
         .main-day-cell.selected {
-            background: #e8f0fe;
+            /* background: #e8f0fe; */
             box-shadow: inset 0 0 0 2px #1a73e8;
         }
         

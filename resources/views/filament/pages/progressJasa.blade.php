@@ -1323,12 +1323,12 @@
                             <ul class="detail-list">
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Penjadawalan Customer</span>
-                                    <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y, H:i') : '-' }} WIB</span>
+                                    <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y') : '-' }}</span>
                                 </li>
                                 @if($this->record->jadwal_petugas)
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Penjadwalan Petugas</span>
-                                    <span class="detail-item-value">{{ $this->record->jadwal_petugas->format('d F Y, H:i')}} WIB</span>
+                                    <span class="detail-item-value">{{ $this->record->jadwal_petugas->format('d F Y')}}</span>
                                 </li>
                                 @endif
                                 <li class="detail-list-item">
@@ -1543,7 +1543,7 @@
                                                     </div>
 
                                                     <!-- Time Picker -->
-                                                    <div class="datepicker-time-section">
+                                                    <!-- <div class="datepicker-time-section">
                                                         <label style="font-size: 11px; color: var(--aj-muted); margin-bottom: 4px; display: block;">Waktu</label>
                                                         <div class="datepicker-time-inputs">
                                                             <select x-model="selectedHour" class="datepicker-time-select">
@@ -1558,7 +1558,7 @@
                                                                 </template>
                                                             </select>
                                                         </div>
-                                                    </div>
+                                                    </div> -->
 
                                                     <!-- Actions -->
                                                     <div class="datepicker-actions">
@@ -2071,10 +2071,11 @@
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = this.currentYear + '-' + String(this.currentMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
                     const isBooked = this.disabledDates.includes(dateStr);
+                    const isPast = dateStr < todayStr;
                     days.push({
                         number: d,
                         date: dateStr,
-                        disabled: isBooked,
+                        disabled: isBooked || isPast,
                         isBooked: isBooked,
                         selected: this.selectedDate === dateStr,
                         empty: false,
@@ -2096,7 +2097,7 @@
             get formattedValue() {
                 if (!this.selectedDate) return '';
                 const parts = this.selectedDate.split('-');
-                return parts[2] + '/' + parts[1] + '/' + parts[0] + ' ' + this.selectedHour + ':' + this.selectedMinute;
+                return parts[2] + '/' + parts[1] + '/' + parts[0];
             },
 
             get livewireValue() {
@@ -2120,6 +2121,10 @@
             },
 
             prevMonth() {
+                const todayStr = this.formatDateStr(new Date());
+                const targetDate = this.currentYear + '-' + String(this.currentMonth).padStart(2, '0') + '-01';
+                if (targetDate < todayStr.substring(0, 8) + '01') return;
+                
                 this.currentMonth--;
                 if (this.currentMonth < 0) {
                     this.currentMonth = 11;
