@@ -74,7 +74,6 @@ class ScheduleController extends Controller
 
         $schedules = $produksis->concat($jasas)
             ->filter(fn ($s) => $s['jadwal'] !== null)
-            ->filter(fn ($s) => $s['status'] !== 'selesai')
             ->sortBy('jadwal');
 
         // All schedules (including completed) for stats
@@ -120,6 +119,20 @@ class ScheduleController extends Controller
                 'location' => $item['alamat'] ?? null,
             ];
         })->values()->all();
+        
+        // Group events by date for calendar display
+        $eventsByDate = $schedules->groupBy('jadwal')->map(function ($dayEvents) {
+            return $dayEvents->map(function ($event) {
+                return [
+                    'type' => $event['type'],
+                    'status' => $event['status'],
+                    'time' => 'All Day',
+                    'title' => $event['customer'],
+                    'location' => $event['alamat'],
+                    'reference' => $event['no_ref'],
+                ];
+            })->values()->all();
+        })->toArray();
 
         $prevMonth = $selectedMonth->copy()->subMonth()->format('Y-m');
         $nextMonth = $selectedMonth->copy()->addMonth()->format('Y-m');
@@ -132,7 +145,8 @@ class ScheduleController extends Controller
             'detailItems',
             'prevMonth',
             'nextMonth',
-            'stats'
+            'stats',
+            'eventsByDate'
         ))->title('Jadwal Produksi & Jasa - Artha Jaya');
     }
 }
