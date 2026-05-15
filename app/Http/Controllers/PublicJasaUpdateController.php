@@ -58,7 +58,7 @@ class PublicJasaUpdateController extends Controller
     {
         $request->validate([
             'images' => 'required|array|min:1|max:5',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'notes' => 'nullable|string|max:1000',
             'confirm' => 'required|accepted',
         ], [
@@ -67,7 +67,7 @@ class PublicJasaUpdateController extends Controller
             'images.max' => 'Maksimal 5 foto.',
             'images.*.image' => 'File harus berupa gambar.',
             'images.*.mimes' => 'Format gambar harus jpeg, png, jpg, atau webp.',
-            'images.*.max' => 'Ukuran setiap foto maksimal 2MB.',
+            'images.*.max' => 'Ukuran setiap foto maksimal 5MB.',
             'confirm.accepted' => 'Anda harus mengkonfirmasi bahwa pengerjaan sudah selesai.',
         ]);
         
