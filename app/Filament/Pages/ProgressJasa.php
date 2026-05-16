@@ -157,6 +157,13 @@ class ProgressJasa extends Page implements HasForms
                             ->with(['pelanggan', 'items'])
                             ->where('status', '!=', 'selesai');
 
+                        // Superadmin and admin_toko cannot update status for 'terjadwal' jasa
+                        // So hide them from the list
+                        $normalizedRole = str_replace(' ', '_', strtolower($user->role ?? ''));
+                        if (in_array($normalizedRole, ['superadmin', 'admin_toko'], true)) {
+                            $query->where('status', '!=', 'terjadwal');
+                        }
+
                         // Filter by branch: if user has branch, filter by it; otherwise fetch all
                         if ($user->branch) {
                             $query->where('branch', $user->branch);
@@ -191,6 +198,13 @@ class ProgressJasa extends Page implements HasForms
                         $query = Jasa::query()
                             ->with(['pelanggan', 'items'])
                             ->where('status', '!=', 'selesai');
+
+                        // Superadmin and admin_toko cannot update status for 'terjadwal' jasa
+                        // So hide them from the search results
+                        $normalizedRole = str_replace(' ', '_', strtolower($user->role ?? ''));
+                        if (in_array($normalizedRole, ['superadmin', 'admin_toko'], true)) {
+                            $query->where('status', '!=', 'terjadwal');
+                        }
 
                         // Filter by branch: if user has branch, filter by it; otherwise fetch all
                         if ($user->branch) {
@@ -322,6 +336,17 @@ class ProgressJasa extends Page implements HasForms
             Notification::make()
                 ->title('Data jasa tidak ditemukan')
                 ->danger()
+                ->send();
+            return;
+        }
+
+        // Prevent superadmin and admin_toko from updating status when jasa is 'terjadwal'
+        $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
+        if (in_array($normalizedRole, ['superadmin', 'admin_toko'], true) && $this->record->status === 'terjadwal') {
+            Notification::make()
+                ->title('Tidak dapat mengupdate status')
+                ->warning()
+                ->body('Status "Terjadwal" tidak dapat diubah oleh ' . ucwords(str_replace('_', ' ', $normalizedRole)) . '. Silakan hubungi Kepala Lapangan.')
                 ->send();
             return;
         }
@@ -629,6 +654,8 @@ class ProgressJasa extends Page implements HasForms
             return null;
         }
 
+        $normalizedRole = str_replace(' ', '_', strtolower($user->role ?? ''));
+
         // Check if user has permission to update status
         $allowedStatuses = self::getAllowedStatusesForRoleStatic();
         
@@ -640,6 +667,12 @@ class ProgressJasa extends Page implements HasForms
         // Build query for counting jasas
         $query = Jasa::query()
             ->where('status', '!=', 'selesai');
+
+        // Superadmin and admin_toko cannot update 'terjadwal' status
+        // So exclude them from the badge count
+        if (in_array($normalizedRole, ['superadmin', 'admin_toko'], true)) {
+            $query->where('status', '!=', 'terjadwal');
+        }
 
         // Filter by branch: if user has branch, filter by it; otherwise fetch all
         if ($user->branch) {
