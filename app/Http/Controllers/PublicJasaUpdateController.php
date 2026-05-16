@@ -158,8 +158,8 @@ class PublicJasaUpdateController extends Controller
             
             DB::commit();
             
-            // Send notification to admin
-            $this->sendCompletionNotification($jasa, $oldStatus);
+            // Notification will be sent automatically by JasaObserver when status changes
+            // No need to send manually here to avoid duplicate notifications
             
             return view('public.jasa-update-success', [
                 'jasa' => $jasa,
@@ -176,66 +176,6 @@ class PublicJasaUpdateController extends Controller
             return response()->view('errors.access-denied', [
                 'message' => 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi atau hubungi administrator jika masalah berlanjut.'
             ], 500);
-        }
-    }
-    
-    /**
-     * Send notification to admin about completion.
-     */
-    protected function sendCompletionNotification($jasa, $oldStatus)
-    {
-        try {
-            // Get recipients based on branch and event type
-            // superadmin: receives from all branches
-            // admin_toko: receives only from their own branch (matching jasa.branch)
-            $recipients = \App\Services\WhatsAppNotificationHelper::getRecipientsByBranch(
-                $jasa->branch ?? 'AJP',
-                'jasa_status_updated',
-                'selesai dikerjakan'
-            );
-            
-            if ($recipients->isEmpty()) {
-                \Log::warning('No recipients found to notify', [
-                    'jasa_id' => $jasa->id,
-                    'branch' => $jasa->branch,
-                ]);
-                return;
-            }
-            
-            $jasaData = [
-                'jasa_id' => $jasa->id,
-                'no_jasa' => $jasa->no_jasa,
-                'no_ref' => $jasa->no_ref,
-                'branch' => $jasa->branch,
-                'pelanggan' => $jasa->pelanggan?->nama ?? '-',
-                'kontak' => $jasa->pelanggan?->kontak ?? '-',
-                'alamat' => $jasa->alamat ?? $jasa->pelanggan?->alamat ?? '-',
-                'old_status' => $oldStatus,
-                'new_status' => $jasa->status,
-                'jadwal_petugas' => $jasa->jadwal_petugas ? $jasa->jadwal_petugas->format('d/m/Y H:i') : '-',
-            ];
-            
-            // Send notification to recipients (superadmin + admin_toko with matching branch)
-            \App\Services\WhatsAppNotificationHelper::sendJasaStatusUpdate($recipients, $jasaData);
-            
-            \Log::info('Completion notification sent successfully', [
-                'jasa_id' => $jasa->id,
-                'no_jasa' => $jasa->no_jasa,
-                'branch' => $jasa->branch,
-                'recipients_count' => $recipients->count(),
-                'recipients' => $recipients->map(fn($u) => [
-                    'id' => $u->id,
-                    'name' => $u->name,
-                    'role' => $u->role,
-                    'branch' => $u->branch,
-                ])->toArray(),
-            ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Failed to send completion notification', [
-                'jasa_id' => $jasa->id,
-                'error' => $e->getMessage(),
-            ]);
         }
     }
 }
