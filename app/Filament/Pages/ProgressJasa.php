@@ -50,14 +50,8 @@ class ProgressJasa extends Page implements HasForms
     #[Computed]
     public function disabledJadwalDates(): array
     {
-        return Jasa::whereNotNull('jadwal_petugas')
-            ->when($this->record, fn ($query) => $query->where('id', '!=', $this->record->id))
-            ->get()
-            ->groupBy(fn ($item) => \Carbon\Carbon::parse($item->jadwal_petugas)->format('Y-m-d'))
-            ->filter(fn ($group) => $group->count() >= 5)
-            ->keys()
-            ->values()
-            ->toArray();
+        // No disabled dates - unlimited scheduling allowed
+        return [];
     }
 
     public static function getNavigationGroup(): ?string
