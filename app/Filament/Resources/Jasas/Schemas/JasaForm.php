@@ -16,7 +16,9 @@ use Carbon\Carbon;
 use Filament\Schemas\Schema;
 use App\Models\Jasa;
 use App\Models\JenisJasa;
+use App\Models\KategoriJasaItem;
 use App\Models\Pelanggan;
+use App\Models\Accessori;
 use Illuminate\Support\Facades\Auth;
 
 class JasaForm
@@ -123,19 +125,94 @@ class JasaForm
                 ->required(fn ($get) => $get('create_new_pelanggan'))
                 ->visible(fn ($get, $record) => !$record && $get('create_new_pelanggan'))
                 ->dehydrated(fn ($get) => $get('create_new_pelanggan')),
+            Textarea::make('alamat')
+                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Jasa Instalasi')
+                ->required()
+                ->reactive()
+                ->dehydrated(true)
+                ->helperText('Abaikan jika alamat jasa instalasi sama dengan alamat customer.'),
+            
             Repeater::make('items')
                 ->relationship('items')
                 ->schema([
+                    Select::make('kategori_jasa_item_id')
+                        ->label('Kategori')
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->options(fn () => KategoriJasaItem::query()
+                            ->orderBy('nama')
+                            ->pluck('nama', 'id')
+                            ->toArray()
+                        )
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get, $component) {
+                            // Reset jenis_layanan when category changes
+                            $set('jenis_layanan', null);
+                            $set('harga', null);
+                            
+                            // Check if AC category is selected in any item
+                            $repeaterState = $component->getContainer()->getParentComponent()->getState();
+                            $hasAC = false;
+                            
+                            foreach ($repeaterState as $item) {
+                                if (isset($item['kategori_jasa_item_id'])) {
+                                    $kategori = KategoriJasaItem::find($item['kategori_jasa_item_id']);
+                                    if ($kategori && strtolower($kategori->nama) === 'ac') {
+                                        $hasAC = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Auto-populate accessories_items if AC is selected
+                            if ($hasAC) {
+                                $accessories = Accessori::orderBy('nama')->get();
+                                $accessoriesItems = [];
+                                
+                                foreach ($accessories as $accessori) {
+                                    $jumlahMap = [
+                                        1 => 3,
+                                        2 => 1,
+                                        3 => 4,
+                                        4 => 2,
+                                    ];
+                                    $jumlah = $jumlahMap[$accessori->id] ?? 1;
+                                    
+                                    // Get AC category ID
+                                    $acKategori = KategoriJasaItem::whereRaw('LOWER(nama) = ?', ['ac'])->first();
+                                    
+                                    $accessoriesItems[] = [
+                                        'kategori_jasa_item_id' => $acKategori?->id,
+                                        'jenis_layanan' => $accessori->nama,
+                                        'jumlah' => $jumlah,
+                                        'harga' => $accessori->harga * $jumlah,
+                                    ];
+                                }
+                                
+                                $set('../../accessories_items', $accessoriesItems);
+                            } else {
+                                // Clear accessories_items if no AC category
+                                $set('../../accessories_items', []);
+                            }
+                        })
+                        ->columnSpan(1),
                     Select::make("jenis_layanan")
                         ->label("Jenis Jasa & Layanan")
                         ->required()
                         ->searchable()
                         ->preload()
-                        ->options(fn () => JenisJasa::query()
-                            ->orderBy('nama')
-                            ->pluck('nama', 'nama')
-                            ->toArray()
-                        )
+                        ->options(function ($get) {
+                            $kategoriId = $get('kategori_jasa_item_id');
+                            $query = JenisJasa::query()->orderBy('nama');
+                            
+                            // Filter by category if selected
+                            if ($kategoriId) {
+                                $query->where('kategori_id', $kategoriId);
+                            }
+                            
+                            return $query->pluck('nama', 'nama')->toArray();
+                        })
                         ->reactive()
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                             if ($state) {
@@ -145,7 +222,8 @@ class JasaForm
                                     $set('harga', $jenisJasa->harga * $jumlah);
                                 }
                             }
-                        }),
+                        })
+                        ->columnSpan(2),
                     TextInput::make("jumlah")
                         ->label("Jumlah")
                         ->numeric()
@@ -158,6 +236,38 @@ class JasaForm
                                 $jenisJasa = JenisJasa::where('nama', $jenisLayanan)->first();
                                 if ($jenisJasa && $jenisJasa->harga) {
                                     $set('harga', $jenisJasa->harga * $state);
+                                }
+                            }
+                            
+                            // Update accessories_items if AC category is selected
+                            $kategoriId = $get('kategori_jasa_item_id');
+                            if ($kategoriId) {
+                                $kategori = KategoriJasaItem::find($kategoriId);
+                                if ($kategori && strtolower($kategori->nama) === 'ac') {
+                                    $accessories = Accessori::orderBy('nama')->get();
+                                    $accessoriesItems = [];
+                                    
+                                    foreach ($accessories as $accessori) {
+                                        $jumlahMap = [
+                                            1 => 3,
+                                            2 => 1,
+                                            3 => 4,
+                                            4 => 2,
+                                        ];
+                                        $baseJumlah = $jumlahMap[$accessori->id] ?? 1;
+                                        $finalJumlah = $baseJumlah * $state;
+                                        
+                                        $acKategori = KategoriJasaItem::whereRaw('LOWER(nama) = ?', ['ac'])->first();
+                                        
+                                        $accessoriesItems[] = [
+                                            'kategori_jasa_item_id' => $acKategori?->id,
+                                            'jenis_layanan' => $accessori->nama,
+                                            'jumlah' => $finalJumlah,
+                                            'harga' => $accessori->harga * $finalJumlah,
+                                        ];
+                                    }
+                                    
+                                    $set('../../accessories_items', $accessoriesItems);
                                 }
                             }
                         }),
@@ -174,13 +284,70 @@ class JasaForm
                 ->required()
                 ->minItems(1),
         
-            Textarea::make('alamat')
-                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Jasa Instalasi')
-                ->required()
-                ->reactive()
-                ->dehydrated(true)
-                ->helperText('Abaikan jika alamat jasa instalasi sama dengan alamat customer.'),
-            
+            Repeater::make('accessories_items')
+                ->relationship('items')
+                ->schema([
+                    Select::make('kategori_jasa_item_id')
+                        ->label('Kategori')
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->options(fn () => KategoriJasaItem::query()
+                            ->whereRaw('LOWER(nama) = ?', ['ac'])
+                            ->pluck('nama', 'id')
+                            ->toArray()
+                        )
+                        ->disabled()
+                        ->dehydrated(true)
+                        ->columnSpan(1),
+                    Select::make("jenis_layanan")
+                        ->label("Accessories")
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->options(fn () => Accessori::query()
+                            ->orderBy('nama')
+                            ->pluck('nama', 'nama')
+                            ->toArray()
+                        )
+                        ->disabled()
+                        ->dehydrated(true)
+                        ->columnSpan(2),
+                    TextInput::make("jumlah")
+                        ->label("Jumlah")
+                        ->numeric()
+                        ->required()
+                        ->disabled()
+                        ->dehydrated(true),
+                    TextInput::make("harga")
+                        ->label("Harga Total")
+                        ->numeric()
+                        ->prefix('Rp')
+                        ->required()
+                        ->disabled()
+                        ->dehydrated(true),
+                ])
+                ->columns(3)
+                ->visible(function ($get) {
+                    $items = $get('items') ?? [];
+                    foreach ($items as $item) {
+                        if (isset($item['kategori_jasa_item_id'])) {
+                            $kategori = KategoriJasaItem::find($item['kategori_jasa_item_id']);
+                            if ($kategori && strtolower($kategori->nama) === 'ac') {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                })
+                ->collapsible()
+                ->itemLabel(fn (array $state): ?string => 
+                    $state['jenis_layanan'] ?? 'Accessory Item'
+                )
+                ->deletable(false)
+                ->reorderable(false)
+                ->addable(false),
+        
             DatePicker::make("jadwal")
                 ->label("Penjadwalan Customer")
                 ->native(false)
@@ -193,12 +360,10 @@ class JasaForm
                         ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
                         ->get()
                         ->groupBy(fn ($item) => Carbon::parse($item->jadwal_petugas)->format('Y-m-d'))
-                        ->filter(fn ($group) => $group->count() >= 5)
                         ->keys()
                         ->values()
                         ->toArray();
                 })
-                ->helperText('Penjadwalan jasa instalasi customer (maks. 5 jadwal per tanggal)')
                 ->afterStateHydrated(function ($component, $state) {
                     if ($state) {
                         $component->state(Carbon::parse($state)->format('Y-m-d'));

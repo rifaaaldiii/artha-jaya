@@ -4,14 +4,29 @@ namespace App\Filament\Resources\JenisJasas\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
+use App\Models\KategoriJasaItem;
 
 class JenisJasaForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
+            TextInput::make('itemcode')
+                ->label('Item Code')
+                ->required()
+                ->unique(ignoreRecord: true)
+                ->maxLength(255),
+            Select::make('kategori_id')
+                ->label('Kategori')
+                ->required()
+                ->searchable()
+                ->preload()
+                ->options(fn () => KategoriJasaItem::query()
+                    ->orderBy('nama')
+                    ->pluck('nama', 'id')
+                    ->toArray()
+                ),
             TextInput::make('nama')
                 ->label('Nama Jenis Jasa')
                 ->required()
@@ -53,11 +68,6 @@ class JenisJasaForm
                 ->searchable()
                 ->nullable()
                 ->placeholder('Pilih satuan'),
-            Textarea::make('deskripsi')
-                ->label('Deskripsi')
-                ->rows(3)
-                ->nullable()
-                ->columnSpanFull(),
         ]);
     }
 }

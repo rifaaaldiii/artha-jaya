@@ -9,8 +9,10 @@ use App\Models\Petugas;
 use App\Filament\Pages\Report;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\KategoriJasaItemSeeder;
 use Database\Seeders\JenisJasaSeeder;
 use Database\Seeders\JenisProduksiSeeder;
+use Database\Seeders\AccessoriSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -108,10 +110,16 @@ class DatabaseSeeder extends Seeder
             Petugas::create($petugasData);
         }
 
+        // Kategori Jasa Item seeding
+        $this->call(KategoriJasaItemSeeder::class);
+        
         // Jenis Jasa seeding
         $this->call(JenisJasaSeeder::class);
         
         // Jenis Produksi seeding
         $this->call(JenisProduksiSeeder::class);
+
+        // Accessories seeding
+        $this->call(AccessoriSeeder::class);
     }
 }

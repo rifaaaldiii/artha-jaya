@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\JenisJasas;
+namespace App\Filament\Resources\KategoriJasaItems;
 
-use App\Filament\Resources\JenisJasas\Pages;
-use App\Filament\Resources\JenisJasas\Schemas\JenisJasaForm;
-use App\Filament\Resources\JenisJasas\Tables\JenisJasasTable;
-use App\Models\JenisJasa;
+use App\Filament\Resources\KategoriJasaItems\Pages;
+use App\Filament\Resources\KategoriJasaItems\Schemas\KategoriJasaItemForm;
+use App\Filament\Resources\KategoriJasaItems\Tables\KategoriJasaItemsTable;
+use App\Models\KategoriJasaItem;
 use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -13,34 +13,34 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class JenisJasaResource extends Resource
+class KategoriJasaItemResource extends Resource
 {
-    protected static ?string $model = JenisJasa::class;
+    protected static ?string $model = KategoriJasaItem::class;
 
-    protected static ?string $navigationLabel = 'Jenis Jasa';
+    protected static ?string $navigationLabel = 'Kategori Jasa';
 
     protected static UnitEnum|string|null $navigationGroup = 'Jasa & Layanan';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     public static function getLabel(): ?string
     {
-        return 'Jenis';
+        return 'Kategori';
     }
 
     public static function getPluralLabel(): ?string
     {
-        return 'Tabel Jenis Jasa';
+        return 'Kategori Jasa';
     }
 
     public static function form(Schema $schema): Schema
     {
-        return JenisJasaForm::configure($schema);
+        return KategoriJasaItemForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return JenisJasasTable::configure($table);
+        return KategoriJasaItemsTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -51,7 +51,7 @@ class JenisJasaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageJenisJasas::route('/'),
+            'index' => Pages\ManageKategoriJasaItems::route('/'),
         ];
     }
 
@@ -87,4 +87,3 @@ class JenisJasaResource extends Resource
         return static::canManage();
     }
 }
-

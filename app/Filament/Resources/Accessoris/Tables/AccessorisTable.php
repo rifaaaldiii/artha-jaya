@@ -1,28 +1,26 @@
 <?php
 
-namespace App\Filament\Resources\JenisJasas\Tables;
+namespace App\Filament\Resources\Accessoris\Tables;
 
-use App\Filament\Resources\JenisJasas\JenisJasaResource;
+use App\Filament\Resources\Accessoris\AccessoriResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class JenisJasasTable
+class AccessorisTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
+                TextColumn::make('No.')
+                    ->rowIndex()
+                    ->label('No.'),
                 TextColumn::make('itemcode')
                     ->label('Item Code')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('kategori.nama')
-                    ->label('Kategori')
-                    ->searchable()
-                    ->sortable()
-                    ->badge(),
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()
@@ -33,18 +31,14 @@ class JenisJasasTable
                     ->sortable(),
                 TextColumn::make('uom')
                     ->label('UOM')
-                    ->badge(),
-                TextColumn::make('updated_at')
-                    ->label('Diperbarui')
-                    ->dateTime('d M Y H:i')
+                    ->searchable()
                     ->sortable(),
             ])
             ->recordActions([
                 EditAction::make()
-                    ->authorize(fn ($record) => JenisJasaResource::canEdit($record)),
+                    ->authorize(fn ($record) => AccessoriResource::canEdit($record)),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => JenisJasaResource::canDelete($record)),
+                    ->authorize(fn ($record) => AccessoriResource::canDelete($record)),
             ]);
     }
 }
-

@@ -11,6 +11,7 @@ class JasaItem extends Model
 
     protected $fillable = [
         'jasa_id',
+        'kategori_jasa_item_id',
         'jenis_layanan',
         'jumlah',
         'harga',
@@ -24,6 +25,14 @@ class JasaItem extends Model
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
     ];
+
+    /**
+     * Get the kategori for this jasa item.
+     */
+    public function kategori(): BelongsTo
+    {
+        return $this->belongsTo(KategoriJasaItem::class, 'kategori_jasa_item_id');
+    }
 
     /**
      * Get the jasa that owns this item.

@@ -48,12 +48,27 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert data back to old role values
+        // First, expand the enum to include both old and new values
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', [
+                'administrator',
+                'superadmin',
+                'admin_toko',
+                'kepala_lapangan',
+                'admin_gudang',
+                'kepala_teknisi_lapangan',
+                'kepala_teknisi_gudang',
+                'petugas',
+            ])->change();
+        });
+
+        // Then revert data back to old role values
+        // Map 'superadmin' back to 'admin_gudang' (most common original role)
         DB::table('users')->where('role', 'superadmin')->update(['role' => 'admin_gudang']);
         DB::table('users')->where('role', 'kepala_lapangan')->update(['role' => 'kepala_teknisi_lapangan']);
         DB::table('users')->where('role', 'admin_toko')->update(['role' => 'petugas']);
 
-        // Then revert the enum column
+        // Finally, revert the enum column to original values
         Schema::table('users', function (Blueprint $table) {
             $table->enum('role', [
                 'administrator',

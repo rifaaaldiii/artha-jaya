@@ -23,8 +23,8 @@
                         <!-- Headline -->
                         <div class="login-headline-section">
                             <h2 class="login-headline">
-                                Sistem Stepnosing<br>
-                                Jasa & Layanan
+                                System Management<br>Jasa &
+                                Layanan
                             </h2>
                             
                             <!-- Decorative Line -->

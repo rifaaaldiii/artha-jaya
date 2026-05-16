@@ -74,9 +74,7 @@ class JasasTable
                     ->color('primary')
                     ->url(fn ($record) => route('filament.admin.pages.report') . '/preview-invoice?number=' . urlencode($record->no_jasa) . '&type=jasa', true)
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
-                EditAction::make()
-                    ->authorize(fn ($record) => JasaResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
+                    ->visible(fn ($record) => strtolower($record->status) === 'jasa baru'),
                 DeleteAction::make()
                     ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'jasa baru'),
             ])

@@ -6,7 +6,7 @@
     .fi-login,
     .fi-simple-main,
     .fi-resource-page {
-        zoom: 80%;
+        zoom: 90%;
     }
 
     /* Ensure user menu/profile is positioned on the right side of topbar */
@@ -30,7 +30,7 @@
     }
 
     .fi-page {
-        zoom: 80%;
+        zoom: 90%;
         width: 100%;
     }
 
@@ -46,7 +46,7 @@
 
     /* Tables and content */
     .fi-table {
-        zoom: 80%;
+        zoom: 90%;
     }
 
     /* Ensure proper scaling for modals and dropdowns */
@@ -107,7 +107,7 @@
             left: auto !important;
             right: 20px !important;
             top: 65px !important;
-            zoom: 80%;
+            zoom: 90%;
         }
     }
 

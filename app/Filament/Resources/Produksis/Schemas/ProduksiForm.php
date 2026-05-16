@@ -122,6 +122,13 @@ class ProduksiForm
                 ->required(fn ($get) => $get('create_new_pelanggan'))
                 ->visible(fn ($get, $record) => !$record && $get('create_new_pelanggan'))
                 ->dehydrated(fn ($get) => $get('create_new_pelanggan')),
+            Textarea::make('alamat')
+                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Customer')
+                ->required()
+                ->reactive()
+                ->dehydrated(true)
+                ->helperText('Alamat otomatis terisi dari data customer. Ubah jika alamat produksi berbeda.'),
+            
             Repeater::make('items')
                 ->relationship('items')
                 ->schema([
@@ -177,13 +184,6 @@ class ProduksiForm
                 ->required()
                 ->minItems(1),
         
-            Textarea::make('alamat')
-                ->label(fn ($get) => $get('create_new_pelanggan') ? 'Alamat' : 'Alamat Customer')
-                ->required()
-                ->reactive()
-                ->dehydrated(true)
-                ->helperText('Alamat otomatis terisi dari data customer. Ubah jika alamat produksi berbeda.'),
-            
             DatePicker::make('jadwal')
                 ->label('Jadwal Produksi')
                 ->native(false)
@@ -196,12 +196,10 @@ class ProduksiForm
                         ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
                         ->get()
                         ->groupBy(fn ($item) => Carbon::parse($item->jadwal)->format('Y-m-d'))
-                        ->filter(fn ($group) => $group->count() >= 5)
                         ->keys()
                         ->values()
                         ->toArray();
                 })
-                ->helperText('Penjadwalan produksi (maks. 5 jadwal per tanggal)')
                 ->afterStateHydrated(function ($component, $state) {
                     if ($state) {
                         $component->state(Carbon::parse($state)->format('Y-m-d'));
