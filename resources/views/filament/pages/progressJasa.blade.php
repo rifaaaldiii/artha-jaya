@@ -1540,24 +1540,6 @@
                                                         </template>
                                                     </div>
 
-                                                    <!-- Time Picker -->
-                                                    <!-- <div class="datepicker-time-section">
-                                                        <label style="font-size: 11px; color: var(--aj-muted); margin-bottom: 4px; display: block;">Waktu</label>
-                                                        <div class="datepicker-time-inputs">
-                                                            <select x-model="selectedHour" class="datepicker-time-select">
-                                                                <template x-for="h in hours" :key="h">
-                                                                    <option :value="h" x-text="h"></option>
-                                                                </template>
-                                                            </select>
-                                                            <span class="datepicker-time-separator">:</span>
-                                                            <select x-model="selectedMinute" class="datepicker-time-select">
-                                                                <template x-for="m in minutes" :key="m">
-                                                                    <option :value="m" x-text="m"></option>
-                                                                </template>
-                                                            </select>
-                                                        </div>
-                                                    </div> -->
-
                                                     <!-- Actions -->
                                                     <div class="datepicker-actions">
                                                         <button type="button" @click="clearValue" class="datepicker-btn-clear">Hapus</button>
@@ -1753,6 +1735,7 @@
                                         </span>
                                     </div>
                                 </div>
+                                @endif
                             @endif
                         </div>
                     @endif
