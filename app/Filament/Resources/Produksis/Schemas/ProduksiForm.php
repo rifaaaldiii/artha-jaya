@@ -191,15 +191,15 @@ class ProduksiForm
                 ->format('Y-m-d')
                 ->minDate(today())
                 ->required()
-                ->disabledDates(function ($record) {
-                    return Produksi::whereNotNull('jadwal')
-                        ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
-                        ->get()
-                        ->groupBy(fn ($item) => Carbon::parse($item->jadwal)->format('Y-m-d'))
-                        ->keys()
-                        ->values()
-                        ->toArray();
-                })
+                // ->disabledDates(function ($record) {
+                //     return Produksi::whereNotNull('jadwal')
+                //         ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
+                //         ->get()
+                //         ->groupBy(fn ($item) => Carbon::parse($item->jadwal)->format('Y-m-d'))
+                //         ->keys()
+                //         ->values()
+                //         ->toArray();
+                // })
                 ->afterStateHydrated(function ($component, $state) {
                     if ($state) {
                         $component->state(Carbon::parse($state)->format('Y-m-d'));
