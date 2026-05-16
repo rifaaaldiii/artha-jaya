@@ -1422,15 +1422,20 @@
                         $allowedStatuses = $this->getAllowedStatusesForRole();
                         $nextSequentialStatus = $this->getNextSequentialStatusProperty();
                         $canProceedNext = $nextSequentialStatus && in_array($nextSequentialStatus, $allowedStatuses, true);
-                        // Always enable: no validation
-                        $isUpdateEnabled = true;
+                        
+                        // Check if user is superadmin or admin_toko and status is terjadwal
+                        $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
+                        $isTerjadwalRestricted = in_array($normalizedRole, ['superadmin', 'admin_toko'], true) && $record->status === 'terjadwal';
+                        
+                        // Disable update if restricted
+                        $isUpdateEnabled = !$isTerjadwalRestricted;
 
                         // Find the role allowed for the next status - for info message if not allowed
                         $nextSequentialStatusRole = null;
                         if ($nextSequentialStatus) {
                             // Mapping untuk Progress Jasa
                             $roleStatusMap = [
-                                'jasa baru' => 'superadmin',
+                                'terjadwal' => 'superadmin',
                                 'selesai dikerjakan' => 'kepala_lapangan',
                                 'selesai' => 'superadmin, admin_toko',
                             ];
@@ -1443,7 +1448,7 @@
                         }
                     @endphp
 
-                    @if($this->record->status !== 'selesai')
+                    @if($this->record->status !== 'selesai' && !$isTerjadwalRestricted)
                         <div class="update-status-card">
                             <div class="update-status-header">
                                 <div>
@@ -1678,6 +1683,7 @@
                                                     wire:click="updateStatus"
                                                     wire:loading.attr="disabled"
                                                     wire:target="updateStatus"
+                                                    :disabled="!$isUpdateEnabled"
                                                 >
                                                     Update Status
                                                 </x-filament::button>
@@ -1701,6 +1707,7 @@
                                                 wire:loading.attr="disabled"
                                                 wire:target="updateStatus"
                                                 size="lg"
+                                                :disabled="!$isUpdateEnabled"
                                             >
                                                 Update Status
                                             </x-filament::button>
@@ -1721,6 +1728,19 @@
                                     @endif
                                 </div>
                             @else
+                                @if($isTerjadwalRestricted)
+                                    {{-- Show restriction message for superadmin and admin_toko when status is terjadwal --}}
+                                    <div class="update-status-no-permission" style="display: flex; align-items: center; gap: 14px; border-radius: 8px; padding: 15px 24px; background: #FEF2F2; border: 1px solid #FECACA;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 32 32" width="38" height="38" style="flex-shrink:0;" stroke="#dc2626">
+                                            <circle cx="16" cy="16" r="15" stroke="#dc2626" stroke-width="2" fill="#FEF2F2"/>
+                                            <path stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 11v6m0 4h.01"/>
+                                        </svg>
+                                        <div style="font-size: 13px; color: #dc2626; text-align:left;">
+                                            <strong>Tidak dapat mengupdate status</strong><br>
+                                            Status "Terjadwal" tidak dapat diubah oleh {{ ucwords(str_replace('_', ' ', $normalizedRole)) }}. Silakan hubungi Kepala Lapangan untuk melanjutkan.
+                                        </div>
+                                    </div>
+                                @else
                                 <div class="update-status-no-permission" style="display: flex; align-items: center; gap: 14px; border-radius: 8px; padding: 15px 24px;">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 32 32" width="38" height="38" style="flex-shrink:0;" stroke="#F59E42">
                                         <circle cx="16" cy="16" r="15" stroke="#d90606" stroke-width="2" fill="#FFF3DE"/>
