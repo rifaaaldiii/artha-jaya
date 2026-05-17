@@ -422,14 +422,15 @@
                     @if(isset($row['items']) && count($row['items']) > 0)
                         @foreach($row['items'] as $index => $item)
                             @php
-                                $itemTotal = ($item['jumlah'] ?? 0) * ($item['harga'] ?? 0);
+                                $hargaawal = ($item['harga'] ?? 0) / ($item['jumlah'] ?? 1);
+                                $itemTotal = ($item['jumlah'] ?? 0) * $hargaawal;
                                 $grandTotal += $itemTotal;
                             @endphp
                             <tr>
                                 <td class="text-center">{{ $index + 1 }}</td>
                                 <td>{{ $item['jenis_layanan'] ?? '-' }}</td>
                                 <td class="text-center">{{ $item['jumlah'] ?? 0 }}</td>
-                                <td class="text-right">Rp {{ number_format($item['harga'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="text-right">Rp {{ number_format($hargaawal, 0, ',', '.') }}</td>
                                 <td class="text-right">Rp {{ number_format($itemTotal, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach

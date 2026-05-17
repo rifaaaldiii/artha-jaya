@@ -324,34 +324,9 @@ class JasaForm
                         ->disabled()
                         ->dehydrated(true)
                         ->columnSpan(1),
-                    Select::make("jenis_layanan")
+                    TextInput::make("jenis_layanan")
                         ->label("Accessories")
                         ->required()
-                        ->searchable()
-                        ->preload()
-                        ->options(function ($get) {
-                            // Get all jenis_jasa from items and fetch their related accessories
-                            $items = $get('items') ?? [];
-                            $accessoryIds = [];
-                            
-                            foreach ($items as $item) {
-                                if (isset($item['jenis_layanan'])) {
-                                    $jenisJasa = JenisJasa::where('nama', $item['jenis_layanan'])->first();
-                                    if ($jenisJasa) {
-                                        $accessories = $jenisJasa->accessories()->pluck('id')->toArray();
-                                        $accessoryIds = array_merge($accessoryIds, $accessories);
-                                    }
-                                }
-                            }
-                            
-                            $accessoryIds = array_unique($accessoryIds);
-                            
-                            return Accessori::query()
-                                ->whereIn('id', $accessoryIds)
-                                ->orderBy('nama')
-                                ->pluck('nama', 'nama')
-                                ->toArray();
-                        })
                         ->disabled()
                         ->dehydrated(true)
                         ->columnSpan(2),
@@ -359,7 +334,19 @@ class JasaForm
                         ->label("Jumlah")
                         ->numeric()
                         ->required()
-                        // ->disabled()
+                        ->default(1)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            if ($state) {
+                                $jenisLayanan = $get('jenis_layanan');
+                                if ($jenisLayanan) {
+                                    $accessori = Accessori::where('nama', $jenisLayanan)->first();
+                                    if ($accessori && $accessori->harga) {
+                                        $set('harga', $accessori->harga * $state);
+                                    }
+                                }
+                            }
+                        })
                         ->dehydrated(true),
                     TextInput::make("harga")
                         ->label("Harga Total")
