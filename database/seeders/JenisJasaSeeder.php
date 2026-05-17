@@ -207,6 +207,13 @@ class JenisJasaSeeder extends Seeder
                 'harga' => 200000,
                 'uom' => 'UNIT',
             ],
+            [
+                'itemcode' => '2',
+                'kategori_id' => 4,
+                'nama' => 'JASA PASANG AC SPLIT WALL KAPASITAS 1,5-2PK',
+                'harga' => 300000,
+                'uom' => 'UNIT',
+            ],
         ];
 
         foreach ($jenisJasas as $jenisJasa) {

@@ -151,48 +151,39 @@ class JasaForm
                             $set('jenis_layanan', null);
                             $set('harga', null);
                             
-                            // Check if AC category is selected in any item
-                            $repeaterState = $component->getContainer()->getParentComponent()->getState();
-                            $hasAC = false;
-                            
-                            foreach ($repeaterState as $item) {
-                                if (isset($item['kategori_jasa_item_id'])) {
-                                    $kategori = KategoriJasaItem::find($item['kategori_jasa_item_id']);
-                                    if ($kategori && strtolower($kategori->nama) === 'ac') {
-                                        $hasAC = true;
-                                        break;
+                            // Check if selected jenis_jasa has related accessories
+                            if ($state) {
+                                $jenisJasa = JenisJasa::find($state);
+                                if ($jenisJasa && $jenisJasa->accessories()->exists()) {
+                                    $accessories = $jenisJasa->accessories()->orderBy('nama')->get();
+                                    $accessoriesItems = [];
+                                    
+                                    // Dynamic jumlahMap based on accessories count and order
+                                    $count = $accessories->count();
+                                    if ($count === 4) {
+                                        $jumlahPattern = [1, 4, 3, 2];
+                                    } elseif ($count === 5) {
+                                        $jumlahPattern = [1, 1, 4, 3, 2];
+                                    } else {
+                                        $jumlahPattern = array_fill(0, $count, 1);
                                     }
-                                }
-                            }
-                            
-                            // Auto-populate accessories_items if AC is selected
-                            if ($hasAC) {
-                                $accessories = Accessori::orderBy('nama')->get();
-                                $accessoriesItems = [];
-                                
-                                foreach ($accessories as $accessori) {
-                                    $jumlahMap = [
-                                        1 => 3,
-                                        2 => 1,
-                                        3 => 4,
-                                        4 => 2,
-                                    ];
-                                    $jumlah = $jumlahMap[$accessori->id] ?? 1;
                                     
-                                    // Get AC category ID
-                                    $acKategori = KategoriJasaItem::whereRaw('LOWER(nama) = ?', ['ac'])->first();
+                                    foreach ($accessories as $index => $accessori) {
+                                        $jumlah = $jumlahPattern[$index] ?? 1;
+                                        
+                                        $accessoriesItems[] = [
+                                            'kategori_jasa_item_id' => $jenisJasa->kategori_id,
+                                            'jenis_layanan' => $accessori->nama,
+                                            'jumlah' => $jumlah,
+                                            'harga' => $accessori->harga * $jumlah,
+                                        ];
+                                    }
                                     
-                                    $accessoriesItems[] = [
-                                        'kategori_jasa_item_id' => $acKategori?->id,
-                                        'jenis_layanan' => $accessori->nama,
-                                        'jumlah' => $jumlah,
-                                        'harga' => $accessori->harga * $jumlah,
-                                    ];
+                                    $set('../../accessories_items', $accessoriesItems);
+                                } else {
+                                    $set('../../accessories_items', []);
                                 }
-                                
-                                $set('../../accessories_items', $accessoriesItems);
                             } else {
-                                // Clear accessories_items if no AC category
                                 $set('../../accessories_items', []);
                             }
                         })
@@ -221,6 +212,39 @@ class JasaForm
                                     $jumlah = $get('jumlah') ?? 1;
                                     $set('harga', $jenisJasa->harga * $jumlah);
                                 }
+                                
+                                // Check if selected jenis_jasa has related accessories
+                                if ($jenisJasa && $jenisJasa->accessories()->exists()) {
+                                    $accessories = $jenisJasa->accessories()->orderBy('nama')->get();
+                                    $accessoriesItems = [];
+                                    $userJumlah = $get('jumlah') ?? 1;
+                                    
+                                    // Dynamic jumlahMap based on accessories count and order
+                                    $count = $accessories->count();
+                                    if ($count === 4) {
+                                        $jumlahPattern = [1, 4, 3, 2];
+                                    } elseif ($count === 5) {
+                                        $jumlahPattern = [1, 1, 4, 3, 2];
+                                    } else {
+                                        $jumlahPattern = array_fill(0, $count, 1);
+                                    }
+                                    
+                                    foreach ($accessories as $index => $accessori) {
+                                        $baseJumlah = $jumlahPattern[$index] ?? 1;
+                                        $finalJumlah = $baseJumlah * $userJumlah;
+                                        
+                                        $accessoriesItems[] = [
+                                            'kategori_jasa_item_id' => $jenisJasa->kategori_id,
+                                            'jenis_layanan' => $accessori->nama,
+                                            'jumlah' => $finalJumlah,
+                                            'harga' => $accessori->harga * $finalJumlah,
+                                        ];
+                                    }
+                                    
+                                    $set('../../accessories_items', $accessoriesItems);
+                                } else {
+                                    $set('../../accessories_items', []);
+                                }
                             }
                         })
                         ->columnSpan(2),
@@ -237,30 +261,28 @@ class JasaForm
                                 if ($jenisJasa && $jenisJasa->harga) {
                                     $set('harga', $jenisJasa->harga * $state);
                                 }
-                            }
-                            
-                            // Update accessories_items if AC category is selected
-                            $kategoriId = $get('kategori_jasa_item_id');
-                            if ($kategoriId) {
-                                $kategori = KategoriJasaItem::find($kategoriId);
-                                if ($kategori && strtolower($kategori->nama) === 'ac') {
-                                    $accessories = Accessori::orderBy('nama')->get();
+                                
+                                // Check if selected jenis_jasa has related accessories
+                                if ($jenisJasa && $jenisJasa->accessories()->exists()) {
+                                    $accessories = $jenisJasa->accessories()->orderBy('nama')->get();
                                     $accessoriesItems = [];
                                     
-                                    foreach ($accessories as $accessori) {
-                                        $jumlahMap = [
-                                            1 => 3,
-                                            2 => 1,
-                                            3 => 4,
-                                            4 => 2,
-                                        ];
-                                        $baseJumlah = $jumlahMap[$accessori->id] ?? 1;
+                                    // Dynamic jumlahMap based on accessories count and order
+                                    $count = $accessories->count();
+                                    if ($count === 4) {
+                                        $jumlahPattern = [1, 4, 3, 2];
+                                    } elseif ($count === 5) {
+                                        $jumlahPattern = [1, 1, 4, 3, 2];
+                                    } else {
+                                        $jumlahPattern = array_fill(0, $count, 1);
+                                    }
+                                    
+                                    foreach ($accessories as $index => $accessori) {
+                                        $baseJumlah = $jumlahPattern[$index] ?? 1;
                                         $finalJumlah = $baseJumlah * $state;
                                         
-                                        $acKategori = KategoriJasaItem::whereRaw('LOWER(nama) = ?', ['ac'])->first();
-                                        
                                         $accessoriesItems[] = [
-                                            'kategori_jasa_item_id' => $acKategori?->id,
+                                            'kategori_jasa_item_id' => $jenisJasa->kategori_id,
                                             'jenis_layanan' => $accessori->nama,
                                             'jumlah' => $finalJumlah,
                                             'harga' => $accessori->harga * $finalJumlah,
@@ -268,6 +290,8 @@ class JasaForm
                                     }
                                     
                                     $set('../../accessories_items', $accessoriesItems);
+                                } else {
+                                    $set('../../accessories_items', []);
                                 }
                             }
                         }),
@@ -305,11 +329,29 @@ class JasaForm
                         ->required()
                         ->searchable()
                         ->preload()
-                        ->options(fn () => Accessori::query()
-                            ->orderBy('nama')
-                            ->pluck('nama', 'nama')
-                            ->toArray()
-                        )
+                        ->options(function ($get) {
+                            // Get all jenis_jasa from items and fetch their related accessories
+                            $items = $get('items') ?? [];
+                            $accessoryIds = [];
+                            
+                            foreach ($items as $item) {
+                                if (isset($item['jenis_layanan'])) {
+                                    $jenisJasa = JenisJasa::where('nama', $item['jenis_layanan'])->first();
+                                    if ($jenisJasa) {
+                                        $accessories = $jenisJasa->accessories()->pluck('id')->toArray();
+                                        $accessoryIds = array_merge($accessoryIds, $accessories);
+                                    }
+                                }
+                            }
+                            
+                            $accessoryIds = array_unique($accessoryIds);
+                            
+                            return Accessori::query()
+                                ->whereIn('id', $accessoryIds)
+                                ->orderBy('nama')
+                                ->pluck('nama', 'nama')
+                                ->toArray();
+                        })
                         ->disabled()
                         ->dehydrated(true)
                         ->columnSpan(2),
@@ -317,7 +359,7 @@ class JasaForm
                         ->label("Jumlah")
                         ->numeric()
                         ->required()
-                        ->disabled()
+                        // ->disabled()
                         ->dehydrated(true),
                     TextInput::make("harga")
                         ->label("Harga Total")
@@ -331,9 +373,9 @@ class JasaForm
                 ->visible(function ($get) {
                     $items = $get('items') ?? [];
                     foreach ($items as $item) {
-                        if (isset($item['kategori_jasa_item_id'])) {
-                            $kategori = KategoriJasaItem::find($item['kategori_jasa_item_id']);
-                            if ($kategori && strtolower($kategori->nama) === 'ac') {
+                        if (isset($item['jenis_layanan'])) {
+                            $jenisJasa = JenisJasa::where('nama', $item['jenis_layanan'])->first();
+                            if ($jenisJasa && $jenisJasa->accessories()->exists()) {
                                 return true;
                             }
                         }

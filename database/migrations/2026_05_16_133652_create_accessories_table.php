@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('itemcode')->unique();
             $table->string('nama');
             $table->decimal('harga', 15, 2)->default(0);
-            $table->string('uom')->default('pcs');
+            $table->string('uom');
             $table->timestamps();
         });
     }

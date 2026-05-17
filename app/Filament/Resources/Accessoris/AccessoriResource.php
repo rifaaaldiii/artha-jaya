@@ -10,6 +10,7 @@ use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,6 +45,11 @@ class AccessoriResource extends Resource
     public static function table(Table $table): Table
     {
         return AccessorisTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('jenisJasa');
     }
 
     public static function getRelations(): array

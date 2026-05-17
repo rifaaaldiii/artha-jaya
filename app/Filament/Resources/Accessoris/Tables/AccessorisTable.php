@@ -33,6 +33,11 @@ class AccessorisTable
                     ->label('UOM')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('jenisJasa.nama')
+                    ->label('Jenis Jasa')
+                    ->placeholder('-')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->recordActions([
                 EditAction::make()
