@@ -404,6 +404,8 @@ class JasaForm
                 
             Textarea::make("catatan")
                 ->label("Catatan"),
+            Textarea::make("note")
+                ->label("Catatan Internal"),
             TextInput::make("status")
                 ->default("Jasa baru")
                 ->hidden()

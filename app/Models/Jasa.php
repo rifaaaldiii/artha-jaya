@@ -18,6 +18,7 @@ class Jasa extends Model
         'jadwal',
         'jadwal_petugas',
         'catatan',
+        'note',
         'progress_images',
         'completion_images',
         'completion_notes',

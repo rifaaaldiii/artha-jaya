@@ -263,6 +263,14 @@
             font-weight: 600;
         }
         
+        .td-item {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--aj-text);
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        
         .td-empty {
             text-align: center;
             color: var(--aj-text-muted);
@@ -309,6 +317,46 @@
         .catatan-text {
             font-size: 14px;
             color: #92400E;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        /* Catatan note */
+        .catatan-note {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            border: 1px solid #FCA5A5;
+            border-radius: var(--aj-radius);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .catatan-icon-note {
+            width: 18px;
+            height: 18px;
+            color: #F59E0B;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        
+        .catatan-content-note {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .catatan-label-note {
+            font-size: 12px;
+            font-weight: 600;
+            color: #B45309;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .catatan-text-note {
+            font-size: 14px;
+            color: #000000;
             line-height: 1.6;
             word-break: break-word;
         }
@@ -872,6 +920,25 @@
             }
             
             .catatan-text {
+                font-size: 13px;
+            }
+
+            /* Catatan Note - Mobile */
+            .catatan-note {
+                padding: 14px;
+                gap: 10px;
+            }
+            
+            .catatan-icon-note {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .catatan-label-note {
+                font-size: 11px;
+            }
+            
+            .catatan-text-note {
                 font-size: 13px;
             }
         }

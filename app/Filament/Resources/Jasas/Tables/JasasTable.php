@@ -56,8 +56,8 @@ class JasasTable
                 \Filament\Tables\Columns\TextColumn::make('jadwal')
                     ->label('Jadwal')
                     ->getStateUsing(function ($record) {
-                        // return jadwal if exists, else jadwal_petugas
-                        return $record->jadwal ?? $record->jadwal_petugas;
+                        // Use jadwal_petugas if exists, else use jadwal
+                        return $record->jadwal_petugas ?? $record->jadwal;
                     })
                     ->date('d-m-Y')
                     ->sortable()

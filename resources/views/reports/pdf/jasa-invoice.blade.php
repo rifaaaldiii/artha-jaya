@@ -392,7 +392,7 @@
                     </div>
                     <div class="info-item">
                         <span class="info-label">Jadwal</span>
-                        <span class="info-value">: {{ $row['jadwal'] ?? '-' }} WIB</span>
+                        <span class="info-value">: {{ $row['jadwal'] ?? '-' }}</span>
                     </div>
                     <div class="info-item-address">
                         <span class="info-label-address">Alamat</span>

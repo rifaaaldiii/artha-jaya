@@ -494,7 +494,7 @@ class Report extends Page implements HasForms
                     'pelanggan' => $jasa->pelanggan?->nama ?? '-',
                     'pelanggan_telepon' => $jasa->pelanggan?->kontak ?? '-',
                     'alamat' => $jasa->alamat ?? $jasa->pelanggan?->alamat ?? '-',
-                    'jadwal' => $jasa->jadwal?->format('d/m/Y H:i') ?? '-',
+                    'jadwal' => $jasa->jadwal_petugas?->format('d/m/Y') ?? '-',
                     'petugas' => $jasa->petugasMany->isNotEmpty() 
                         ? $jasa->petugasMany->pluck('nama')->join(', ') 
                         : '-',
