@@ -1777,6 +1777,7 @@
     // Image Modal with Navigation - Make functions globally accessible
     window.currentImageIndex = 0;
     window.allImages = [];
+    window.isImageModalOpen = false;
 
     window.openImageModal = function(imageSrc, statusInfo, dateInfo, index = 0) {
         const modal = document.getElementById('imageModal');
@@ -1817,6 +1818,7 @@
         
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        window.isImageModalOpen = true;
     }
 
     window.updateModalImage = function() {
@@ -1865,6 +1867,7 @@
         const modal = document.getElementById('imageModal');
         modal.classList.remove('active');
         document.body.style.overflow = '';
+        window.isImageModalOpen = false;
     }
 
     // Close modal with Escape key
@@ -1877,7 +1880,32 @@
     // Listen for Livewire events to clear file upload
     document.addEventListener('livewire:init', () => {
         Livewire.on('$refresh', () => {
-            setTimeout(() => window.clearFileUpload && window.clearFileUpload(), 100);
+            // Preserve modal state during polling
+            const wasModalOpen = window.isImageModalOpen;
+            const modalState = wasModalOpen ? {
+                isOpen: true,
+                currentIndex: window.currentImageIndex,
+                allImages: [...window.allImages]
+            } : null;
+            
+            setTimeout(() => {
+                window.clearFileUpload && window.clearFileUpload();
+                
+                // Restore modal if it was open before polling
+                if (modalState && modalState.isOpen) {
+                    const modal = document.getElementById('imageModal');
+                    if (modal && !modal.classList.contains('active')) {
+                        window.allImages = modalState.allImages;
+                        window.currentImageIndex = modalState.currentIndex;
+                        window.openImageModal(
+                            window.allImages[window.currentImageIndex]?.src || '',
+                            window.allImages[window.currentImageIndex]?.status || '',
+                            window.allImages[window.currentImageIndex]?.date || '',
+                            window.currentImageIndex
+                        );
+                    }
+                }
+            }, 100);
         });
     });
 
