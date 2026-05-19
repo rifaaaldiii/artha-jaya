@@ -1752,8 +1752,8 @@
         </div>
     @endif
 
-    {{-- Image Modal/Lightbox --}}
-    <div id="imageModal" class="image-modal" onclick="closeImageModal(event)">
+    {{-- Image Modal/Lightbox - wire:ignore prevents Livewire polling from touching this element --}}
+    <div id="imageModal" class="image-modal" onclick="closeImageModal(event)" wire:ignore>
         <div class="image-modal-content" onclick="event.stopPropagation()">
             <button class="image-modal-close" onclick="closeImageModal()" title="Tutup (Esc)">&times;</button>
             
@@ -1908,6 +1908,8 @@
             }, 100);
         });
     });
+
+    // MutationObserver completely removed - wire:ignore now handles modal isolation from Livewire polling
 
     // Track file upload status
     window.trackUploadStatus = function() {
