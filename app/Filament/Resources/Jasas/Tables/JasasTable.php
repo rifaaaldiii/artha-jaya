@@ -73,10 +73,10 @@ class JasasTable
                     ->icon('heroicon-o-document-text')
                     ->color('primary')
                     ->url(fn ($record) => route('filament.admin.pages.report') . '/preview-invoice?number=' . urlencode($record->no_jasa) . '&type=jasa', true)
-                    ->openUrlInNewTab()
-                    ->visible(fn ($record) => strtolower($record->status) === 'jasa baru'),
+                    ->openUrlInNewTab(),
+                    // ->visible(fn ($record) => strtolower($record->status) === 'jasa baru'),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'selesai'),
+                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'jasa baru'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
