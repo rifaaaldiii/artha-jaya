@@ -76,7 +76,7 @@ class JasasTable
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => strtolower($record->status) === 'jasa baru'),
                 DeleteAction::make()
-                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'jasa baru'),
+                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'selesai'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
