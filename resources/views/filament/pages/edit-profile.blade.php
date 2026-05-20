@@ -102,10 +102,11 @@
             {{ $this->schema }}
 
             <div class="form-actions">
-                <x-filament::button color="secondary">
-                    <x-filament::icon
-                        style="width: 20px; height: 20px;"
-                    />
+                <x-filament::button
+                    :href="route('filament.admin.pages.profile')"
+                    color="secondary"
+                    tag="a"
+                >
                     Batal
                 </x-filament::button>
                 <x-filament::button wire:click="save" color="primary">

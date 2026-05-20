@@ -88,8 +88,6 @@
         position: relative;
     }
 
-    
-
     /* Responsive adjustments */
     @media (max-width: 1024px) {
         .fi-main,
