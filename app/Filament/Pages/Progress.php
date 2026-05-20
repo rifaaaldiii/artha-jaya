@@ -44,7 +44,7 @@ class Progress extends Page implements HasForms
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Jasa StepNosing / Plint';
+        return 'StepNosing / Plint';
     }
 
     #[On('aj-refresh-produksi')]

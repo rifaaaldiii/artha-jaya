@@ -64,6 +64,7 @@ copy .env.example .env
 php artisan key:generate && php artisan config:clear && npm install && npm run build
 php artisan migrate:refresh
 php artisan serve
+Clear-Content storage\logs\laravel.log
 
 ## Push
 1. git add .

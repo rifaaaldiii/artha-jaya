@@ -41,7 +41,7 @@
 
     .fi-sidebar-nav {
         height: 100vh;
-        zoom: 65%;
+        zoom: 75%;
     }
 
     /* Tables and content */

@@ -22,6 +22,7 @@ class User extends Authenticatable
         'username',
         'email',
         'kontak',
+        'image',
         'password',
         'role',
         'branch',
@@ -59,6 +60,26 @@ class User extends Authenticatable
             'createdAt' => 'datetime',
             'UpdateAt' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the full URL for the profile image
+     */
+    public function getProfileImageUrlAttribute(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        try {
+            $cleanPath = ltrim($this->image, '/');
+            $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+            $url = $baseUrl . '/profile-images/' . $cleanPath;
+            
+            return preg_replace('#([^:])//+#', '$1/', $url);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     protected static function booted(): void

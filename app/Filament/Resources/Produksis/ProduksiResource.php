@@ -105,7 +105,7 @@ class ProduksiResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Jasa StepNosing / Plint';
+        return 'StepNosing / Plint';
     }
 
     public static function canCreate(): bool
