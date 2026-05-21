@@ -151,7 +151,64 @@ class JasaResource extends Resource
 
     public static function mutateFormDataBeforeCreate(array $data): array
     {
+        \Log::info('=== mutateFormDataBeforeCreate DEBUG ===', [
+            'data_keys' => array_keys($data),
+            'has_items' => isset($data['items']),
+            'items_count' => isset($data['items']) ? count($data['items']) : 0,
+        ]);
+        
+        // Merge accessories from items into the main items array
+        if (isset($data['items']) && is_array($data['items'])) {
+            $allItems = [];
+            
+            foreach ($data['items'] as $index => $item) {
+                \Log::info("Processing item {$index}", [
+                    'item_keys' => array_keys($item),
+                    'has_accessories' => isset($item['accessories']),
+                    'accessories_count' => isset($item['accessories']) ? count($item['accessories']) : 0,
+                ]);
+                
+                // Add the main item
+                $allItems[] = [
+                    'kategori_jasa_item_id' => $item['kategori_jasa_item_id'] ?? null,
+                    'jenis_layanan' => $item['jenis_layanan'] ?? null,
+                    'jumlah' => $item['jumlah'] ?? 1,
+                    'harga' => $item['harga'] ?? 0,
+                ];
+                
+                // Add accessories if they exist and toggle is enabled
+                if (isset($item['accessories']) && is_array($item['accessories'])) {
+                    foreach ($item['accessories'] as $accIndex => $accessory) {
+                        \Log::info("Adding accessory {$accIndex}", [
+                            'accessory' => $accessory,
+                        ]);
+                        
+                        $allItems[] = [
+                            'kategori_jasa_item_id' => $accessory['kategori_jasa_item_id'] ?? null,
+                            'jenis_layanan' => $accessory['jenis_layanan'] ?? null,
+                            'jumlah' => $accessory['jumlah'] ?? 1,
+                            'harga' => $accessory['harga'] ?? 0,
+                        ];
+                    }
+                }
+            }
+            
+            \Log::info('Merged items result', [
+                'total_items' => count($allItems),
+                'all_items' => $allItems,
+            ]);
+            
+            // Replace items with merged array
+            $data['items'] = $allItems;
+        }
+        
         return $data;
+    }
+
+    public static function mutateFormDataBeforeSave(array $data): array
+    {
+        // Same logic for updates
+        return self::mutateFormDataBeforeCreate($data);
     }
 
     public static function getGlobalSearchResultActions(Model $record): array

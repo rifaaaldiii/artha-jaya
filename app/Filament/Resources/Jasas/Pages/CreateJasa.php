@@ -7,6 +7,7 @@ use App\Models\Pelanggan;
 use App\Models\Jasa;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CreateJasa extends CreateRecord
 {
@@ -20,6 +21,12 @@ class CreateJasa extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        \Log::info('=== CreateJasa::mutateFormDataBeforeCreate DEBUG ===', [
+            'data_keys' => array_keys($data),
+            'has_items' => isset($data['items']),
+            'items_count' => isset($data['items']) ? count($data['items']) : 0,
+        ]);
+        
         // Pastikan no_jasa terisi - Format baru: JSA/DDMMYYYY/0001
         if (empty($data['no_jasa'])) {
             // Format: JSA/DDMMYYYY/0001
@@ -81,8 +88,81 @@ class CreateJasa extends CreateRecord
         unset($data['create_new_pelanggan']);
         unset($data['new_pelanggan_nama']);
         unset($data['new_pelanggan_kontak']);
+        unset($data['include_accessories']);
 
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        // Process accessories after items are saved
+        $this->processAccessories();
+    }
+
+    protected function processAccessories(): void
+    {
+        $jasa = $this->record;
+        
+        if (!$jasa) {
+            return;
+        }
+
+        // Get the form state to access items data with accessories
+        $formData = $this->form->getState();
+        
+        \Log::info('=== afterCreate DEBUG ===', [
+            'jasa_id' => $jasa->id,
+            'form_data_keys' => array_keys($formData),
+            'has_items' => isset($formData['items']),
+            'items_count' => isset($formData['items']) ? count($formData['items']) : 0,
+        ]);
+
+        if (!isset($formData['items']) || !is_array($formData['items'])) {
+            return;
+        }
+
+        $accessoriesToAdd = [];
+
+        foreach ($formData['items'] as $index => $item) {
+            \Log::info("Processing item {$index}", [
+                'item_keys' => array_keys($item),
+                'has_accessories' => isset($item['accessories']),
+                'accessories_count' => isset($item['accessories']) ? count($item['accessories']) : 0,
+            ]);
+
+            // Check if item has accessories
+            if (isset($item['accessories']) && is_array($item['accessories'])) {
+                foreach ($item['accessories'] as $accIndex => $accessory) {
+                    \Log::info("Found accessory {$accIndex}", [
+                        'accessory' => $accessory,
+                    ]);
+
+                    $accessoriesToAdd[] = [
+                        'jasa_id' => $jasa->id,
+                        'kategori_jasa_item_id' => $accessory['kategori_jasa_item_id'] ?? null,
+                        'jenis_layanan' => $accessory['jenis_layanan'] ?? null,
+                        'jumlah' => $accessory['jumlah'] ?? 1,
+                        'harga' => $accessory['harga'] ?? 0,
+                        'createdAt' => now(),
+                    ];
+                }
+            }
+        }
+
+        // Insert all accessories into jasa_items table
+        if (!empty($accessoriesToAdd)) {
+            \Log::info('Inserting accessories', [
+                'count' => count($accessoriesToAdd),
+                'accessories' => $accessoriesToAdd,
+            ]);
+
+            \DB::table('jasa_items')->insert($accessoriesToAdd);
+
+            \Log::info('Accessories inserted successfully', [
+                'jasa_id' => $jasa->id,
+                'accessories_count' => count($accessoriesToAdd),
+            ]);
+        }
     }
 
     protected function getRedirectUrl(): string
