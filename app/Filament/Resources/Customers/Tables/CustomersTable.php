@@ -55,23 +55,6 @@ class CustomersTable
                     ->sortable()
                     ->toggleable(),
             ])
-            // ->filters([
-            //     Filter::make('has_jasa')
-            //         ->label('Sudah Ada Jasa')
-            //         ->query(fn (Builder $query): Builder => $query->has('jasas')),
-
-            //     Filter::make('no_jasa')
-            //         ->label('Belum Ada Jasa')
-            //         ->query(fn (Builder $query): Builder => $query->doesntHave('jasas')),
-
-            //     Filter::make('has_produksi')
-            //         ->label('Sudah Ada Produksi')
-            //         ->query(fn (Builder $query): Builder => $query->has('produksis')),
-
-            //     Filter::make('no_produksi')
-            //         ->label('Belum Ada Produksi')
-            //         ->query(fn (Builder $query): Builder => $query->doesntHave('produksis')),
-            // ])
             ->actions([
                 ViewAction::make()
                     ->label('Lihat Jasa')

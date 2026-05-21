@@ -25,6 +25,18 @@ class JasaItem extends Model
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
     ];
+    
+    protected $appends = ['is_accessory'];
+    
+    /**
+     * Check if this item is an accessory.
+     * Accessories are items that have the same jenis_layanan as accessories in the accessories table.
+     */
+    public function getIsAccessoryAttribute(): bool
+    {
+        // Check if this jenis_layanan exists in accessories table
+        return Accessori::where('nama', $this->jenis_layanan)->exists();
+    }
 
     /**
      * Get the kategori for this jasa item.

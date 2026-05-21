@@ -20,7 +20,8 @@ class AccessorisTable
                 TextColumn::make('itemcode')
                     ->label('Item Code')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()

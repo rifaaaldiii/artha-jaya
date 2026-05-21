@@ -34,7 +34,8 @@ class PetugasTable
                     ->sortable()
                     ->searchable()
                     ->extraAttributes(['class' => 'flex items-center gap-2'])
-                    ->getStateUsing(fn ($record) => $record->status === 'ready'),
+                    ->getStateUsing(fn ($record) => $record->status === 'ready')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

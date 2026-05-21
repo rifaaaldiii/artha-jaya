@@ -235,32 +235,96 @@
                         <table class="fi-table">
                             <thead>
                                 <tr>
-                                    <th class="fi-table-header" style="width: 60px;">No.</th>
+                                    <th class="fi-table-header" style="width: 60px; text-align: center;">No.</th>
                                     <th class="fi-table-header">Layanan</th>
-                                    <th class="fi-table-header" style="width: 120px;">Jumlah</th>
+                                    <th class="fi-table-header" style="width: 120px; text-align: center;">Jumlah</th>
+                                    <th class="fi-table-header" style="width: 160px; text-align: center;">Harga</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($jasa->items as $item)
-                                <tr class="fi-table-row">
-                                    <td class="fi-table-cell fi-table-cell-center">{{ $loop->iteration }}</td>
-                                    <td class="fi-table-cell">{{ $item->jenis_layanan }}</td>
-                                    <td class="fi-table-cell">
-                                        <span class="fi-table-badge">{{ $item->jumlah }} unit</span>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="3" class="fi-table-empty">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                        </svg>
-                                        <p class="fi-table-empty-text">Tidak ada item layanan</p>
-                                    </td>
-                                </tr>
-                                @endforelse
+                                @php
+                                    $mainItemCounter = 1;
+                                    $allItems = [];
+                                    
+                                    // Group items by main item and accessories
+                                    foreach($jasa->items as $item) {
+                                        $isAccessory = $item->is_accessory ?? false;
+                                        
+                                        if (!$isAccessory) {
+                                            $allItems[] = [
+                                                'type' => 'main',
+                                                'item' => $item,
+                                                'counter' => $mainItemCounter++
+                                            ];
+                                        } else {
+                                            $lastMainIndex = count($allItems) - 1;
+                                            if ($lastMainIndex >= 0 && $allItems[$lastMainIndex]['type'] === 'main') {
+                                                if (!isset($allItems[$lastMainIndex]['accessories'])) {
+                                                    $allItems[$lastMainIndex]['accessories'] = [];
+                                                }
+                                                $allItems[$lastMainIndex]['accessories'][] = $item;
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                
+                                @foreach($allItems as $group)
+                                    {{-- Main Item --}}
+                                    <tr class="fi-table-row fi-table-row-main">
+                                        <td class="fi-table-cell fi-table-cell-center">{{ $group['counter'] }}</td>
+                                        <td class="fi-table-cell">
+                                            {{ $group['item']->jenis_layanan }}
+                                        </td>
+                                        <td class="fi-table-cell fi-table-cell-center">
+                                            <span class="fi-table-badge">{{ $group['item']->jumlah }}</span>
+                                        </td>
+                                        <td class="fi-table-cell fi-table-cell-center">
+                                            <span class="fi-price-tag">Rp {{ number_format($group['item']->harga, 0, ',', '.') }}</span>
+                                        </td>
+                                    </tr>
+                                    
+                                    {{-- Accessories --}}
+                                    @if(isset($group['accessories']))
+                                        @foreach($group['accessories'] as $accessory)
+                                            <tr class="fi-table-row fi-table-row-accessory">
+                                                <td class="fi-table-cell fi-table-cell-center"></td>
+                                                <td class="fi-table-cell fi-accessory-cell">
+                                                    {{ $accessory->jenis_layanan }}
+                                                </td>
+                                                <td class="fi-table-cell fi-table-cell-center">
+                                                    <input type="number"
+                                                           name="accessories[{{ $accessory->id }}][jumlah]" 
+                                                           value="{{ $accessory->jumlah }}" 
+                                                           min="0"
+                                                           class="fi-quantity-input"
+                                                           data-item-id="{{ $accessory->id }}"
+                                                           data-base-price="{{ $accessory->harga / max($accessory->jumlah, 1) }}"
+                                                           onchange="updateAccessoryPrice(this)">
+                                                </td>
+                                                <td class="fi-table-cell fi-table-cell-center">
+                                                    <span class="fi-price-tag" id="price-{{ $accessory->id }}">Rp {{ number_format($accessory->harga, 0, ',', '.') }}</span>
+                                                    <input type="hidden" 
+                                                           name="accessories[{{ $accessory->id }}][harga]" 
+                                                           id="harga-{{ $accessory->id }}" 
+                                                           value="{{ $accessory->harga }}">
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                                
+                                @if(count($allItems) === 0)
+                                    <tr>
+                                        <td colspan="4" class="fi-table-empty">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                            </svg>
+                                            <p class="fi-table-empty-text">Tidak ada item layanan</p>
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -415,6 +479,26 @@
         const charCount = document.getElementById('charCount');
         
         let selectedFiles = [];
+        
+        // Update accessory price when quantity changes
+        window.updateAccessoryPrice = function(input) {
+            const itemId = input.dataset.itemId;
+            const basePrice = parseFloat(input.dataset.basePrice);
+            const newQuantity = parseInt(input.value) || 0;
+            const newHarga = basePrice * newQuantity;
+            
+            // Update price display
+            const priceElement = document.getElementById('price-' + itemId);
+            if (priceElement) {
+                priceElement.textContent = 'Rp ' + newHarga.toLocaleString('id-ID');
+            }
+            
+            // Update hidden input
+            const hargaInput = document.getElementById('harga-' + itemId);
+            if (hargaInput) {
+                hargaInput.value = newHarga;
+            }
+        };
         
         // Click to upload
         uploadArea.addEventListener('click', function() {

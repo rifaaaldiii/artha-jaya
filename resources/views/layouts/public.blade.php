@@ -35,6 +35,17 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
@@ -364,6 +375,11 @@
             color: var(--aj-text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .fi-table-header[style*="text-align: center"] {
+            text-align: center;
         }
         
         .fi-table-row {
@@ -390,17 +406,103 @@
         
         .fi-table-cell-center {
             text-align: center;
+            vertical-align: middle;
         }
         
-        /* .fi-table-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: var(--aj-bg-gray);
-            color: var(--aj-text-secondary);
+        .fi-table-row-main .fi-table-cell {
+            padding: 16px;
+        }
+        
+        .fi-table-row-accessory .fi-table-cell {
+            padding: 12px 16px;
+        }
+        
+        .fi-table-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px;
+            /* background: var(--aj-bg-gray); */
+            color: var(--aj-text);
             font-size: 13px;
             font-weight: 600;
-            border-radius: var(--aj-radius);
-        } */
+            border-radius: 6px;
+            min-width: 80px;
+        }
+        
+        /* Price Tag */
+        .fi-price-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            /* background: var(--aj-bg-gray); */
+            color: var(--aj-text);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        /* Main Item Row */
+        .fi-table-row-main {
+            background: var(--aj-surface);
+        }
+        
+        .fi-table-row-main:hover {
+            background: var(--aj-bg-gray);
+        }
+        
+        .fi-table-row-main td {
+            padding: 16px;
+            font-weight: 600;
+        }
+        
+        /* Accessory Row */
+        .fi-table-row-accessory {
+            background: #fafbfc;
+            border-bottom: 1px solid var(--aj-border);
+        }
+        
+        .fi-table-row-accessory:hover {
+            /* background: #f5f7fa; */
+        }
+        
+        .fi-accessory-cell {
+            color: var(--aj-text);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .fi-accessory-icon {
+            color: var(--aj-text-muted);
+            font-weight: 400;
+            margin-right: 6px;
+            font-size: 16px;
+            display: inline-block;
+            width: 16px;
+            text-align: center;
+        }
+        
+        /* Quantity Input */
+        .fi-quantity-input {
+            width: 100%;
+            max-width: 80px;
+            margin: 0 auto;
+            display: block;
+            padding: 6px 0;
+            border: 1.5px solid var(--aj-border);
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--aj-text);
+            background: var(--aj-surface);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .fi-quantity-input:focus {
+            outline: none;
+        }
         
         .fi-table-empty {
             text-align: center;

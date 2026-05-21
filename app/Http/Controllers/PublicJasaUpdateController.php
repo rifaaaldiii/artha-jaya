@@ -61,6 +61,8 @@ class PublicJasaUpdateController extends Controller
             'images.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'notes' => 'nullable|string|max:1000',
             'confirm' => 'required|accepted',
+            'accessories.*.jumlah' => 'nullable|integer|min:0',
+            'accessories.*.harga' => 'nullable|numeric|min:0',
         ], [
             'images.required' => 'Minimal 1 foto bukti pengerjaan wajib diupload.',
             'images.min' => 'Minimal 1 foto bukti pengerjaan wajib diupload.',
@@ -90,6 +92,28 @@ class PublicJasaUpdateController extends Controller
         DB::beginTransaction();
         
         try {
+            // Update accessories quantity and price if provided
+            if ($request->has('accessories')) {
+                foreach ($request->accessories as $itemId => $data) {
+                    if (isset($data['jumlah']) && isset($data['harga'])) {
+                        \Log::info('Updating accessory item', [
+                            'item_id' => $itemId,
+                            'new_jumlah' => $data['jumlah'],
+                            'new_harga' => $data['harga'],
+                        ]);
+                        
+                        \DB::table('jasa_items')
+                            ->where('id', $itemId)
+                            ->where('jasa_id', $updateToken->jasa_id)
+                            ->update([
+                                'jumlah' => $data['jumlah'],
+                                'harga' => $data['harga'],
+                                'updateAt' => now(),
+                            ]);
+                    }
+                }
+            }
+            
             // Upload images to public_html/progress/jasa
             $imagePaths = [];
             if ($request->hasFile('images')) {

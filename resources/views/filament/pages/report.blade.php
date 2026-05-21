@@ -741,7 +741,6 @@
                                 <th>Team</th>
                                 @endif
                                 
-                                <th>Status</th>
                                 <th class="text-right">Total</th>
                                 <th>Tanggal</th>
                                 <th class="text-center">Aksi</th>
@@ -782,37 +781,6 @@
                                 </td>
                                 @endif
                                 
-                                <td class="whitespace-nowrap">
-                                    @php
-                                        $statusColors = [
-                                            'jasa baru' => 'aj-status-gray',
-                                            'terjadwal' => 'aj-status-blue',
-                                            'selesai dikerjakan' => 'aj-status-yellow',
-                                            'selesai' => 'aj-status-green',
-                                            'baru' => 'aj-status-gray',
-                                            'produksi baru' => 'aj-status-gray',
-                                            'proses' => 'aj-status-yellow',
-                                            'siap produksi' => 'aj-status-yellow',
-                                            'dalam pengerjaan' => 'aj-status-yellow',
-                                            'siap diambil' => 'aj-status-purple',
-                                            'produksi siap diambil' => 'aj-status-purple',
-                                        ];
-                                        
-                                        $statusLabels = [
-                                            'produksi baru' => 'Baru',
-                                            'siap produksi' => 'Proses',
-                                            'dalam pengerjaan' => 'Proses',
-                                            'produksi siap diambil' => 'Siap Diambil',
-                                            'selesai dikerjakan' => 'Selesai',
-                                        ];
-                                        
-                                        $statusClass = $statusColors[$row['status']] ?? 'aj-status-gray';
-                                        $displayStatus = $statusLabels[$row['status']] ?? $row['status'];
-                                    @endphp
-                                    <span class="aj-status-badge {{ $statusClass }}">
-                                        {{ $displayStatus }}
-                                    </span>
-                                </td>
                                 
                                 <td class="whitespace-nowrap aj-amount-cell">
                                     Rp {{ number_format($row['total_harga'], 0, ',', '.') }}

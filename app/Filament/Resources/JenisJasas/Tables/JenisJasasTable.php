@@ -14,6 +14,9 @@ class JenisJasasTable
     {
         return $table
             ->columns([
+                TextColumn::make('No.')
+                    ->rowIndex()
+                    ->label('No.'),
                 TextColumn::make('itemcode')
                     ->label('Item Code')
                     ->searchable()
@@ -37,7 +40,8 @@ class JenisJasasTable
                 TextColumn::make('updated_at')
                     ->label('Diperbarui')
                     ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 EditAction::make()

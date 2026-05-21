@@ -22,7 +22,11 @@ class ProduksisTable
             ->recordUrl(fn ($record) => Progress::getUrl() . '?selectedProduksiId=' . $record->id)
             ->columns([
                 
-                TextColumn::make("no_produksi")->label('No. Produksi')->sortable()->searchable(),
+                TextColumn::make("no_produksi")
+                    ->label('No. Produksi')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make("no_ref")
                     ->label('No. Ref')
                     ->sortable()
@@ -31,7 +35,8 @@ class ProduksisTable
                     ->label('Branch')
                     ->sortable()
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pelanggan.nama')
                     ->label('Customer')
                     ->sortable()
@@ -40,11 +45,13 @@ class ProduksisTable
                 TextColumn::make('items_count')
                     ->label('Jumlah Item')
                     ->counts('items')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('team.nama')
                     ->label('Team')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make("status")
                     ->label('Status')
                     ->sortable()
@@ -82,8 +89,8 @@ class ProduksisTable
                     ->icon('heroicon-o-document-text')
                     ->color('primary')
                     ->url(fn ($record) => route('filament.admin.pages.report') . '/preview-invoice?number=' . urlencode($record->no_produksi) . '&type=produksi', true)
-                    ->openUrlInNewTab()
-                    ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
+                    ->openUrlInNewTab(),
+                    // ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
                     ->authorize(fn ($record) => ProduksiResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
                 DeleteAction::make()

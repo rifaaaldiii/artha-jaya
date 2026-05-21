@@ -23,7 +23,8 @@ class JasasTable
                 \Filament\Tables\Columns\TextColumn::make('no_jasa')
                     ->label('No. Jasa')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('no_ref')
                     ->label('No. Ref')
                     ->sortable()
@@ -32,7 +33,8 @@ class JasasTable
                     ->label('Branch')
                     ->sortable()
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('pelanggan.nama')
                     ->label('Customer')
                     ->sortable()
@@ -40,7 +42,8 @@ class JasasTable
                 \Filament\Tables\Columns\TextColumn::make('items_count')
                     ->label('Jumlah Item')
                     ->counts('items')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
