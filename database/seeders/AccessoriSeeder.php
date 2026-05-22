@@ -45,7 +45,7 @@ class AccessoriSeeder extends Seeder
             [
                 'id' => 5,
                 'itemcode' => '5',
-                'nama' => 'PIPA AC 1/4" x 3/8" M',
+                'nama' => 'PIPA AC 1/4" x 1/2" M',
                 'harga' => 150000.00,
                 'uom' => 'meter',
                 'jenis_jasa_id' => '28',
@@ -61,7 +61,7 @@ class AccessoriSeeder extends Seeder
             [
                 'id' => 7,
                 'itemcode' => '7',
-                'nama' => 'KABEL NYM 3 x 1,5 M',
+                'nama' => 'KABEL NYM 3 x 2,5 M',
                 'harga' => 25000.00,
                 'uom' => 'meter',
                 'jenis_jasa_id' => '28',

@@ -76,7 +76,7 @@ class ProduksisTable
                     ->label('Jadwal')
                     ->sortable()
                     ->searchable()
-                    ->date('d-m-Y H:i'),
+                    ->date('d-m-Y'),
             ])
             ->filters([
                 //

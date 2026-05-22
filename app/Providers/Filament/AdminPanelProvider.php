@@ -82,17 +82,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            // ->routes(function ($routes) {
-            //     // Register login route without session middleware
-            //     $routes->get('login', function () {
-            //         return redirect()->route('filament.admin.auth.login');
-            //     })->withoutMiddleware([
-            //         StartSession::class,
-            //         AuthenticateSession::class,
-            //         ShareErrorsFromSession::class,
-            //         SmartSessionHandler::class,
-            //     ]);
-            // })
 
             ->navigationGroups([
                 NavigationGroup::make()
