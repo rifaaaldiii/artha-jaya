@@ -30,7 +30,7 @@ class KategoriJasaItemResource extends Resource
 
     public static function getPluralLabel(): ?string
     {
-        return 'Kategori Jasa';
+        return 'Tabel Kategori';
     }
 
     public static function form(Schema $schema): Schema

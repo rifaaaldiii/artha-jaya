@@ -1,12 +1,14 @@
 <x-filament-panels::page>
     <style>
         :root {
+            --green: #00a63e;
+            --bg: #18181b;
             --aj-md-bg: #ffffff;
             --aj-md-surface: #f9fafb;
             --aj-md-border: #e5e7eb;
             --aj-md-text: #111827;
             --aj-md-text-muted: #6b7280;
-            --aj-md-primary: #059669;
+            --aj-md-primary: #00a63e;
             --aj-md-primary-hover: #047857;
             --aj-md-primary-light: #d1fae5;
             --aj-md-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -18,11 +20,11 @@
         [data-theme="dark"],
         .filament-theme-dark {
             --aj-md-bg: #0f172a;
-            --aj-md-surface: #1e293b;
+            --aj-md-surface: #18181b;
             --aj-md-border: #334155;
             --aj-md-text: #f8fafc;
             --aj-md-text-muted: #94a3b8;
-            --aj-md-primary: #34d399;
+            --aj-md-primary: #00a63e;
             --aj-md-primary-hover: #6ee7b7;
             --aj-md-primary-light: rgba(52, 211, 153, 0.15);
             --aj-md-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -30,47 +32,41 @@
         }
 
         .aj-md-tabs-wrapper {
-            background: var(--aj-md-bg);
-            border-radius: 12px;
-            border: 1px solid var(--aj-md-border);
-            padding: 8px;
-            margin-bottom: 24px;
-            box-shadow: var(--aj-md-shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .aj-md-tabs {
             display: flex;
-            gap: 4px;
+            align-items: center;
+            width: 80%;
+            gap: 16px;
             background: var(--aj-md-surface);
-            border-radius: 8px;
-            padding: 4px;
         }
 
         .aj-md-tab {
             flex: 1;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 15px 0;
             transition: var(--aj-md-transition);
-            border: none;
             cursor: pointer;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 16px;
             font-family: 'Poppins', sans-serif;
             background: transparent;
-            color: var(--aj-md-text-muted);
             position: relative;
             white-space: nowrap;
+            border-bottom: 4px solid var(--aj-md-border);
         }
 
         .aj-md-tab:hover {
             color: var(--aj-md-text);
-            background: var(--aj-md-bg);
+            border-bottom: 4px solid var(--aj-md-primary);
         }
 
         .aj-md-tab.active {
-            background: var(--aj-md-primary);
-            color: #ffffff;
-            box-shadow: var(--aj-md-shadow-md);
+            color: #000000;
+            border-bottom: 4px solid var(--aj-md-primary);
         }
 
         .dark .aj-md-tab.active,
