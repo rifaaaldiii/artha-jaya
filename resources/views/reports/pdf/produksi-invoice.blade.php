@@ -438,8 +438,8 @@
             
             <!-- Amount in Words -->
             <div class="amount-words">
-                <div class="amount-label">Terbilang:</div>
-                <div><em># {{ terbilang($grandTotal) }} Rupiah #</em></div>
+                <div class="amount-label">Catatan:</div>
+                <div><em>{{ $row['catatan'] ?? '-' }}</em></div>
             </div>
         </div>
 
