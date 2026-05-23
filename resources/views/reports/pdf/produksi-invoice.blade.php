@@ -19,15 +19,11 @@
         body {
             font-family: 'Courier New', monospace;
             font-size: 8pt;
-            /* line-height: 1.1; */
             color: #000;
             background: #fff;
         }
         
         .container {
-            /* border: 1px solid red; */
-            /* width: 148mm;
-            height: 210mm; */
             padding: 2mm 5mm 0;
             margin: 0 auto;
             background: #fff;
@@ -337,7 +333,6 @@
             <div>
                 <div class="company-info">Jl. Raya Pandeglang No.km3, Cipare, Kec. Serang, Kota Serang, Banten 42117</div>
                 <div class="company-info">Telp: +81287107768 | Email: info@arthajayamas.co.id</div>
-                <!-- <div class="company-info">NPWP: 12.345.678.9-012.345</div> -->
             </div>
         </div>
         
@@ -399,6 +394,7 @@
                         <th style="width: 5%;">No.</th>
                         <th style="width: 25%;">Nama Produksi</th>
                         <th style="width: 25%;">Nama Bahan</th>
+                        <th style="width: 10%;">Ukuran</th>
                         <th style="width: 10%;">Qty</th>
                         <th style="width: 17%;">Harga</th>
                         <th style="width: 18%;">Total Harga</th>
@@ -419,6 +415,7 @@
                                 <td class="text-center">{{ $index + 1 }}</td>
                                 <td>{{ $item['nama_produksi'] ?? '-' }}</td>
                                 <td>{{ $item['nama_bahan'] ?? '-' }}</td>
+                                <td class="text-center">{{ $item['ukuran'] ?? '-' }}</td>
                                 <td class="text-center">{{ $item['jumlah'] ?? 0 }}</td>
                                 <td class="text-right">Rp {{ number_format($hargaawal, 0, ',', '.') }}</td>
                                 <td class="text-right">Rp {{ number_format($itemTotal, 0, ',', '.') }}</td>
@@ -430,7 +427,7 @@
                         </tr>
                     @endif
                     <tr class="total-row">
-                        <td colspan="5" class="text-center"><strong>SUB TOTAL</strong></td>
+                        <td colspan="6" class="text-center"><strong>SUB TOTAL</strong></td>
                         <td class="text-right"><strong>Rp {{ number_format($grandTotal, 0, ',', '.') }}</strong></td>
                     </tr>
                 </tbody>

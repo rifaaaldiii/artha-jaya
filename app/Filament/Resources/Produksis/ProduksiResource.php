@@ -32,6 +32,7 @@ class ProduksiResource extends Resource
             'catatan',
             'items.nama_produksi',
             'items.nama_bahan',
+            'items.ukuran',
         ];
     }
 

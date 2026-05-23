@@ -466,6 +466,7 @@ class Report extends Page implements HasForms
                     'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
                     'items_count' => $produksi->items->count(),
                     'total_harga' => $produksi->items->sum('harga'),
+                    'ukuran' => $produksi->items->pluck('ukuran'),
                     'items' => $produksi->items->toArray(),
                     'note' => $produksi->catatan,
                 ],

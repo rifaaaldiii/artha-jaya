@@ -210,7 +210,7 @@ class ProduksiForm
                     Repeater::make('items')
                         ->relationship('items')
                         ->schema([
-                            Grid::make(3)
+                            Grid::make(1)
                                 ->schema([
                                     Select::make("nama_produksi")
                                         ->label("Jenis Produksi")
@@ -233,25 +233,73 @@ class ProduksiForm
                                             }
                                         })
                                         ->columnSpan(1),
-                                    
+                                ]),
+                            Grid::make(3)
+                                ->schema([
                                     TextInput::make("nama_bahan")
                                         ->label("Nama Bahan")
                                         ->required()
-                                        ->columnSpan(2),
-                                ]),
-                            
-                            Grid::make(3)
-                                ->schema([
-                                    TextInput::make("jumlah")
-                                        ->label("Jumlah")
+                                        ->columnSpan(1),
+
+                                    TextInput::make("ukuran_panjang")
+                                        ->label("Panjang")
                                         ->numeric()
-                                        ->required()
-                                        ->default(1)
+                                        ->placeholder("20")
                                         ->reactive()
+                                        ->afterStateHydrated(function ($component, $state, callable $get) {
+                                            $ukuran = $get('ukuran');
+                                            if ($ukuran && str_contains($ukuran, ' x ')) {
+                                                $parts = explode(' x ', $ukuran);
+                                                $component->state(trim($parts[1]));
+                                            }
+                                        })
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            $namaProduksi = $get('nama_produksi');
-                                            if ($namaProduksi && $state) {
-                                                $jenisProduksi = JenisProduksi::where('nama', $namaProduksi)->first();
+                                            $lebar = $get('ukuran_lebar');
+                                            $panjang = $state;
+                                            if ($lebar && $panjang) {
+                                                $set('ukuran', "{$panjang} x {$lebar}");
+                                            } elseif (!$lebar) {
+                                                $set('ukuran', null);
+                                            }
+                                        })
+                                        ->columnSpan(1),
+
+                                    TextInput::make("ukuran_lebar")
+                                        ->label("Lebar")
+                                        ->numeric()
+                                        ->placeholder("30")
+                                        ->reactive()
+                                        ->afterStateHydrated(function ($component, $state, callable $get) {
+                                            $ukuran = $get('ukuran');
+                                            if ($ukuran && str_contains($ukuran, ' x ')) {
+                                                $parts = explode(' x ', $ukuran);
+                                                $component->state(trim($parts[0]));
+                                            }
+                                        })
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $lebar = $state;
+                                            $panjang = $get('ukuran_panjang');
+                                            if ($lebar && $panjang) {
+                                                $set('ukuran', "{$panjang} x {$lebar}");
+                                            } elseif (!$lebar) {
+                                                $set('ukuran', null);
+                                            }
+                                        })
+                                        ->columnSpan(1),
+                                    
+                                ]),
+                                        Grid::make(3)
+                                        ->schema([
+                                            TextInput::make("jumlah")
+                                            ->label("Jumlah")
+                                            ->numeric()
+                                            ->required()
+                                            ->default(1)
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                $namaProduksi = $get('nama_produksi');
+                                                if ($namaProduksi && $state) {
+                                                    $jenisProduksi = JenisProduksi::where('nama', $namaProduksi)->first();
                                                 if ($jenisProduksi && $jenisProduksi->harga) {
                                                     $set('harga', $jenisProduksi->harga * $state);
                                                 }
@@ -267,33 +315,41 @@ class ProduksiForm
                                         ->disabled()
                                         ->dehydrated(true)
                                         ->columnSpan(2),
-                                ]),
-                        ])
-                        ->columns(1)
-                        ->addActionLabel('+ Tambah Item')
-                        ->required()
-                        ->minItems(1)
-                        ->itemLabel(function (array $state): ?string {
-                            $namaProduksi = $state['nama_produksi'] ?? null;
-                            $jumlah = $state['jumlah'] ?? 1;
-                            
-                            if ($namaProduksi) {
-                                return "{$namaProduksi} (x{$jumlah})";
-                            }
-                            
-                            return 'Item';
-                        })
-                        ->collapsible()
-                        ->columnSpanFull(),
-                ])
-                ->collapsible(),
-
-            // Section: Penjadwalan & Team
-            Section::make('Penjadwalan & Catatan')
-                ->icon('heroicon-o-calendar')
-                ->description('Jadwal produksi dan assignment team')
-                ->schema([
-                    DatePicker::make('jadwal')
+                                    ]),
+                                    TextInput::make("ukuran")
+                                        // ->hidden()
+                                        ->dehydrated(true),
+                                    ])
+                                    ->columns(1)
+                                    ->addActionLabel('+ Tambah Item')
+                                    ->required()
+                                    ->minItems(1)
+                                    ->itemLabel(function (array $state): ?string {
+                                        $namaProduksi = $state['nama_produksi'] ?? null;
+                                        $jumlah = $state['jumlah'] ?? 1;
+                                        $ukuran = $state['ukuran'] ?? null;
+                                        
+                                        if ($namaProduksi) {
+                                            $label = "{$namaProduksi} (x{$jumlah})";
+                                            if ($ukuran) {
+                                                $label .= " Ukuran {$ukuran}";
+                                            }
+                                            return $label;
+                                        }
+                                        
+                                        return 'Item';
+                                    })
+                                    ->collapsible()
+                                    ->columnSpanFull(),
+                                    ])
+                                    ->collapsible(),
+                                    
+                                    // Section: Penjadwalan & Team
+                                    Section::make('Penjadwalan & Catatan')
+                                    ->icon('heroicon-o-calendar')
+                                    ->description('Jadwal produksi dan assignment team')
+                                    ->schema([
+                                        DatePicker::make('jadwal')
                         ->label('Jadwal Produksi')
                         ->native(false)
                         ->displayFormat('d/m/Y')

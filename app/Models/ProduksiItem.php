@@ -13,6 +13,7 @@ class ProduksiItem extends Model
         'produksi_id',
         'nama_produksi',
         'nama_bahan',
+        'ukuran',
         'jumlah',
         'harga',
         'createdAt',
