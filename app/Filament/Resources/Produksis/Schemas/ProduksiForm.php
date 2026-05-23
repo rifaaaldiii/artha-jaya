@@ -317,7 +317,7 @@ class ProduksiForm
                                         ->columnSpan(2),
                                     ]),
                                     TextInput::make("ukuran")
-                                        // ->hidden()
+                                        ->hidden()
                                         ->dehydrated(true),
                                     ])
                                     ->columns(1)
