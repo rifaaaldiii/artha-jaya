@@ -1353,7 +1353,7 @@
                     if (dayCell && !e.target.closest('.event-item') && !e.target.closest('.event-more')) {
                         const date = dayCell.dataset.date;
                         const dayEvents = window.eventsByDate && window.eventsByDate[date];
-                        if (dayEvents && dayEvents.length > 2) {
+                        if (dayEvents && dayEvents.length > 0) {
                             openModal(date);
                         }
                     }

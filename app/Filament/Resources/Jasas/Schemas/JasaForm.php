@@ -518,6 +518,7 @@ class JasaForm
                     DatePicker::make("jadwal")
                         ->label("Penjadwalan Customer")
                         ->native(false)
+                        ->default(now())
                         ->displayFormat('d/m/Y')
                         ->format('Y-m-d')
                         ->minDate(today())

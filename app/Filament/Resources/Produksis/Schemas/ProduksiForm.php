@@ -210,7 +210,7 @@ class ProduksiForm
                     Repeater::make('items')
                         ->relationship('items')
                         ->schema([
-                            Grid::make(1)
+                            Grid::make(2)
                                 ->schema([
                                     Select::make("nama_produksi")
                                         ->label("Jenis Produksi")
@@ -233,60 +233,66 @@ class ProduksiForm
                                             }
                                         })
                                         ->columnSpan(1),
-                                ]),
-                            Grid::make(3)
-                                ->schema([
+                                        
                                     TextInput::make("nama_bahan")
                                         ->label("Nama Bahan")
                                         ->required()
                                         ->columnSpan(1),
+                                ]),
+                            Grid::make(3)
+                                ->schema([
+                                ]),
+                            
+                            Section::make('Ukuran Potong')
+                                ->schema([
+                                    Grid::make(2)
+                                        ->schema([
+                                            TextInput::make("ukuran_panjang")
+                                                ->label("Panjang")
+                                                ->numeric()
+                                                ->placeholder("20")
+                                                ->reactive()
+                                                ->afterStateHydrated(function ($component, $state, callable $get) {
+                                                    $ukuran = $get('ukuran');
+                                                    if ($ukuran && str_contains($ukuran, ' x ')) {
+                                                        $parts = explode(' x ', $ukuran);
+                                                        $component->state(trim($parts[1]));
+                                                    }
+                                                })
+                                                ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                    $lebar = $get('ukuran_lebar');
+                                                    $panjang = $state;
+                                                    if ($lebar && $panjang) {
+                                                        $set('ukuran', "{$panjang} x {$lebar}");
+                                                    } elseif (!$lebar) {
+                                                        $set('ukuran', null);
+                                                    }
+                                                })
+                                                ->columnSpan(1),
 
-                                    TextInput::make("ukuran_panjang")
-                                        ->label("Panjang")
-                                        ->numeric()
-                                        ->placeholder("20")
-                                        ->reactive()
-                                        ->afterStateHydrated(function ($component, $state, callable $get) {
-                                            $ukuran = $get('ukuran');
-                                            if ($ukuran && str_contains($ukuran, ' x ')) {
-                                                $parts = explode(' x ', $ukuran);
-                                                $component->state(trim($parts[1]));
-                                            }
-                                        })
-                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            $lebar = $get('ukuran_lebar');
-                                            $panjang = $state;
-                                            if ($lebar && $panjang) {
-                                                $set('ukuran', "{$panjang} x {$lebar}");
-                                            } elseif (!$lebar) {
-                                                $set('ukuran', null);
-                                            }
-                                        })
-                                        ->columnSpan(1),
-
-                                    TextInput::make("ukuran_lebar")
-                                        ->label("Lebar")
-                                        ->numeric()
-                                        ->placeholder("30")
-                                        ->reactive()
-                                        ->afterStateHydrated(function ($component, $state, callable $get) {
-                                            $ukuran = $get('ukuran');
-                                            if ($ukuran && str_contains($ukuran, ' x ')) {
-                                                $parts = explode(' x ', $ukuran);
-                                                $component->state(trim($parts[0]));
-                                            }
-                                        })
-                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                            $lebar = $state;
-                                            $panjang = $get('ukuran_panjang');
-                                            if ($lebar && $panjang) {
-                                                $set('ukuran', "{$panjang} x {$lebar}");
-                                            } elseif (!$lebar) {
-                                                $set('ukuran', null);
-                                            }
-                                        })
-                                        ->columnSpan(1),
-                                    
+                                            TextInput::make("ukuran_lebar")
+                                                ->label("Lebar")
+                                                ->numeric()
+                                                ->placeholder("30")
+                                                ->reactive()
+                                                ->afterStateHydrated(function ($component, $state, callable $get) {
+                                                    $ukuran = $get('ukuran');
+                                                    if ($ukuran && str_contains($ukuran, ' x ')) {
+                                                        $parts = explode(' x ', $ukuran);
+                                                        $component->state(trim($parts[0]));
+                                                    }
+                                                })
+                                                ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                    $lebar = $state;
+                                                    $panjang = $get('ukuran_panjang');
+                                                    if ($lebar && $panjang) {
+                                                        $set('ukuran', "{$panjang} x {$lebar}");
+                                                    } elseif (!$lebar) {
+                                                        $set('ukuran', null);
+                                                    }
+                                                })
+                                                ->columnSpan(1),
+                                        ]),
                                 ]),
                                         Grid::make(3)
                                         ->schema([
@@ -350,21 +356,22 @@ class ProduksiForm
                                     ->description('Jadwal produksi dan assignment team')
                                     ->schema([
                                         DatePicker::make('jadwal')
-                        ->label('Jadwal Produksi')
-                        ->native(false)
-                        ->displayFormat('d/m/Y')
-                        ->format('Y-m-d')
-                        ->minDate(today())
-                        ->required()
-                        ->afterStateHydrated(function ($component, $state) {
-                            if ($state) {
-                                $component->state(Carbon::parse($state)->format('Y-m-d'));
-                            }
-                        })
-                        ->dehydrateStateUsing(function ($state) {
-                            return $state ? $state . ' 00:00:00' : null;
-                        })
-                        ->columnSpanFull(),
+                                            ->label('Jadwal Produksi')
+                                            ->native(false)
+                                            ->default(now())
+                                            ->displayFormat('d/m/Y')
+                                            ->format('Y-m-d')
+                                            ->minDate(today())
+                                            ->required()
+                                            ->afterStateHydrated(function ($component, $state) {
+                                                if ($state) {
+                                                    $component->state(Carbon::parse($state)->format('Y-m-d'));
+                                                }
+                                            })
+                                            ->dehydrateStateUsing(function ($state) {
+                                                return $state ? $state . ' 00:00:00' : null;
+                                            })
+                                            ->columnSpanFull(),
                     
                     Section::make('Catatan')
                         ->icon('heroicon-o-clipboard')
