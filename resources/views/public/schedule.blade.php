@@ -3,6 +3,14 @@
     <script>
         document.title = 'Jadwal Produksi & Jasa - Artha Jaya';
     </script>
+
+    <script>
+        const viewportMeta = document.createElement('meta');
+        viewportMeta.name = 'viewport';
+        viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        document.head.appendChild(viewportMeta);
+    </script>
+
     
     <div class="schedule-container">
         {{-- Sidebar Section --}}
@@ -171,8 +179,20 @@
         {{-- Main Calendar Section --}}
         <div class="schedule-main">
             <div class="main-header">
-                <h1>{{ $monthName }}</h1>
-                <a href="{{ route('public.schedule', ['date' => now()->toDateString()]) }}" class="btn-today">Today</a>
+                <div class="main-header-left">
+                    <h1>{{ $monthName }}</h1>
+                </div>
+
+                <div class="main-header-actions">
+                    <button type="button" class="btn-fullscreen" id="toggleFullscreen">
+                        <span class="fullscreen-enter">Fullscreen</span>
+                        <span class="fullscreen-exit">Close Fullscreen</span>
+                    </button>
+
+                    <a href="{{ route('public.schedule', ['date' => now()->toDateString()]) }}" class="btn-today">
+                        Today
+                    </a>
+                </div>
             </div>
             
             <div class="main-calendar">
@@ -278,7 +298,8 @@
             font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #ffffff;
             color: #3c4043;
-            zoom: 70%;
+            zoom: 100%;
+            font-size: 16px;
         }
 
         ::-webkit-scrollbar {
@@ -368,7 +389,7 @@
         }
         
         .mini-day-btn {
-            height: 32px;
+            height: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -376,7 +397,7 @@
             text-decoration: none;
             color: #3c4043;
             font-size: 12px;
-            border-radius: 50%;
+            /* border-radius: 50%; */
             position: relative;
             transition: background 0.2s;
         }
@@ -654,21 +675,16 @@
         }
         
         .btn-today {
-            padding: 8px 16px;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            background: #ffffff;
-            color: #3c4043;
-            font-size: 14px;
-            font-weight: 500;
+            background: #1a73e8;
+            color: #ffffff;
+            border-color: #1a73e8;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
             text-decoration: none;
             transition: background 0.2s;
         }
-        
-        .btn-today:hover {
-            background: #f1f3f4;
-        }
-        
         .main-calendar {
             flex: 1;
             display: flex;
@@ -1044,22 +1060,40 @@
         }
         
         /* Responsive */
+        /* Large Desktop */
+        @media (min-width: 1400px) {
+            .schedule-sidebar {
+                width: 320px;
+            }
+        }
+        
+        /* Desktop */
+        @media (max-width: 1200px) {
+            .schedule-sidebar {
+                width: 260px;
+            }
+            
+            .main-header h1 {
+                font-size: 20px;
+            }
+        }
+        
+        /* Tablet Landscape */
         @media (max-width: 1024px) {
             .schedule-sidebar {
                 width: 220px;
             }
-        }
-        
-        @media (max-width: 768px) {
-            .schedule-container {
-                flex-direction: column;
+            
+            body {
+                zoom: 100%;
             }
             
-            .schedule-sidebar {
-                width: 100%;
-                max-height: 300px;
-                border-right: none;
-                border-bottom: 1px solid #dadce0;
+            .mini-calendar-header h3 {
+                font-size: 13px;
+            }
+            
+            .main-header {
+                padding: 12px 20px;
             }
             
             .main-header h1 {
@@ -1067,9 +1101,1003 @@
             }
             
             .main-day-cell {
-                min-height: 80px;
+                min-height: 110px;
             }
         }
+        
+        /* Tablet Portrait */
+        @media (max-width: 768px) {
+            body {
+                zoom: 100%;
+            }
+            
+            .schedule-container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            /* Sidebar becomes horizontal scrollable section */
+            .schedule-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid #dadce0;
+                padding: 12px;
+                background: #f8f9fa;
+            }
+            
+            .mini-calendar {
+                margin-bottom: 12px;
+            }
+            
+            .mini-calendar-header {
+                margin-bottom: 12px;
+            }
+            
+            .mini-calendar-header h3 {
+                font-size: 14px;
+                font-weight: 600;
+            }
+            
+            .nav-btn {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .mini-day-btn {
+                height: 32px;
+                font-size: 12px;
+            }
+            
+            /* Filters in horizontal scroll */
+            .sidebar-filters {
+                margin: 8px 0;
+                padding: 12px 0;
+                border-top: 1px solid #e0e0e0;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .filter-section {
+                margin-bottom: 12px;
+            }
+            
+            .filter-title {
+                font-size: 11px;
+            }
+            
+            .filter-checkbox {
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+            
+            .checkmark {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .sidebar-stats {
+                padding-top: 8px;
+            }
+            
+            .stat-row {
+                font-size: 12px;
+                padding: 4px 0;
+            }
+            
+            .stats-title {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+            
+            /* Main calendar takes full height */
+            .schedule-main {
+                flex: 1;
+                min-height: calc(100vh - 350px);
+            }
+            
+            .main-header {
+                padding: 12px 16px;
+                background: #ffffff;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            .main-header h1 {
+                font-size: 18px;
+                font-weight: 500;
+            }
+            
+            .btn-today {
+                padding: 6px 14px;
+                font-size: 13px;
+                background: #1a73e8;
+                color: #ffffff;
+                border-color: #1a73e8;
+            }
+            
+            .btn-today:hover {
+                background: #1557b0;
+            }
+            
+            .main-day-names {
+                position: sticky;
+                top: 0;
+                background: #ffffff;
+                z-index: 5;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            .main-day-names .day-name {
+                padding: 10px 4px;
+                font-size: 10px;
+            }
+            
+            .main-calendar-grid {
+                grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            
+            .main-day-cell {
+                min-height: 100px;
+                padding: 6px;
+            }
+            
+            .day-number {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+            
+            .event-more-badge {
+                font-size: 9px;
+                padding: 2px 5px;
+            }
+            
+            .event-item {
+                margin-bottom: 3px;
+            }
+            
+            .event-content {
+                padding: 4px 5px;
+            }
+            
+            .event-time {
+                font-size: 9px;
+                font-weight: 600;
+            }
+            
+            .event-type-badge {
+                font-size: 7px;
+                padding: 1px 3px;
+            }
+            
+            .event-location {
+                font-size: 8px;
+            }
+            
+            .event-location svg {
+                width: 8px;
+                height: 8px;
+            }
+            
+            /* Modal improvements */
+            .modal-content {
+                width: 95%;
+                max-width: 500px;
+                max-height: 85vh;
+            }
+            
+            .modal-header {
+                padding: 16px 20px;
+                background: #f8f9fa;
+            }
+            
+            .modal-title {
+                font-size: 16px;
+            }
+            
+            .modal-body {
+                padding: 16px 20px;
+            }
+            
+            .modal-event-item {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* Mobile Large */
+        @media (max-width: 640px) {
+            .public-schedule-page {
+                padding-bottom: 20px;
+            }
+            
+            .schedule-sidebar {
+                padding: 10px;
+            }
+            
+            .mini-calendar-day-names > div {
+                font-size: 9px;
+                padding: 3px 0;
+            }
+            
+            .mini-day-btn {
+                height: 30px;
+                font-size: 11px;
+            }
+            
+            .mini-day-dots .dot {
+                width: 3px;
+                height: 3px;
+            }
+            
+            .filter-section-header {
+                margin-bottom: 6px;
+            }
+            
+            .filter-title {
+                font-size: 10px;
+            }
+            
+            .filter-checkbox {
+                font-size: 12px;
+                padding: 5px 6px;
+            }
+            
+            .checkmark {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .stat-row {
+                font-size: 11px;
+                padding: 4px 0;
+                gap: 6px;
+            }
+            
+            .stat-dot {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .main-header {
+                padding: 10px 12px;
+            }
+            
+            .main-header h1 {
+                font-size: 16px;
+            }
+            
+            .btn-today {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .main-day-names .day-name {
+                padding: 8px 2px;
+                font-size: 9px;
+                font-weight: 600;
+            }
+            
+            .main-calendar-grid {
+                grid-template-rows: repeat(auto-fill, minmax(90px, 1fr));
+            }
+            
+            .main-day-cell {
+                min-height: 90px;
+                padding: 4px;
+            }
+            
+            .day-header {
+                margin-bottom: 3px;
+            }
+            
+            .day-number {
+                width: 22px;
+                height: 22px;
+                font-size: 10px;
+            }
+            
+            .event-more-badge {
+                font-size: 7px;
+                padding: 1px 4px;
+                border-radius: 3px;
+            }
+            
+            .event-item {
+                margin-bottom: 2px;
+                border-left-width: 2px;
+            }
+            
+            .event-content {
+                padding: 3px 4px;
+            }
+            
+            .event-header {
+                gap: 2px;
+                margin-bottom: 1px;
+            }
+            
+            .event-time {
+                font-size: 8px;
+                font-weight: 600;
+            }
+            
+            .event-type-badge {
+                font-size: 6px;
+                padding: 1px 2px;
+                border-radius: 2px;
+            }
+            
+            .event-location {
+                font-size: 7px;
+                margin-top: 1px;
+            }
+            
+            .event-location svg {
+                width: 7px;
+                height: 7px;
+            }
+            
+            /* Modal for mobile */
+            .modal-content {
+                width: 98%;
+                max-width: none;
+                max-height: 90vh;
+                border-radius: 12px 12px 0 0;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            @keyframes modalSlideUp {
+                from {
+                    transform: translateY(100%);
+                }
+                to {
+                    transform: translateY(0);
+                }
+            }
+            
+            .modal-header {
+                padding: 14px 16px;
+                background: #f8f9fa;
+            }
+            
+            .modal-title {
+                font-size: 15px;
+            }
+            
+            .modal-close {
+                padding: 6px;
+            }
+            
+            .modal-close svg {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .modal-body {
+                padding: 12px 16px;
+            }
+            
+            .modal-event-item {
+                padding: 10px;
+                margin-bottom: 8px;
+                border-left-width: 3px;
+            }
+            
+            .modal-event-header {
+                margin-bottom: 6px;
+            }
+            
+            .modal-event-type {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            
+            .modal-event-status {
+                font-size: 9px;
+            }
+            
+            .modal-event-title {
+                font-size: 12px;
+                margin-bottom: 3px;
+            }
+            
+            .modal-event-location {
+                font-size: 10px;
+                gap: 4px;
+            }
+            
+            .modal-event-location svg {
+                width: 12px;
+                height: 12px;
+            }
+        }
+        
+        /* Mobile Small */
+        @media (max-width: 480px) {
+            .schedule-sidebar {
+                padding: 8px;
+            }
+            
+            .mini-calendar {
+                margin-bottom: 8px;
+            }
+            
+            .mini-calendar-header {
+                margin-bottom: 8px;
+            }
+            
+            .mini-calendar-header h3 {
+                font-size: 13px;
+            }
+            
+            .nav-btn {
+                width: 26px;
+                height: 26px;
+            }
+            
+            .nav-btn svg {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .mini-calendar-day-names {
+                margin-bottom: 4px;
+            }
+            
+            .mini-calendar-day-names > div {
+                font-size: 8px;
+            }
+            
+            .mini-day-btn {
+                height: 26px;
+                font-size: 10px;
+            }
+            
+            .mini-day-dots .dot {
+                width: 2px;
+                height: 2px;
+            }
+            
+            .filter-options {
+                gap: 3px;
+            }
+            
+            .filter-section {
+                margin-bottom: 8px;
+            }
+            
+            .filter-title {
+                font-size: 9px;
+                margin-bottom: 4px;
+            }
+            
+            .filter-checkbox {
+                font-size: 11px;
+                padding: 4px 5px;
+                gap: 5px;
+            }
+            
+            .checkmark {
+                width: 15px;
+                height: 15px;
+            }
+            
+            .checkmark::after {
+                width: 3px;
+                height: 7px;
+            }
+            
+            .stat-row {
+                font-size: 10px;
+                gap: 5px;
+                padding: 3px 0;
+            }
+            
+            .stat-dot {
+                width: 5px;
+                height: 5px;
+            }
+            
+            .stats-title {
+                font-size: 9px;
+            }
+            
+            .main-header {
+                padding: 8px 10px;
+            }
+            
+            .main-header h1 {
+                font-size: 14px;
+            }
+            
+            .btn-today {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            
+            .main-day-names .day-name {
+                padding: 6px 2px;
+                font-size: 8px;
+            }
+            
+            .main-calendar-grid {
+                grid-template-rows: repeat(auto-fill, minmax(80px, 1fr));
+            }
+            
+            .main-day-cell {
+                min-height: 80px;
+                padding: 3px;
+            }
+            
+            .day-header {
+                margin-bottom: 2px;
+            }
+            
+            .day-number {
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
+            }
+            
+            .event-more-badge {
+                font-size: 6px;
+                padding: 1px 3px;
+            }
+            
+            .event-item {
+                margin-bottom: 2px;
+            }
+            
+            .event-content {
+                padding: 2px 3px;
+            }
+            
+            .event-header {
+                margin-bottom: 0;
+                gap: 2px;
+            }
+            
+            .event-time {
+                font-size: 7px;
+            }
+            
+            .event-type-badge {
+                font-size: 5px;
+                padding: 0px 2px;
+            }
+            
+            .event-location {
+                display: none;
+            }
+            
+            .modal-content {
+                width: 100%;
+                max-height: 95vh;
+            }
+            
+            .modal-header {
+                padding: 12px 14px;
+            }
+            
+            .modal-title {
+                font-size: 14px;
+            }
+            
+            .modal-close {
+                padding: 5px;
+            }
+            
+            .modal-close svg {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .modal-body {
+                padding: 10px 14px;
+            }
+            
+            .modal-event-item {
+                padding: 8px;
+                margin-bottom: 6px;
+            }
+            
+            .modal-event-header {
+                margin-bottom: 4px;
+            }
+            
+            .modal-event-type {
+                font-size: 8px;
+                padding: 1px 4px;
+            }
+            
+            .modal-event-status {
+                font-size: 8px;
+            }
+            
+            .modal-event-title {
+                font-size: 11px;
+                margin-bottom: 2px;
+            }
+            
+            .modal-event-location {
+                font-size: 9px;
+                gap: 3px;
+            }
+            
+            .modal-event-location svg {
+                width: 10px;
+                height: 10px;
+            }
+        }
+        
+        /* Extra Small Mobile */
+        @media (max-width: 360px) {
+            body {
+                zoom: 100%;
+            }
+            
+            .mini-day-btn {
+                height: 24px;
+                font-size: 9px;
+            }
+            
+            .main-day-cell {
+                min-height: 70px;
+            }
+            
+            .day-number {
+                width: 18px;
+                height: 18px;
+                font-size: 8px;
+            }
+            
+            .event-time {
+                font-size: 6px;
+            }
+            
+            .event-type-badge {
+                font-size: 4px;
+            }
+        }
+    
+        
+        /* ===== Enhanced Responsive Layout ===== */
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .public-schedule-page {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .schedule-container {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .schedule-main {
+            min-width: 0;
+        }
+
+        .main-calendar {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .main-calendar-grid {
+            width: 100%;
+        }
+
+        .event-item,
+        .modal-event-item,
+        .filter-checkbox,
+        .btn-today,
+        .nav-btn {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .event-header,
+        .modal-event-header,
+        .day-header,
+        .main-header {
+            gap: 8px;
+        }
+
+        .event-time,
+        .event-location span,
+        .modal-event-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 991px) {
+            .schedule-container {
+                flex-direction: column;
+            }
+
+            .schedule-sidebar {
+                width: 100%;
+                max-width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #dadce0;
+            }
+
+            .schedule-main {
+                width: 100%;
+            }
+
+            .main-calendar-grid {
+                min-width: 700px;
+            }
+
+            .main-calendar {
+                overflow-x: auto;
+                overflow-y: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .schedule-sidebar {
+                padding: 12px;
+            }
+
+            .main-header {
+                flex-wrap: wrap;
+                align-items: flex-start;
+            }
+
+            .main-header h1 {
+                width: 100%;
+            }
+
+            .btn-today {
+                width: 100%;
+                text-align: center;
+            }
+
+            .sidebar-filters {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .stat-container {
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .modal-content {
+                width: calc(100% - 16px);
+                margin: 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-calendar-grid {
+                min-width: 640px;
+            }
+
+            .main-day-cell,
+            .main-day-empty {
+                min-height: 82px;
+            }
+
+            .event-content {
+                padding: 2px 4px;
+            }
+
+            .event-type-badge {
+                line-height: 1.2;
+            }
+
+            .modal-content {
+                border-radius: 16px 16px 0 0;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .schedule-sidebar {
+                padding: 8px;
+            }
+
+            .main-header {
+                padding: 10px;
+            }
+
+            .main-header h1 {
+                font-size: 15px;
+            }
+
+            .btn-today {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+
+            .filter-checkbox {
+                font-size: 11px;
+            }
+
+            .main-calendar-grid {
+                min-width: 600px;
+            }
+        }
+
+    
+        
+        /* ===== Modern Responsive Layout ===== */
+
+        .schedule-container {
+            background: #f3f4f6;
+        }
+
+        .schedule-sidebar {
+            background: #ffffff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            z-index: 5;
+        }
+
+        .schedule-main {
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .main-header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .main-header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .main-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-fullscreen {
+            border: none;
+            background: #111827;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fullscreen-exit {
+            display: none;
+        }
+
+        .schedule-main.fullscreen-mode {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 99999;
+            background: #ffffff;
+        }
+
+        .schedule-main.fullscreen-mode .fullscreen-enter {
+            display: none;
+        }
+
+        .schedule-main.fullscreen-mode .fullscreen-exit {
+            display: inline;
+        }
+
+        .schedule-main.fullscreen-mode .main-calendar {
+            height: calc(100vh - 80px);
+        }
+
+        .main-calendar {
+            padding: 16px;
+        }
+
+        .main-day-names {
+            background: #ffffff;
+            border-radius: 14px 14px 0 0;
+            overflow: hidden;
+        }
+
+        .main-calendar-grid {
+            background: #ffffff;
+            border-radius: 0 0 14px 14px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .event-item {
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .event-type-badge {
+            border-radius: 999px;
+        }
+
+        .mini-calendar,
+        .sidebar-filters,
+        .sidebar-stats {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 14px;
+            border: 1px solid #ececec;
+        }
+
+        .sidebar-filters,
+        .sidebar-stats {
+            margin-top: 18px;
+        }
+
+        @media (max-width: 1024px) {
+            .schedule-container {
+                flex-direction: column;
+            }
+
+            .schedule-sidebar {
+                width: 100%;
+            }
+
+            .main-calendar-grid {
+                min-width: 820px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .main-header-actions {
+                width: 100%;
+            }
+
+            .btn-fullscreen,
+            .btn-today {
+                flex: 1;
+                text-align: center;
+            }
+
+            .main-calendar {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-calendar-grid {
+                min-width: 700px;
+            }
+
+            .btn-fullscreen,
+            .btn-today {
+                font-size: 11px;
+            }
+        }
+
     </style>
 
     {{-- Real-time Update Script --}}
@@ -1350,12 +2378,11 @@
                 // Click on day cell (but not on event items)
                 document.addEventListener('click', function(e) {
                     const dayCell = e.target.closest('.main-day-cell');
-                    if (dayCell && !e.target.closest('.event-item') && !e.target.closest('.event-more')) {
+                    if (dayCell && !e.target.closest('.event-item') && !e.target.closest('.event-more-badge')) {
                         const date = dayCell.dataset.date;
                         const dayEvents = window.eventsByDate && window.eventsByDate[date];
-                        if (dayEvents && dayEvents.length > 0) {
-                            openModal(date);
-                        }
+                        // Open modal for any date cell click, even if no events
+                        openModal(date);
                     }
                 });
             }
@@ -1412,6 +2439,25 @@
                 document.body.style.overflow = 'hidden';
             }
     
+            
+            
+            // Fullscreen Toggle
+            const fullscreenBtn = document.getElementById('toggleFullscreen');
+            const scheduleMain = document.querySelector('.schedule-main');
+
+            if (fullscreenBtn && scheduleMain) {
+                fullscreenBtn.addEventListener('click', function () {
+                    scheduleMain.classList.toggle('fullscreen-mode');
+
+                    if (scheduleMain.classList.contains('fullscreen-mode')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
+
             // Initialize when page loads
             initFilters();
             initModal();
