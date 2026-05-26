@@ -968,6 +968,7 @@
                                             <th class="items-table-header">No</th>
                                             <th class="items-table-header">Jenis Produksi</th>
                                             <th class="items-table-header">Nama Bahan</th>
+                                            <th class="items-table-header">Ukuran</th>
                                             <th class="items-table-header">Jumlah</th>
                                             <th class="items-table-header">Harga</th>
                                         </tr>
@@ -978,6 +979,7 @@
                                             <td class="items-table-cell">{{ $index + 1 }}</td>
                                             <td class="items-table-cell">{{ $item->nama_produksi }}</td>
                                             <td class="items-table-cell">{{ $item->nama_bahan ?? '-' }}</td>
+                                            <td class="items-table-cell">{{ $item->ukuran ?? '-' }}</td>
                                             <td class="items-table-cell">{{ number_format($item->jumlah, 0, ',', '.') }} Unit</td>
                                             <td class="items-table-cell items-table-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</td>
                                         </tr>

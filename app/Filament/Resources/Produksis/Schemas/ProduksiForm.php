@@ -19,6 +19,7 @@ use Filament\Forms\Components\Placeholder;
 use Carbon\Carbon;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProduksiForm
 {
@@ -250,6 +251,7 @@ class ProduksiForm
                                             TextInput::make("ukuran_panjang")
                                                 ->label("Panjang")
                                                 ->numeric()
+                                                ->required()
                                                 ->placeholder("20")
                                                 ->reactive()
                                                 ->afterStateHydrated(function ($component, $state, callable $get) {
@@ -263,9 +265,16 @@ class ProduksiForm
                                                     $lebar = $get('ukuran_lebar');
                                                     $panjang = $state;
                                                     if ($lebar && $panjang) {
-                                                        $set('ukuran', "{$panjang} x {$lebar}");
+                                                        $ukuranValue = "{$panjang} x {$lebar}";
+                                                        $set('ukuran', $ukuranValue);
+                                                        Log::info('=== UKURAN SET FROM FORM (PANJANG) ===', [
+                                                            'panjang' => $panjang,
+                                                            'lebar' => $lebar,
+                                                            'ukuran_value' => $ukuranValue,
+                                                        ]);
                                                     } elseif (!$lebar) {
                                                         $set('ukuran', null);
+                                                        Log::info('=== UKURAN CLEARED (NO LEBAR) ===');
                                                     }
                                                 })
                                                 ->columnSpan(1),
@@ -273,6 +282,7 @@ class ProduksiForm
                                             TextInput::make("ukuran_lebar")
                                                 ->label("Lebar")
                                                 ->numeric()
+                                                ->required()
                                                 ->placeholder("30")
                                                 ->reactive()
                                                 ->afterStateHydrated(function ($component, $state, callable $get) {
@@ -286,12 +296,22 @@ class ProduksiForm
                                                     $lebar = $state;
                                                     $panjang = $get('ukuran_panjang');
                                                     if ($lebar && $panjang) {
-                                                        $set('ukuran', "{$panjang} x {$lebar}");
+                                                        $ukuranValue = "{$panjang} x {$lebar}";
+                                                        $set('ukuran', $ukuranValue);
+                                                        Log::info('=== UKURAN SET FROM FORM (LEBAR) ===', [
+                                                            'panjang' => $panjang,
+                                                            'lebar' => $lebar,
+                                                            'ukuran_value' => $ukuranValue,
+                                                        ]);
                                                     } elseif (!$lebar) {
                                                         $set('ukuran', null);
+                                                        Log::info('=== UKURAN CLEARED (NO LEBAR) ===');
                                                     }
                                                 })
                                                 ->columnSpan(1),
+
+                                            
+                                                
                                         ]),
                                 ]),
                                         Grid::make(3)
@@ -322,9 +342,28 @@ class ProduksiForm
                                         ->dehydrated(true)
                                         ->columnSpan(2),
                                     ]),
+
                                     TextInput::make("ukuran")
-                                        ->hidden()
-                                        ->dehydrated(true),
+                                        ->label("Ukuran (Auto)")
+                                        ->disabled()
+                                        ->dehydrated(true)
+                                        ->visible(true)
+                                        ->readOnly()
+                                        ->columnSpanFull()
+                                        ->afterStateHydrated(function ($component, $state) {
+                                            if ($state) {
+                                                Log::info('=== UKURAN FIELD HYDRATED ===', [
+                                                    'state' => $state,
+                                                ]);
+                                            }
+                                        })
+                                        ->dehydrateStateUsing(function ($state) {
+                                            Log::info('=== UKURAN DEHYDRATE STATE ===', [
+                                                'state' => $state,
+                                                'state_type' => gettype($state),
+                                            ]);
+                                            return $state;
+                                        }),
                                     ])
                                     ->columns(1)
                                     ->addActionLabel('+ Tambah Item')
