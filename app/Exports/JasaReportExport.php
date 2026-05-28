@@ -189,7 +189,7 @@ class JasaReportExport implements FromCollection, WithHeadings, WithMapping, Wit
                     if ($jasa->items && $jasa->items->count() > 0) {
                         foreach ($jasa->items as $item) {
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga ?? 0;
+                            $harga = $item->harga / $qty ?: 0;
                             $jasaTotalHarga += ($qty * $harga);
                         }
                     }
@@ -204,7 +204,7 @@ class JasaReportExport implements FromCollection, WithHeadings, WithMapping, Wit
                             $jenisLayanan = $item->jenis_layanan ?? $item->nama_jasa ?? 'Item';
                             $detailItem = $jenisLayanan . ($item->deskripsi ? " - {$item->deskripsi}" : '');
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga ?? 0;
+                            $harga = $item->harga / $qty ?: 0;
                             $totalHarga = $qty * $harga;
 
                             $sheet->setCellValue('A' . $currentRow, $itemIndex === 0 ? $rowNumber : '');

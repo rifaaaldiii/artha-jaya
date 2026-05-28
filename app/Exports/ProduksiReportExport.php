@@ -186,7 +186,7 @@ class ProduksiReportExport implements FromCollection, WithHeadings, WithMapping,
                     if ($produksi->items && $produksi->items->count() > 0) {
                         foreach ($produksi->items as $item) {
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga ?? 0;
+                            $harga = $item->harga / $qty ?: 0;
                             $produksiTotalHarga += ($qty * $harga);
                         }
                     }
@@ -201,7 +201,7 @@ class ProduksiReportExport implements FromCollection, WithHeadings, WithMapping,
                             $jenisProduksi = $item->nama_produksi ?? '-';
                             $namaBahan = $item->nama_bahan ?? '-';
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga ?? 0;
+                            $harga = $item->harga / $qty ?: 0;
                             $totalHarga = $qty * $harga;
 
                             $sheet->setCellValue('A' . $currentRow, $itemIndex === 0 ? $rowNumber : '');
