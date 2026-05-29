@@ -1840,8 +1840,6 @@
 
             .fi-info-grid {
                 grid-template-columns: 2fr;
-                
-            border:1px solid red;
             }
         }
 
