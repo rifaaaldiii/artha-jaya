@@ -240,14 +240,8 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
-            margin-bottom: 16px;
         }
         
-        @media (max-width: 1024px) {
-            .fi-grid-layout {
-                grid-template-columns: 1fr;
-            }
-        }
         
         /* Filament Section */
         .fi-section {
@@ -255,6 +249,7 @@
             border-radius: var(--aj-radius);
             box-shadow: var(--aj-shadow-sm);
             margin-bottom: 16px;
+            overflow: hidden;
         }
         
         .fi-section-header {
@@ -519,21 +514,6 @@
             color: var(--aj-text-muted);
             font-weight: 500;
             margin: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .fi-table-header,
-            .fi-table-cell {
-                padding: 10px 12px;
-            }
-            
-            .fi-table-header {
-                font-size: 12px;
-            }
-            
-            .fi-table-cell {
-                font-size: 14px;
-            }
         }
         
         .jasa-items-table {
@@ -1248,144 +1228,6 @@
             color: var(--aj-text-secondary);
             line-height: 1.6;
         }
-        
-        /* Responsive - Mobile */
-        @media (max-width: 768px) {
-            .header-subtitle {
-                display: none;
-            }
-            .page-header {
-                padding: 16px 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 12px;
-            }
-            
-            .header-icon-wrapper {
-                gap: 12px;
-            }
-            
-            .fi-header-title {
-                font-size: 20px;
-            }
-            
-            .fi-header-subtitle {
-                font-size: 13px;
-            }
-            
-            .fi-header-code {
-                font-size: 12px;
-            }
-            
-            .header-right {
-                text-align: left;
-            }
-            
-            .container {
-                padding: 20px 16px;
-            }
-            
-            .card-body {
-                padding: 20px;
-            }
-            
-            .info-layout {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-            
-            .upload-area {
-                padding: 32px 20px;
-            }
-            
-            .preview-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .button-group {
-                flex-direction: column-reverse;
-            }
-            
-            .btn-secondary {
-                width: 100%;
-            }
-            
-            .btn-primary {
-                width: 100%;
-            }
-            
-            .success-card {
-                padding: 48px 20px;
-            }
-            
-            .success-title {
-                font-size: 24px;
-            }
-            
-            /* Jasa Items Table - Mobile */
-            .jasa-items-table th,
-            .jasa-items-table td {
-                padding: 10px 12px;
-                font-size: 13px;
-            }
-            
-            .jasa-items-title {
-                font-size: 13px;
-                padding: 10px 12px;
-            }
-            
-            /* Catatan Box - Mobile */
-            .catatan-box {
-                padding: 14px;
-                gap: 10px;
-            }
-            
-            .catatan-icon {
-                width: 16px;
-                height: 16px;
-            }
-            
-            .catatan-label {
-                font-size: 11px;
-            }
-            
-            .catatan-text {
-                font-size: 13px;
-            }
-
-            /* Catatan Note - Mobile */
-            .catatan-note {
-                padding: 14px;
-                gap: 10px;
-            }
-            
-            /* Broadcast Banner - Mobile */
-            .broadcast-banner {
-                margin-bottom: 16px;
-            }
-            
-            .broadcast-container {
-                padding: 12px 16px;
-                gap: 12px;
-            }
-            
-            .broadcast-icon {
-                width: 20px;
-                height: 20px;
-            }
-            
-            /* .broadcast-label {
-                font-size: 10px;
-                padding: 3px 8px;
-            } */
-            
-            .broadcast-text {
-                font-size: 13px;
-                animation-duration: 10s;
-            }
-        }
 
         /* ============================================
         FILAMENT-STYLE UI COMPONENTS
@@ -1878,17 +1720,6 @@
             cursor: not-allowed;
         }
 
-        @media (max-width: 640px) {
-            .fi-actions {
-                flex-direction: column-reverse;
-            }
-
-            .fi-action-btn {
-                width: 100%;
-                padding: 14px 24px;
-            }
-        }
-
         /* Success Page */
         .fi-success-container {
             max-width: 600px;
@@ -1999,9 +1830,164 @@
             line-height: 1.5;
             margin: 0;
         }
-
+        
         /* Responsive - Mobile */
+        
+        @media (max-width: 1024px) {
+            .fi-grid-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .fi-info-grid {
+                grid-template-columns: 2fr;
+                
+            border:1px solid red;
+            }
+        }
+
         @media (max-width: 768px) {
+            .fi-table-header,
+            .fi-table-cell {
+                padding: 10px 12px;
+            }
+            
+            .fi-table-header {
+                font-size: 12px;
+            }
+            
+            .fi-table-cell {
+                font-size: 14px;
+            }
+
+            .header-subtitle {
+                display: none;
+            }
+            .page-header {
+                padding: 16px 20px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .header-icon-wrapper {
+                gap: 12px;
+            }
+            
+            .fi-header-title {
+                font-size: 20px;
+            }
+            
+            .fi-header-subtitle {
+                font-size: 13px;
+            }
+            
+            .fi-header-code {
+                font-size: 12px;
+            }
+            
+            .header-right {
+                text-align: left;
+            }
+            
+            .container {
+                padding: 20px 16px;
+            }
+            
+            .card-body {
+                padding: 20px;
+            }
+            
+            .info-layout {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .upload-area {
+                padding: 32px 20px;
+            }
+            
+            .preview-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .button-group {
+                flex-direction: column-reverse;
+            }
+            
+            .btn-secondary {
+                width: 100%;
+            }
+            
+            .btn-primary {
+                width: 100%;
+            }
+            
+            .success-card {
+                padding: 48px 20px;
+            }
+            
+            .success-title {
+                font-size: 24px;
+            }
+            
+            /* Jasa Items Table - Mobile */
+            .jasa-items-table th,
+            .jasa-items-table td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
+            .jasa-items-title {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+            
+            /* Catatan Box - Mobile */
+            .catatan-box {
+                padding: 14px;
+                gap: 10px;
+            }
+            
+            .catatan-icon {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .catatan-label {
+                font-size: 11px;
+            }
+            
+            .catatan-text {
+                font-size: 13px;
+            }
+
+            /* Catatan Note - Mobile */
+            .catatan-note {
+                padding: 14px;
+                gap: 10px;
+            }
+            
+            /* Broadcast Banner - Mobile */
+            .broadcast-banner {
+                margin-bottom: 16px;
+            }
+            
+            .broadcast-container {
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            
+            .broadcast-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .broadcast-text {
+                font-size: 13px;
+                animation-duration: 10s;
+            }
             .page-header {
                 padding: 16px 20px;
             }
@@ -2081,6 +2067,17 @@
             .fi-success-icon svg {
                 width: 28px;
                 height: 28px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .fi-actions {
+                flex-direction: column-reverse;
+            }
+
+            .fi-action-btn {
+                width: 100%;
+                padding: 14px 24px;
             }
         }
 
