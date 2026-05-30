@@ -159,52 +159,83 @@ class FonteWhatsAppService
             'items_data' => $data['items'] ?? null,
         ]);
 
-        $message = "*PRODUKSI BARU*\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message = "*PRODUKSI BARU*\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         
-        $message .= "📋 *Informasi Produksi*\n";
-        $message .= "No. Produksi: *{$data['no_produksi']}*\n";
-        $message .= "No. Ref: {$data['no_ref']}\n";
-        $message .= "Branch: {$data['branch']}\n";
-        $message .= "Team: {$data['team']}\n\n";
+        // $message .= "📋 *Informasi Produksi*\n";
+        // $message .= "No. Produksi: *{$data['no_produksi']}*\n";
+        // $message .= "No. Ref: {$data['no_ref']}\n";
+        // $message .= "Branch: {$data['branch']}\n";
+        // $message .= "Team: {$data['team']}\n\n";
         
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "👤 *Data Pelanggan*\n";
-        $message .= "Nama: {$data['pelanggan']}\n";
-        $message .= "Kontak: {$data['kontak']}\n";
-        $message .= "Alamat: {$data['alamat']}\n\n";
-        
-        // Items section - ENSURE THIS WORKS
-        if (!empty($data['items']) && is_array($data['items'])) {
-            $itemCount = count($data['items']);
-            $message .= "📦 *Detail Item* ({$itemCount} item):\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message .= "👤 *Data Pelanggan*\n";
+        // $message .= "Nama: {$data['pelanggan']}\n";
+        // $message .= "Kontak: {$data['kontak']}\n";
+        // $message .= "Alamat: {$data['alamat']}\n\n";
+
+        // if (!empty($data['items']) && is_array($data['items'])) {
+        //     $itemCount = count($data['items']);
+        //     $message .= "📦 *Detail Item* ({$itemCount} item):\n";
+        //     $message .= "━━━━━━━━━━━━━━━━━━━━\n";
             
+        //     foreach ($data['items'] as $index => $item) {
+        //         $itemNum = $index + 1;
+        //         $message .= "\n*{$itemNum}. {$item['nama_produksi']}*\n";
+        //         $message .= "   Bahan: {$item['nama_bahan']}\n";
+        //         $message .= "   Jumlah: {$item['jumlah']}\n";
+        //         if (isset($item['harga']) && $item['harga'] > 0) {
+        //             $hargaFormatted = number_format($item['harga'], 0, ',', '.');
+        //             $message .= "   Harga: Rp {$hargaFormatted}\n";
+        //         }
+        //     }
+        // } else {
+        //     $message .= "⚠️ *Tidak ada item*\n";
+        // }
+        
+        // $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
+
+        // if (!empty($data['catatan']) && $data['catatan'] !== 'Tidak ada catatan') {
+        //     $message .= "\n📝 *Catatan:*\n";
+        //     $message .= "{$data['catatan']}\n";
+        // }
+        
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "💡 _Mohon segera ditindak lanjuti_\n";
+        // $message .= "🔗 " . url('/admin/progress?selectedProduksiId=' . $data['produksi_id']);
+
+        // return $message;
+
+        $message = "Halo 👋\n";
+        $message .= "Ada produksi baru.\n\n";
+
+        $message .= "No Produksi: {$data['no_produksi']}\n";
+        $message .= "Customer: {$data['pelanggan']}\n";
+        $message .= "Branch: {$data['branch']}\n";
+
+        if (!empty($data['team'])) {
+            $message .= "Team: {$data['team']}\n";
+        }
+
+        if (!empty($data['items']) && is_array($data['items'])) {
+
+            $message .= "\nItem:\n";
+
             foreach ($data['items'] as $index => $item) {
-                $itemNum = $index + 1;
-                $message .= "\n*{$itemNum}. {$item['nama_produksi']}*\n";
-                $message .= "   Bahan: {$item['nama_bahan']}\n";
-                $message .= "   Jumlah: {$item['jumlah']}\n";
-                if (isset($item['harga']) && $item['harga'] > 0) {
-                    $hargaFormatted = number_format($item['harga'], 0, ',', '.');
-                    $message .= "   Harga: Rp {$hargaFormatted}\n";
-                }
+
+                $jumlah = !empty($item['jumlah'])
+                    ? " ({$item['jumlah']})"
+                    : '';
+
+                $message .= ($index + 1) . ". {$item['nama_produksi']}{$jumlah}\n";
             }
-        } else {
-            $message .= "⚠️ *Tidak ada item*\n";
         }
-        
-        $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
-        
-        // Catatan
+
         if (!empty($data['catatan']) && $data['catatan'] !== 'Tidak ada catatan') {
-            $message .= "\n📝 *Catatan:*\n";
-            $message .= "{$data['catatan']}\n";
+            $message .= "\nCatatan:\n{$data['catatan']}\n";
         }
-        
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "💡 _Mohon segera ditindak lanjuti_\n";
-        $message .= "🔗 " . url('/admin/progress?selectedProduksiId=' . $data['produksi_id']);
+
+        $message .= "\nMohon ditindaklanjuti 🙏";
 
         return $message;
     }
@@ -214,37 +245,52 @@ class FonteWhatsAppService
      */
     protected function buildProduksiStatusMessage(array $data): string
     {
-        $message = "*UPDATE STATUS PRODUKSI*\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message = "*UPDATE STATUS PRODUKSI*\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         
-        $message .= "📋 *Informasi*\n";
-        $message .= "No. Produksi: *{$data['no_produksi']}*\n";
-        $message .= "No. Ref: {$data['no_ref']}\n";
-        $message .= "Branch: {$data['branch']}\n";
+        // $message .= "📋 *Informasi*\n";
+        // $message .= "No. Produksi: *{$data['no_produksi']}*\n";
+        // $message .= "No. Ref: {$data['no_ref']}\n";
+        // $message .= "Branch: {$data['branch']}\n";
+        // if (!empty($data['team'])) {
+        //     $message .= "Team: {$data['team']}\n";
+        // }
+        
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message .= "👤 *Data Pelanggan*\n";
+        // $message .= "Nama: {$data['pelanggan']}\n";
+        // $message .= "Kontak: {$data['kontak']}\n";
+        // $message .= "Alamat: {$data['alamat']}\n";
+        
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message .= "\n📊 *Perubahan Status*\n";
+        // $message .= "Dari: {$data['old_status']}\n";
+        // $message .= "Menjadi: *{$data['new_status']}*\n";
+
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // if (!empty($data['catatan']) && $data['catatan'] !== 'Tidak ada catatan') {
+        //     $message .= "\n📝 *Catatan:*\n";
+        //     $message .= "{$data['catatan']}\n\n";
+        // }
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "💡 _Status telah diperbarui_\n";
+        // $message .= "🔗 " . url('/admin/progress?selectedProduksiId=' . $data['produksi_id']);
+
+        // return $message;
+
+        $message = "Update status produksi 📋\n\n";
+
+        $message .= "No Produksi: {$data['no_produksi']}\n";
+        $message .= "Customer: {$data['pelanggan']}\n";
+        $message .= "Status: {$data['old_status']} → {$data['new_status']}\n";
+
         if (!empty($data['team'])) {
             $message .= "Team: {$data['team']}\n";
         }
-        
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "👤 *Data Pelanggan*\n";
-        $message .= "Nama: {$data['pelanggan']}\n";
-        $message .= "Kontak: {$data['kontak']}\n";
-        $message .= "Alamat: {$data['alamat']}\n";
-        
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "\n📊 *Perubahan Status*\n";
-        $message .= "Dari: {$data['old_status']}\n";
-        $message .= "Menjadi: *{$data['new_status']}*\n";
 
-        // Catatan
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         if (!empty($data['catatan']) && $data['catatan'] !== 'Tidak ada catatan') {
-            $message .= "\n📝 *Catatan:*\n";
-            $message .= "{$data['catatan']}\n\n";
+            $message .= "\nCatatan:\n{$data['catatan']}";
         }
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "💡 _Status telah diperbarui_\n";
-        $message .= "🔗 " . url('/admin/progress?selectedProduksiId=' . $data['produksi_id']);
 
         return $message;
     }
@@ -261,58 +307,88 @@ class FonteWhatsAppService
             'items_data' => $data['items'] ?? null,
         ]);
 
-        $message = "*JASA BARU*\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message = "*JASA BARU*\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         
-        $message .= "📋 *Informasi Jasa*\n";
-        $message .= "No. Jasa: *{$data['no_jasa']}*\n";
-        $message .= "No. Ref: {$data['no_ref']}\n";
-        $message .= "Branch: {$data['branch']}\n\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "📋 *Informasi Jasa*\n";
+        // $message .= "No. Jasa: *{$data['no_jasa']}*\n";
+        // $message .= "No. Ref: {$data['no_ref']}\n";
+        // $message .= "Branch: {$data['branch']}\n\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n";
         
-        $message .= "👤 *Data Pelanggan*\n";
-        $message .= "Nama: {$data['pelanggan']}\n";
-        $message .= "Kontak: {$data['kontak']}\n";
-        $message .= "Alamat: {$data['alamat']}\n\n";
+        // $message .= "👤 *Data Pelanggan*\n";
+        // $message .= "Nama: {$data['pelanggan']}\n";
+        // $message .= "Kontak: {$data['kontak']}\n";
+        // $message .= "Alamat: {$data['alamat']}\n\n";
         
-        // Items section - ENSURE THIS WORKS
-        if (!empty($data['items']) && is_array($data['items'])) {
-            $itemCount = count($data['items']);
-            $message .= "📦 *Detail Layanan* ({$itemCount} item):\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+
+        // if (!empty($data['items']) && is_array($data['items'])) {
+        //     $itemCount = count($data['items']);
+        //     $message .= "📦 *Detail Layanan* ({$itemCount} item):\n";
+        //     $message .= "━━━━━━━━━━━━━━━━━━━━\n";
             
+        //     foreach ($data['items'] as $index => $item) {
+        //         $itemNum = $index + 1;
+        //         $message .= "\n*{$itemNum}. {$item['jenis_layanan']}*\n";
+        //         if (isset($item['jumlah']) && $item['jumlah'] > 0) {
+        //             $message .= "   Jumlah: {$item['jumlah']}\n";
+        //         }
+        //         if (isset($item['harga']) && $item['harga'] > 0) {
+        //             $hargaFormatted = number_format($item['harga'], 0, ',', '.');
+        //             $message .= "   Harga: Rp {$hargaFormatted}\n";
+        //         }
+        //     }
+        // } else {
+        //     $message .= "⚠️ *Tidak ada item*\n";
+        // }
+        
+        // $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
+
+        // if (!empty($data['jadwal']) && $data['jadwal'] !== '-') {
+        //     $message .= "\n📅 *Jadwal:*\n";
+        //     $message .= "Tanggal: {$data['jadwal']}\n\n";
+        // }
+
+        // if (!empty($data['catatan']) && $data['catatan'] !== '-') {
+        //     $message .= "📝 *Catatan:*\n";
+        //     $message .= "{$data['catatan']}\n\n";
+        // }
+        
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "💡 _Mohon segera ditindak lanjuti_\n";
+        // $message .= "🔗 " . url('/admin/progress-jasa?selectedJasaId=' . $data['jasa_id']);
+
+        // return $message;
+        $message = "Halo 👋\n";
+        $message .= "Ada jasa baru.\n\n";
+
+        $message .= "No. Ref: {$data['no_ref']}\n";
+        $message .= "Customer: {$data['pelanggan']}\n";
+        $message .= "Branch: {$data['branch']}\n";
+
+        if (!empty($data['items']) && is_array($data['items'])) {
+
+            $message .= "\nLayanan:\n";
+
             foreach ($data['items'] as $index => $item) {
-                $itemNum = $index + 1;
-                $message .= "\n*{$itemNum}. {$item['jenis_layanan']}*\n";
-                if (isset($item['jumlah']) && $item['jumlah'] > 0) {
-                    $message .= "   Jumlah: {$item['jumlah']}\n";
-                }
-                if (isset($item['harga']) && $item['harga'] > 0) {
-                    $hargaFormatted = number_format($item['harga'], 0, ',', '.');
-                    $message .= "   Harga: Rp {$hargaFormatted}\n";
-                }
+
+                $jumlah = !empty($item['jumlah'])
+                    ? " ({$item['jumlah']})"
+                    : '';
+
+                $message .= ($index + 1) . ". {$item['jenis_layanan']}{$jumlah}\n";
             }
-        } else {
-            $message .= "⚠️ *Tidak ada item*\n";
         }
-        
-        $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
-        
-        // Jadwal
-        if (!empty($data['jadwal']) && $data['jadwal'] !== '-') {
-            $message .= "\n📅 *Jadwal:*\n";
-            $message .= "Tanggal: {$data['jadwal']}\n\n";
+
+        if (!empty($data['jadwal_petugas']) && $data['jadwal_petugas'] !== '-') {
+            $message .= "\nJadwal: {$data['jadwal_petugas']}\n";
         }
-        
-        // Catatan
+
         if (!empty($data['catatan']) && $data['catatan'] !== '-') {
-            $message .= "📝 *Catatan:*\n";
-            $message .= "{$data['catatan']}\n\n";
+            $message .= "\nCatatan:\n{$data['catatan']}\n";
         }
-        
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "💡 _Mohon segera ditindak lanjuti_\n";
-        $message .= "🔗 " . url('/admin/progress-jasa?selectedJasaId=' . $data['jasa_id']);
+
+        $message .= "\nMohon ditindaklanjuti Untuk *PENJADWALAN* 🙏";
 
         return $message;
     }
@@ -322,43 +398,68 @@ class FonteWhatsAppService
      */
     protected function buildJasaStatusMessage(array $data): string
     {
-        $message = "*UPDATE STATUS JASA*\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        // $message = "*UPDATE STATUS JASA*\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         
-        $message .= "📋 *Informasi*\n";
-        $message .= "No. Jasa: *{$data['no_jasa']}*\n";
-        $message .= "No. Ref: {$data['no_ref']}\n";
-        $message .= "Branch: {$data['branch']}\n\n";
+        // $message .= "📋 *Informasi*\n";
+        // $message .= "No. Jasa: *{$data['no_jasa']}*\n";
+        // $message .= "No. Ref: {$data['no_ref']}\n";
+        // $message .= "Branch: {$data['branch']}\n\n";
 
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "👤 *Data Pelanggan*\n";
-        $message .= "Nama: {$data['pelanggan']}\n";
-        $message .= "Kontak: {$data['kontak']}\n";
-        $message .= "Alamat: {$data['alamat']}\n\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "👤 *Data Pelanggan*\n";
+        // $message .= "Nama: {$data['pelanggan']}\n";
+        // $message .= "Kontak: {$data['kontak']}\n";
+        // $message .= "Alamat: {$data['alamat']}\n\n";
         
-        $message .= "📊 *Perubahan Status*\n";
-        $message .= "Dari: {$data['old_status']}\n";
-        $message .= "Menjadi: *{$data['new_status']}*\n\n";
+        // $message .= "📊 *Perubahan Status*\n";
+        // $message .= "Dari: {$data['old_status']}\n";
+        // $message .= "Menjadi: *{$data['new_status']}*\n\n";
         
-        if (!empty($data['jadwal_petugas'])) {
-            $message .= "📅 *Jadwal Petugas:*\n";
-            $message .= "Tanggal: {$data['jadwal_petugas']}\n\n";
-        }
+        // if (!empty($data['jadwal_petugas'])) {
+        //     $message .= "📅 *Jadwal Petugas:*\n";
+        //     $message .= "Tanggal: {$data['jadwal_petugas']}\n\n";
+        // }
         
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        // $message .= "━━━━━━━━━━━━━━━━━━━━\n";
         
         // Add update link if available (for 'terjadwal' status - sent to kepala_lapangan)
+        // if (!empty($data['update_link'])) {
+        //     $message .= "📝 *Update Status Pengerjaan*\n";
+        //     $message .= "Silakan klik link berikut untuk update status setelah pengerjaan selesai:\n";
+        //     $message .= "🔗 {$data['update_link']}\n";
+        //     $message .= "⚠️ _Link ini hanya bisa digunakan 1 kali dan expired dalam 7 hari_";
+        // } else {
+            // Admin link for other recipients (superadmin, admin_toko)
+        //     $message .= "💡 _Status telah diperbarui_\n";
+        //     $message .= "🔗 " . url('/admin/progress-jasa?selectedJasaId=' . $data['jasa_id']);
+        // }
+
+        // return $message;
+        $message = "Update status jasa 📋\n\n";
+
+        $message .= "No. Ref: {$data['no_ref']}\n";
+        $message .= "Customer: {$data['pelanggan']}\n";
+        $message .= "Alamat: {$data['alamat']}\n\n";
+
+        if (!empty($data['jadwal_petugas'])) {
+            $message .= "Jadwal: {$data['jadwal_petugas']}\n\n";
+        }
+
+        if (!empty($data['catatan']) && $data['catatan'] !== '-') {
+            $message .= "\nCatatan:\n{$data['catatan']}\n\n";
+        }
+
+        //  Add update link if available (for 'terjadwal' status - sent to kepala_lapangan)
         if (!empty($data['update_link'])) {
             $message .= "📝 *Update Status Pengerjaan*\n";
             $message .= "Silakan klik link berikut untuk update status setelah pengerjaan selesai:\n";
-            $message .= "🔗 {$data['update_link']}\n";
+            $message .= "🔗 {$data['update_link']}\n\n";
             $message .= "⚠️ _Link ini hanya bisa digunakan 1 kali dan expired dalam 7 hari_";
         } else {
             // Admin link for other recipients (superadmin, admin_toko)
-            $message .= "💡 _Status telah diperbarui_\n";
-            $message .= "🔗 " . url('/admin/progress-jasa?selectedJasaId=' . $data['jasa_id']);
+            $message .= "💡 *Jasa telah selesai dikerjakan*\n";
         }
-
         return $message;
     }
 

@@ -113,7 +113,7 @@ class JasaObserver
             'kontak' => $jasa->pelanggan?->kontak ?? '-',
             'alamat' => $jasa->alamat ?? $jasa->pelanggan?->alamat ?? '-',
             'items' => $itemsData,
-            'jadwal' => $jasa->jadwal ? $jasa->jadwal->format('d/m/Y H:i') : '-',
+            'jadwal' => $jasa->jadwal ? $jasa->jadwal->format('d/m/Y') : '-',
             'catatan' => $jasa->catatan ?? '-',
         ];
 
@@ -173,7 +173,7 @@ class JasaObserver
 
         $jadwalPetugas = '';
         if ($jasa->jadwal_petugas) {
-            $jadwalPetugas = $jasa->jadwal_petugas->format('d/m/Y H:i');
+            $jadwalPetugas = $jasa->jadwal_petugas->format('d/m/Y');
         }
 
         $jasaData = [
