@@ -16,7 +16,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
-class JasaReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithEvents
+class JasaReportExport implements WithStyles, WithTitle, WithEvents
 {
     protected $startDate;
     protected $endDate;
@@ -47,45 +47,6 @@ class JasaReportExport implements FromCollection, WithHeadings, WithMapping, Wit
         }
 
         return $query->orderBy('createdAt', 'asc')->get();
-    }
-
-    public function collection()
-    {
-        return $this->rows;
-    }
-
-    public function headings(): array
-    {
-        return [];
-    }
-
-    public function map($jasa): array
-    {
-        $this->rowNumber++;
-
-        $itemsArray = [];
-        if ($jasa->items && $jasa->items->count() > 0) {
-            foreach ($jasa->items as $item) {
-                $itemsArray[] = "{$item->nama_jasa} - {$item->jumlah} unit";
-            }
-        }
-
-        $petugasNames = $jasa->petugasMany && $jasa->petugasMany->count() > 0 
-            ? $jasa->petugasMany->pluck('nama')->join(', ') 
-            : '-';
-
-        return [
-            $jasa->no_jasa,
-            $jasa->jadwal_petugas ? $jasa->jadwal_petugas->format('d/m/Y H:i') : '-',
-            $jasa->no_ref ?? '-',
-            $jasa->pelanggan?->nama ?? '-',
-            $petugasNames,
-            implode("\n", $itemsArray),
-            $jasa->items->count(),
-            $jasa->items->sum('harga'),
-            ucfirst($jasa->status),
-            $jasa->catatan ?? '-',
-        ];
     }
 
     public function styles(Worksheet $sheet)
@@ -189,7 +150,7 @@ class JasaReportExport implements FromCollection, WithHeadings, WithMapping, Wit
                     if ($jasa->items && $jasa->items->count() > 0) {
                         foreach ($jasa->items as $item) {
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga / $qty ?: 0;
+                            $harga = $qty > 0 ? ($item->harga / $qty) : 0;
                             $jasaTotalHarga += ($qty * $harga);
                         }
                     }
@@ -204,7 +165,7 @@ class JasaReportExport implements FromCollection, WithHeadings, WithMapping, Wit
                             $jenisLayanan = $item->jenis_layanan ?? $item->nama_jasa ?? 'Item';
                             $detailItem = $jenisLayanan . ($item->deskripsi ? " - {$item->deskripsi}" : '');
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga / $qty ?: 0;
+                            $harga = $qty > 0 ? ($item->harga / $qty) : 0;
                             $totalHarga = $qty * $harga;
 
                             $sheet->setCellValue('A' . $currentRow, $itemIndex === 0 ? $rowNumber : '');

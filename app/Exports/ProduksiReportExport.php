@@ -16,7 +16,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
-class ProduksiReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithEvents
+class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
 {
     protected $startDate;
     protected $endDate;
@@ -47,43 +47,6 @@ class ProduksiReportExport implements FromCollection, WithHeadings, WithMapping,
         }
 
         return $query->orderBy('createdAt', 'asc')->get();
-    }
-
-    public function collection()
-    {
-        return $this->rows;
-    }
-
-    public function headings(): array
-    {
-        return [];
-    }
-
-    public function map($produksi): array
-    {
-        $this->rowNumber++;
-
-        $itemsArray = [];
-        if ($produksi->items && $produksi->items->count() > 0) {
-            foreach ($produksi->items as $item) {
-                $itemsArray[] = "{$item->nama_produksi} - {$item->jumlah} unit";
-            }
-        }
-
-        $teamName = $produksi->team?->nama ?? '-';
-
-        return [
-            $produksi->no_produksi,
-            $produksi->jadwal ? $produksi->jadwal->format('d/m/Y H:i') : '-',
-            $produksi->no_ref ?? '-',
-            $produksi->pelanggan?->nama ?? '-',
-            $teamName,
-            implode("\n", $itemsArray),
-            $produksi->items->count(),
-            $produksi->items->sum('harga'),
-            ucfirst($produksi->status),
-            $produksi->catatan ?? '-',
-        ];
     }
 
     public function styles(Worksheet $sheet)
@@ -186,7 +149,7 @@ class ProduksiReportExport implements FromCollection, WithHeadings, WithMapping,
                     if ($produksi->items && $produksi->items->count() > 0) {
                         foreach ($produksi->items as $item) {
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga / $qty ?: 0;
+                            $harga = $qty > 0 ? ($item->harga / $qty) : 0;
                             $produksiTotalHarga += ($qty * $harga);
                         }
                     }
@@ -201,7 +164,7 @@ class ProduksiReportExport implements FromCollection, WithHeadings, WithMapping,
                             $jenisProduksi = $item->nama_produksi ?? '-';
                             $namaBahan = $item->nama_bahan ?? '-';
                             $qty = $item->jumlah ?? 0;
-                            $harga = $item->harga / $qty ?: 0;
+                            $harga = $qty > 0 ? ($item->harga / $qty) : 0;
                             $totalHarga = $qty * $harga;
 
                             $sheet->setCellValue('A' . $currentRow, $itemIndex === 0 ? $rowNumber : '');
