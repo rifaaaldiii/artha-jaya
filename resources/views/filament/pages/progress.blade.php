@@ -207,8 +207,6 @@
             color: var(--aj-note);
             font-size: 13.2px;
             font-style: italic;
-            word-break: break-word;
-            margin-top: 1px;
         }
         .realtime-info {
             display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--aj-realtime-text); margin-top: 16px;
@@ -222,7 +220,7 @@
           70% { box-shadow: 0 0 0 6px #22c55e10;}
           100% { box-shadow: 0 0 0 0 #22c55e00;}
         }
-        .whitespace-pre-wrap { white-space: pre-wrap; }
+        /* .whitespace-pre-wrap { white-space: pre-wrap; } */
 
         /* Info Grid Layout */
         .info-grid {
