@@ -1001,12 +1001,12 @@
                             <ul class="detail-list">
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Jadwal</span>
-                                    <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y') : '-' }} WIB</span>
+                                    <span class="detail-item-value">{{ $this->record->jadwal ? $this->record->jadwal->format('d F Y') : '-' }}</span>
                                 </li>
                                 @if($this->record->updateAt)
                                 <li class="detail-list-item">
                                     <span class="detail-item-label">Terakhir Diupdate</span>
-                                    <span class="detail-item-value">{{ $this->record->updateAt->format('d F Y') : '-'}}</span>
+                                    <span class="detail-item-value">{{ $this->record->updateAt ? $this->record->updateAt->format('d F Y') : '-'}}</span>
                                 </li>
                                 @endif
                                 <li class="detail-list-item">
