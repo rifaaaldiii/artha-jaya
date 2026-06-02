@@ -707,6 +707,7 @@
             font-size: 14px;
             color: var(--aj-text);
         }
+
         .items-table-price {
             font-weight: 700;
             color: #059669;
@@ -960,6 +961,9 @@
                                 Detail Item ({{ $this->record->items->count() }})
                             </div>
                             <div class="items-table-container">
+                                @php
+                                    $totalHarga = $this->record->items->sum('harga');
+                                @endphp
                                 <table class="items-table">
                                     <thead>
                                         <tr>
@@ -982,6 +986,14 @@
                                             <td class="items-table-cell items-table-price">Rp {{ number_format($item->harga ?? 0, 0, ',', '.') }}</td>
                                         </tr>
                                         @endforeach
+                                        <tr class="items-table-row">
+                                            <td colspan="5" class="items-table-cell">
+                                                <strong>Total Harga</strong>
+                                            </td>
+                                            <td class="items-table-cell items-table-price">
+                                                <strong>Rp {{ number_format($totalHarga, 0, ',', '.') }}</strong>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
