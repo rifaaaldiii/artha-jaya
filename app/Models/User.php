@@ -3,7 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Conversation;
+use App\Models\ConversationParticipant;
+use App\Models\Message;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -67,19 +72,45 @@ class User extends Authenticatable
      */
     public function getProfileImageUrlAttribute(): ?string
     {
-        if (!$this->image) {
+        if (! $this->image) {
             return null;
         }
 
         try {
-            $cleanPath = ltrim($this->image, '/');
+            $filename = ltrim(basename((string) $this->image), '/');
+            if ($filename === '') {
+                return null;
+            }
+
             $baseUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
-            $url = $baseUrl . '/profile-images/' . $cleanPath;
-            
+            $url = $baseUrl.'/profile-images/users/'.$filename;
+
             return preg_replace('#([^:])//+#', '$1/', $url);
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    public function conversationParticipants(): HasMany
+    {
+        return $this->hasMany(ConversationParticipant::class);
+    }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->withPivot(['last_read_at'])
+            ->withTimestamps();
+    }
+
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function messengerAvatarUrl(): ?string
+    {
+        return $this->profile_image_url;
     }
 
     protected static function booted(): void

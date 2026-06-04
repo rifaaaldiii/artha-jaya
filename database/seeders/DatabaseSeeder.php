@@ -23,6 +23,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // $faker = \Faker\Factory::create('id_ID');
+        // for ($i = 1; $i <= 50; $i++) {
+        //     User::create([
+        //         'name' => $faker->name(),
+        //         'email' => $faker->unique()->safeEmail(),
+        //         'username' => $faker->unique()->userName(),
+        //         'password' => bcrypt('admin123'),
+        //         'role' => 'admin_toko',
+        //         'createdAt' => now(),
+        //     ]);
+        // }
         // User seeding - directly create without factory
         User::create([
             'name' => 'Rifaldi Yuda',

@@ -78,7 +78,6 @@
     /* Disabled dates in calendar picker - red color */
     .fi-fo-date-time-picker-calendar-day.fi-disabled {
         color: #ef4444 !important;
-        /* text-decoration: line-through !important; */
         cursor: not-allowed !important;
         opacity: 1 !important;
     }
@@ -100,7 +99,7 @@
         .fi-global-search-field {
             width: 300px;
         }
-
+        
         .fi-dropdown-panel {
             left: auto !important;
             right: 20px !important;
@@ -108,7 +107,7 @@
             zoom: 90%;
         }
     }
-
+    
     @media (max-width: 768px) {
         .fi-main,
         .fi-topbar,
@@ -121,7 +120,7 @@
             padding: 0 10px;
         }
         .fi-global-search-field {
-            width: 270px;
+            width: 240px;
         }
 
         .fi-fo-date-time-picker-panel {
