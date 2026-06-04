@@ -276,12 +276,12 @@
             --wa-green-dark: #008069;
             --wa-sidebar: #ffffff;
             --wa-header: #f0f2f5;
-            --wa-chat-bg: #efeae2;
+            --wa-chat-bg: #e2efea;
             --wa-bubble-out: #d9fdd3;
             --wa-bubble-in: #ffffff;
-            --wa-border: #e9edef;
+            --wa-border: #e7ecee;
             --wa-text-muted: #667781;
-            --wa-hover: #f0f2f5;
+            --wa-hover: #ffffff;
             --wa-active: #ffffff;
             height: calc(100dvh - 2.5rem);
             max-height: 900px;
@@ -293,9 +293,9 @@
             --wa-chat-bg: #0b141a;
             --wa-bubble-out: #005c4b;
             --wa-bubble-in: #202c33;
-            --wa-border: #222d34;
+            --wa-border: #2a3942;
             --wa-text-muted: #8696a0;
-            --wa-hover: #202c33;
+            --wa-hover: #2a3942;
             --wa-active: #2a3942;
         }
 
@@ -376,32 +376,6 @@
             min-height: 0;
             background: var(--wa-header);
         }
-
-        /* .messenger-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            overflow-y: auto;
-            flex: 1;
-            min-height: 0;
-            background: var(--wa-header);
-
-            -webkit-mask-image: linear-gradient(
-                to bottom,
-                transparent,
-                black 30px,
-                black calc(100% - 30px),
-                transparent
-            );
-
-            mask-image: linear-gradient(
-                to bottom,
-                transparent,
-                black 30px,
-                black calc(100% - 30px),
-                transparent
-            );
-        } */
 
         .messenger-list-item {
             display: flex;

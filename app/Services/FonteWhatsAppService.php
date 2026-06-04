@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -443,7 +444,8 @@ class FonteWhatsAppService
         $message .= "Alamat: {$data['alamat']}\n\n";
 
         if (!empty($data['jadwal_petugas'])) {
-            $message .= "Jadwal: {$data['jadwal_petugas']}\n\n";
+            $jadwal = Carbon::parse($data['jadwal_petugas'])->format('d/m/Y');
+            $message .= "Jadwal: {$jadwal}\n\n";
         }
 
         if (!empty($data['catatan']) && $data['catatan'] !== '-') {

@@ -24,7 +24,7 @@ class Messenger extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected static ?string $navigationLabel = 'Messenger';
+    protected static ?string $navigationLabel = 'Messenger 1.1 Beta';
 
     protected static ?int $navigationSort = 50;
 
@@ -59,10 +59,10 @@ class Messenger extends Page
         $this->loadUsers($messenger);
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'System';
-    }
+    // public static function getNavigationGroup(): ?string
+    // {
+    //     return 'System';
+    // }
 
     public static function canAccess(): bool
     {
