@@ -137,6 +137,7 @@ class ReportController extends Controller
                 'status' => $produksi->status,
                 'team' => $produksi->team?->nama ?? '-',
                 'catatan' => $produksi->catatan,
+                'jadwal' => $produksi->jadwal ?? '-',
                 'created_at' => $produksi->createdAt?->format('d/m/Y H:i') ?? '-',
                 'updated_at' => $produksi->updateAt?->format('d/m/Y H:i') ?? '-',
                 'items_count' => $produksi->items->count(),
@@ -184,7 +185,6 @@ class ReportController extends Controller
                 'note' => $jasa->catatan,
             ];
         }
-
         return null;
     }
 

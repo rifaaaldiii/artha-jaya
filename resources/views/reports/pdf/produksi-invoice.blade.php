@@ -328,7 +328,7 @@
         <div class="header">
             <div class="header-top">
                 <div class="company-name">PT. ARTHA JAYA MAS</div>
-                <div class="header-title">FAKTUR</div>
+                <div class="header-title">SURAT PERINTAH KERJA</div>
             </div>
             <div>
                 <div class="company-info">Jl. Raya Pandeglang No.km3, Cipare, Kec. Serang, Kota Serang, Banten 42117</div>
@@ -355,7 +355,7 @@
                     </div>
                     <div class="info-item">
                         <span class="info-label">Status</span>
-                        <span class="info-value">: {{ $row['jadwal'] ?? '-' }}</span>
+                        <span class="info-value" style="text-transform: capitalize">: {{ $row['status'] ?? '-' }}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Branch</span>
