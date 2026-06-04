@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Services\Messenger\ConversationService;
 use App\Services\Messenger\MessengerService;
+use App\Support\Messenger\MessengerBroadcastConfig;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -125,20 +126,7 @@ class Messenger extends Page
 
     public function getBroadcastConfig(): array
     {
-        $connection = config('broadcasting.default');
-        $usesReverb = in_array($connection, ['reverb', 'pusher'], true);
-
-        return [
-            'enabled' => $usesReverb,
-            'key' => config('broadcasting.connections.reverb.key'),
-            'host' => config('broadcasting.connections.reverb.options.host'),
-            'port' => (int) config('broadcasting.connections.reverb.options.port', 8080),
-            'scheme' => config('broadcasting.connections.reverb.options.scheme', 'http'),
-            'authEndpoint' => url('/broadcasting/auth'),
-            'userId' => Auth::id(),
-            'pollSeconds' => (int) config('messenger.poll_interval_seconds', 5),
-            'heartbeatSeconds' => (int) config('messenger.presence_heartbeat_seconds', 60),
-        ];
+        return MessengerBroadcastConfig::resolve(Auth::user());
     }
 
     public function loadConversations(MessengerService $messenger): void
@@ -398,8 +386,14 @@ class Messenger extends Page
     }
 
     #[On('messenger-message-received')]
-    public function onMessageReceived(array $message, MessengerService $messenger): void
+    public function onMessageReceived(mixed $message, MessengerService $messenger): void
     {
+        $message = $this->normalizeMessengerEventPayload($message);
+
+        if ($message === []) {
+            return;
+        }
+
         if ((int) ($message['conversation_id'] ?? 0) !== (int) $this->conversationId) {
             $this->loadConversations($messenger);
             $this->refreshNavigationBadgeFromMessenger();
@@ -425,21 +419,47 @@ class Messenger extends Page
     }
 
     #[On('messenger-message-delivered')]
-    public function onMessageDelivered(array $payload): void
+    public function onMessageDelivered(mixed $payload): void
     {
-        $this->updateMessageInList($payload['message_id'], [
+        $payload = $this->normalizeMessengerEventPayload($payload);
+
+        if ($payload === []) {
+            return;
+        }
+
+        $this->updateMessageInList((int) $payload['message_id'], [
             'delivered_at' => $payload['delivered_at'],
             'read_status' => 'delivered',
         ]);
     }
 
     #[On('messenger-message-read')]
-    public function onMessageRead(array $payload): void
+    public function onMessageRead(mixed $payload): void
     {
-        $this->updateMessageInList($payload['message_id'], [
+        $payload = $this->normalizeMessengerEventPayload($payload);
+
+        if ($payload === []) {
+            return;
+        }
+
+        $this->updateMessageInList((int) $payload['message_id'], [
             'read_at' => $payload['read_at'],
             'read_status' => 'read',
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function normalizeMessengerEventPayload(mixed $message): array
+    {
+        if (is_string($message)) {
+            $decoded = json_decode($message, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($message) ? $message : [];
     }
 
     protected function updateMessageInList(int $messageId, array $changes): void

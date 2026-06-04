@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/messenger.js',
+                'resources/js/messenger-notifications.js',
             ],
             refresh: true,
         }),

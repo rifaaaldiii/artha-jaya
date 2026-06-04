@@ -92,15 +92,40 @@ user=<user>
 
 Reverb adalah **server WebSocket** yang harus berjalan terus. Kebanyakan paket **shared hosting Niagahoster tidak mengizinkan** proses WebSocket/custom port yang listen 24/7.
 
-### Jika shared hosting (tanpa VPS)
+### Jika shared hosting (tanpa VPS) — disarankan: **Pusher**
 
-Gunakan **mode fallback polling** (sudah diimplementasi di halaman Messenger):
+[Pusher](https://dashboard.pusher.com) adalah layanan WebSocket cloud (gratis untuk development). **Tidak perlu VPS** — Laravel mengirim event lewat HTTP API Pusher, browser subscribe lewat `pusher-js`.
+
+1. Buat app di [dashboard.pusher.com](https://dashboard.pusher.com)
+2. Salin **app_id**, **key**, **secret**, **cluster** (mis. `ap1`)
+3. Set di `.env` hosting:
+
+```env
+BROADCAST_CONNECTION=pusher
+PUSHER_APP_ID=your-app-id
+PUSHER_APP_KEY=your-key
+PUSHER_APP_SECRET=your-secret
+PUSHER_APP_CLUSTER=ap1
+
+MESSENGER_NOTIFICATIONS_ENABLED=true
+MESSENGER_NOTIFICATION_SOUND=true
+```
+
+4. `php artisan config:clear`
+5. Upload `public/build/` setelah `npm run build` (termasuk `messenger-notifications-*.js`)
+
+**Fitur yang aktif:**
+- Chat realtime di halaman Messenger
+- Notifikasi + **suara** di semua halaman admin saat ada pesan masuk
+- Badge navigasi Messenger ter-update
+
+**Fallback polling** (jika Pusher belum dikonfigurasi):
 
 ```env
 BROADCAST_CONNECTION=log
 ```
 
-Halaman Messenger akan memakai `wire:poll` setiap 5 detik — pesan tetap masuk tanpa refresh manual, tetapi bukan realtime sub-detik.
+Halaman Messenger memakai `wire:poll` — pesan masuk tanpa refresh, tanpa notifikasi realtime global.
 
 ### Jika punya VPS / cloud kecil (disarankan untuk realtime)
 

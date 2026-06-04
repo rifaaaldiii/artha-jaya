@@ -5,6 +5,7 @@ namespace App\Services\Messenger;
 use App\Events\MessageDelivered;
 use App\Events\MessageRead;
 use App\Events\MessageSent;
+use App\Events\MessengerIncomingMessage;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessengerAuditLog;
@@ -63,6 +64,7 @@ class MessengerService
             foreach ($recipients as $participant) {
                 if ($participant->user) {
                     $participant->user->notify(new NewMessengerMessageNotification($message, $sender));
+                    broadcast(new MessengerIncomingMessage($message, $participant->user));
                 }
             }
 

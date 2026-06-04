@@ -14,6 +14,8 @@ window.messengerPage = function messengerPage(config, conversationId) {
         mobileMq: null,
 
         init() {
+            window.__messengerActiveConversationId = this.conversationId ?? null;
+
             this.mobileMq = window.matchMedia('(max-width: 768px)');
             this.isMobile = this.mobileMq.matches;
             this.mobileMq.addEventListener('change', (e) => {
@@ -30,6 +32,7 @@ window.messengerPage = function messengerPage(config, conversationId) {
             }
 
             Livewire.hook('message.processed', () => {
+                window.__messengerActiveConversationId = this.$wire?.conversationId ?? null;
                 this.syncPresenceFromServer();
 
                 const newId = this.$wire?.conversationId;
@@ -81,24 +84,38 @@ window.messengerPage = function messengerPage(config, conversationId) {
         },
 
         initEcho(config) {
-            const scheme = config.scheme === 'https';
-            const port = config.port || (scheme ? 443 : 80);
-
-            this.echo = new Echo({
-                broadcaster: 'reverb',
-                key: config.key,
-                wsHost: config.host,
-                wsPort: port,
-                wssPort: port,
-                forceTLS: scheme,
-                enabledTransports: ['ws', 'wss'],
+            const auth = {
                 authEndpoint: config.authEndpoint,
                 auth: {
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
                     },
                 },
-            });
+            };
+
+            if (config.driver === 'pusher') {
+                this.echo = new Echo({
+                    broadcaster: 'pusher',
+                    key: config.key,
+                    cluster: config.cluster ?? 'mt1',
+                    forceTLS: true,
+                    ...auth,
+                });
+            } else {
+                const scheme = config.scheme === 'https';
+                const port = config.port || (scheme ? 443 : 80);
+
+                this.echo = new Echo({
+                    broadcaster: 'reverb',
+                    key: config.key,
+                    wsHost: config.host,
+                    wsPort: port,
+                    wssPort: port,
+                    forceTLS: scheme,
+                    enabledTransports: ['ws', 'wss'],
+                    ...auth,
+                });
+            }
 
             this.echo.join('messenger.presence')
                 .here((users) => this.updatePresenceLabel(users))
@@ -130,15 +147,15 @@ window.messengerPage = function messengerPage(config, conversationId) {
             this.channel = this.echo.private(`conversation.${id}`);
 
             this.channel.listen('.message.sent', (payload) => {
-                Livewire.dispatch('messenger-message-received', payload.message);
+                Livewire.dispatch('messenger-message-received', { message: payload.message });
             });
 
             this.channel.listen('.message.delivered', (payload) => {
-                Livewire.dispatch('messenger-message-delivered', payload);
+                Livewire.dispatch('messenger-message-delivered', { payload });
             });
 
             this.channel.listen('.message.read', (payload) => {
-                Livewire.dispatch('messenger-message-read', payload);
+                Livewire.dispatch('messenger-message-read', { payload });
             });
         },
 

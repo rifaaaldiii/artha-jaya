@@ -1,4 +1,7 @@
 <style>
+    ::-webkit-scrollbar {
+        display: none;
+    }
     /* Apply zoom to entire Filament admin interface */
     .fi-topbar,
     .fi-header,

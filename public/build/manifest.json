@@ -1,4 +1,8 @@
 {
+  "_pusher-BYJBSWUg.js": {
+    "file": "assets/pusher-BYJBSWUg.js",
+    "name": "pusher"
+  },
   "resources/css/app.css": {
     "file": "assets/app-CAAYrlJ5.css",
     "src": "resources/css/app.css",
@@ -14,10 +18,22 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
+  "resources/js/messenger-notifications.js": {
+    "file": "assets/messenger-notifications-CAh0HWea.js",
+    "name": "messenger-notifications",
+    "src": "resources/js/messenger-notifications.js",
+    "isEntry": true,
+    "imports": [
+      "_pusher-BYJBSWUg.js"
+    ]
+  },
   "resources/js/messenger.js": {
-    "file": "assets/messenger-CxPfrLkL.js",
+    "file": "assets/messenger-hfCPp-5x.js",
     "name": "messenger",
     "src": "resources/js/messenger.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_pusher-BYJBSWUg.js"
+    ]
   }
 }
