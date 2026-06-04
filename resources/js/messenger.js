@@ -5,9 +5,10 @@ window.Pusher = Pusher;
 
 window.messengerPage = function messengerPage(config, conversationId) {
     return {
+        config,
         echo: null,
         conversationId: conversationId,
-        presenceLabel: 'Memuat...',
+        presenceLabel: '',
         showChat: Boolean(conversationId),
         isMobile: false,
         mobileMq: null,
@@ -22,15 +23,45 @@ window.messengerPage = function messengerPage(config, conversationId) {
                 }
             });
 
+            this.syncPresenceFromServer();
+
             if (config.enabled) {
                 this.initEcho(config);
             }
+
+            Livewire.hook('message.processed', () => {
+                this.syncPresenceFromServer();
+
+                const newId = this.$wire?.conversationId;
+                if (newId && newId !== this.conversationId && config.enabled) {
+                    this.subscribeConversation(newId);
+                }
+                if (newId && this.isMobile) {
+                    this.showChat = true;
+                }
+                if (newId) {
+                    this.$nextTick(() => scrollMessengerToBottom());
+                }
+            });
 
             setInterval(() => {
                 this.$wire?.heartbeat();
             }, (config.heartbeatSeconds ?? 60) * 1000);
 
             Livewire.on('messenger-scroll-bottom', () => scrollMessengerToBottom());
+        },
+
+        syncPresenceFromServer() {
+            const selectedId = this.$wire?.selectedUserId;
+
+            if (!selectedId) {
+                this.presenceLabel = '';
+
+                return;
+            }
+
+            const online = Boolean(this.$wire?.selectedUserOnline);
+            this.presenceLabel = online ? 'Online' : 'Offline';
         },
 
         openChat() {
@@ -71,24 +102,19 @@ window.messengerPage = function messengerPage(config, conversationId) {
 
             this.echo.join('messenger.presence')
                 .here((users) => this.updatePresenceLabel(users))
-                .joining(() => this.$wire?.heartbeat())
-                .leaving(() => this.$wire?.heartbeat())
-                .error(() => {});
+                .joining((user) => {
+                    this.$wire?.heartbeat();
+                    this.updatePresenceLabelFromEcho(user);
+                })
+                .leaving((user) => {
+                    this.$wire?.heartbeat();
+                    this.updatePresenceLabelFromEchoLeaving(user);
+                })
+                .error(() => {
+                    this.syncPresenceFromServer();
+                });
 
             this.subscribeConversation(this.conversationId);
-
-            Livewire.hook('message.processed', () => {
-                const newId = this.$wire?.conversationId;
-                if (newId && newId !== this.conversationId) {
-                    this.subscribeConversation(newId);
-                }
-                if (newId && this.isMobile) {
-                    this.showChat = true;
-                }
-                if (newId) {
-                    this.$nextTick(() => scrollMessengerToBottom());
-                }
-            });
         },
 
         subscribeConversation(id) {
@@ -126,6 +152,20 @@ window.messengerPage = function messengerPage(config, conversationId) {
 
             const online = users.some((u) => Number(u.id) === Number(selectedId));
             this.presenceLabel = online ? 'Online' : 'Offline';
+        },
+
+        updatePresenceLabelFromEcho(user) {
+            const selectedId = this.$wire?.selectedUserId;
+            if (selectedId && Number(user?.id) === Number(selectedId)) {
+                this.presenceLabel = 'Online';
+            }
+        },
+
+        updatePresenceLabelFromEchoLeaving(user) {
+            const selectedId = this.$wire?.selectedUserId;
+            if (selectedId && Number(user?.id) === Number(selectedId)) {
+                this.presenceLabel = 'Offline';
+            }
         },
     };
 };

@@ -119,7 +119,12 @@
                         </div>
                         <div class="messenger-chat-header-info">
                             <h2 class="messenger-chat-title">{{ $selectedUser->name }}</h2>
-                            <p class="messenger-chat-subtitle" x-text="presenceLabel"></p>
+                            <p
+                                class="messenger-chat-subtitle"
+                                x-show="presenceLabel"
+                                x-text="presenceLabel"
+                                :class="presenceLabel === 'Online' ? 'is-online' : 'is-offline'"
+                            ></p>
                         </div>
                     </header>
 
@@ -151,9 +156,9 @@
                                         @if ($isMine)
                                             <span class="messenger-ticks messenger-ticks-{{ $status }}" title="{{ $status }}">
                                                 @if ($status === 'read')
-                                                    ✓
+                                                    ✓✓
                                                 @elseif ($status === 'delivered')
-                                                    ✓
+                                                    ✓✓
                                                 @else
                                                     ✓
                                                 @endif
@@ -566,6 +571,14 @@
         .messenger-chat-subtitle {
             margin: 0;
             font-size: 13px;
+            color: var(--wa-text-muted);
+        }
+
+        .messenger-chat-subtitle.is-online {
+            color: #25d366;
+        }
+
+        .messenger-chat-subtitle.is-offline {
             color: var(--wa-text-muted);
         }
 

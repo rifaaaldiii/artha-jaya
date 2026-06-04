@@ -10,6 +10,8 @@ use App\Models\Message;
 use App\Models\MessengerAuditLog;
 use App\Models\User;
 use App\Notifications\NewMessengerMessageNotification;
+use App\Support\Polling\PollChannel;
+use App\Support\Polling\PollTriggerStore;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +65,8 @@ class MessengerService
                     $participant->user->notify(new NewMessengerMessageNotification($message, $sender));
                 }
             }
+
+            PollTriggerStore::bump(PollChannel::NAVIGATION_BADGE);
 
             return $message->load('sender');
         });

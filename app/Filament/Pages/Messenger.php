@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 
 class Messenger extends Page
@@ -32,6 +33,8 @@ class Messenger extends Page
     public ?int $selectedUserId = null;
 
     public ?int $conversationId = null;
+
+    public bool $selectedUserOnline = false;
 
     public string $messageBody = '';
 
@@ -64,6 +67,55 @@ class Messenger extends Page
     public static function canAccess(): bool
     {
         return Auth::check();
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getNavigationBadgeCount();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'success';
+    }
+
+    #[Computed]
+    public function navigationBadgeCount(): ?string
+    {
+        return static::getNavigationBadgeCount();
+    }
+
+    protected static function getNavigationBadgeCount(): ?string
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return null;
+        }
+
+        $count = app(MessengerService::class)->totalUnreadForUser($user);
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    #[On('refresh-navigation-badge')]
+    public function refreshNavigationBadge(): void
+    {
+        unset($this->navigationBadgeCount);
+
+        $this->dispatch('$refresh');
+    }
+
+    protected function refreshSelectedUserPresence(MessengerService $messenger): void
+    {
+        $this->selectedUserOnline = $this->selectedUserId
+            ? $messenger->isOnline($this->selectedUserId)
+            : false;
+    }
+
+    protected function refreshNavigationBadgeFromMessenger(): void
+    {
+        $this->dispatch('refresh-navigation-badge');
     }
 
     public function getView(): string
@@ -253,7 +305,9 @@ class Messenger extends Page
         $this->messages = $messages->map(fn (Message $m) => MessageSent::formatMessage($m))->all();
 
         $messenger->markConversationRead($conversation, Auth::user());
+        $this->refreshSelectedUserPresence($messenger);
         $this->loadConversations($messenger);
+        $this->refreshNavigationBadgeFromMessenger();
         $this->dispatch('messenger-scroll-bottom');
     }
 
@@ -277,6 +331,7 @@ class Messenger extends Page
             $this->messages[] = MessageSent::formatMessage($message);
             $this->messageBody = '';
             $this->loadConversations($messenger);
+            $this->refreshNavigationBadgeFromMessenger();
             $this->dispatch('messenger-scroll-bottom');
         } catch (\Throwable $e) {
             Notification::make()
@@ -312,6 +367,7 @@ class Messenger extends Page
     public function heartbeat(MessengerService $messenger): void
     {
         $messenger->touchPresence(Auth::user());
+        $this->refreshSelectedUserPresence($messenger);
         $this->loadConversations($messenger);
         $this->loadUsers($messenger);
     }
@@ -335,8 +391,10 @@ class Messenger extends Page
             }
         }
 
+        $this->refreshSelectedUserPresence($messenger);
         $this->loadConversations($messenger);
         $this->loadUsers($messenger);
+        $this->refreshNavigationBadgeFromMessenger();
     }
 
     #[On('messenger-message-received')]
@@ -344,6 +402,7 @@ class Messenger extends Page
     {
         if ((int) ($message['conversation_id'] ?? 0) !== (int) $this->conversationId) {
             $this->loadConversations($messenger);
+            $this->refreshNavigationBadgeFromMessenger();
 
             return;
         }
@@ -360,7 +419,9 @@ class Messenger extends Page
             $messenger->markConversationRead($dbMessage->conversation, Auth::user());
         }
 
+        $this->refreshSelectedUserPresence($messenger);
         $this->loadConversations($messenger);
+        $this->refreshNavigationBadgeFromMessenger();
     }
 
     #[On('messenger-message-delivered')]
