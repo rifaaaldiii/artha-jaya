@@ -143,16 +143,77 @@ autorestart=true
 5. Reverb + supervisor **hanya jika** infrastruktur mendukung
 6. Buka `/admin/messenger` — uji kirim pesan antar 2 user
 
-## 5. Troubleshooting
+## 5. Upload via PuTTY / FTP (penting)
+
+Messenger memakai **Vite build** (`public/build/`). Hanya meng-upload file PHP (`app/`, `resources/views/`) **tidak cukup**.
+
+### Yang harus ada di document root (biasanya `public_html/`)
+
+```
+public_html/
+├── index.php
+├── build/
+│   ├── manifest.json
+│   └── assets/
+│       ├── messenger-BQ9GFyiY.js   ← hash berubah setiap npm run build
+│       ├── app-xxxxx.js
+│       └── app-xxxxx.css
+└── ...
+```
+
+Jika `manifest.json` menyebut `messenger-BQ9GFyiY.js` tetapi file itu tidak ada di server → **404** → `messengerPage is not defined`.
+
+### Cara deploy asset (pilih salah satu)
+
+**A — Build di komputer lokal, upload folder build**
+
+```bash
+# Di laptop (folder project)
+npm ci
+npm run build
+```
+
+Lalu upload seluruh folder `public/build/` ke server:
+
+- Target: `public_html/build/` (jika document root = `public_html`)
+- **atau** `artha-jaya/public/build/` jika `public_html` hanya symlink ke `public/`
+
+**B — Build lewat SSH di server** (jika Node.js tersedia)
+
+```bash
+cd ~/artha-jaya
+npm ci
+npm run build
+# Salin ke public_html jika perlu:
+cp -r public/build ~/public_html/build
+```
+
+**C — Git: commit folder `public/build`**
+
+Pastikan baris `# /public/build` di `.gitignore` tetap dikomentari, lalu commit `public/build` agar ikut ter-pull di server.
+
+### Setelah upload
+
+```bash
+php artisan view:clear
+php artisan config:clear
+```
+
+Hard refresh browser (Ctrl+F5).
+
+## 6. Troubleshooting
 
 | Gejala | Penyebab umum | Solusi |
 |--------|----------------|--------|
+| `404` pada `/build/assets/messenger-*.js` | Folder `public/build` tidak di-upload atau hash lama | `npm run build` lalu upload ulang **seluruh** `public/build/` |
+| `messengerPage is not defined` | JS messenger gagal load (404 di atas) | Perbaiki upload build; cek Network tab browser |
+| `showChat is not defined` | Efek berantai dari `messengerPage` gagal init | Sama seperti di atas |
 | Pesan tidak realtime | Reverb mati / shared hosting | `BROADCAST_CONNECTION=log` atau jalankan Reverb di VPS |
 | Notifikasi tidak muncul | Queue tidak jalan | Aktifkan cron `queue:work` |
 | 403 pada WebSocket | Auth channel | Pastikan user login; cek `routes/channels.php` |
 | CSRF broadcasting | Session | Pastikan `APP_URL` benar & HTTPS konsisten |
 
-## 6. Ringkasan rekomendasi
+## 7. Ringkasan rekomendasi
 
 | Lingkungan | Broadcast | Queue |
 |------------|-----------|-------|
