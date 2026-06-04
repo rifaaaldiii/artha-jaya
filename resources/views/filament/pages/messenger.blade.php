@@ -232,6 +232,7 @@
                             rows="1"
                             maxlength="2000"
                             placeholder="Ketik pesan"
+                            autofocus
                             class="messenger-input messenger-textarea"
                             :disabled="sending"
                         ></textarea>
