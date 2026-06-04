@@ -92,6 +92,7 @@ class JasasTable
                                 ->each(fn ($record) => $record->delete());
                         }),
                 ]),
-            ]);
+            ])
+            ->defaultSort('createdAt', 'desc');
     }
 }

@@ -107,6 +107,7 @@ class ProduksisTable
                                 ->each(fn ($record) => $record->delete());
                         }),
                 ]),
-            ]);
+            ])
+            ->defaultSort('createdAt', 'desc');
     }
 }
