@@ -17,13 +17,18 @@ class ListPelanggans extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            CreateAction::make()
+                ->label('Tambah Customer')
+                ->modalHeading('Customer Baru')
+                ->modalWidth('lg'),
+
             Action::make('syncCustomers')
                 ->label('Sync Customer')
                 ->icon('heroicon-o-arrow-path')
                 ->color('gray')
                 ->requiresConfirmation()
-                ->modalHeading('Sync Customer dari ERP')
-                ->modalDescription('Sinkronkan data dari tabel erp_customers (Supabase) ke pelanggan (MySQL). Proses ini hanya berjalan saat tombol ini diklik.')
+                ->modalHeading('Sync Customer dari SkyBiz')
+                ->modalDescription('Sinkronkan data dari SkyBiz. Proses ini memerlukan beberapa detik bahkan menit.')
                 ->modalSubmitActionLabel('Sync Sekarang')
                 ->action(function (): void {
                     try {
@@ -47,11 +52,6 @@ class ListPelanggans extends ManageRecords
                             ->send();
                     }
                 }),
-
-            CreateAction::make()
-                ->label('Tambah Customer')
-                ->modalHeading('Customer Baru')
-                ->modalWidth('lg'),
         ];
     }
 }
