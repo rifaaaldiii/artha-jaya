@@ -10,7 +10,7 @@
         .dark,
         [data-theme="dark"],
         .filament-theme-dark {
-            --custom-widget-bg: #181818;
+            --custom-widget-bg: oklch(0.21 0.006 285.885);
             --custom-widget-text: #ffffff;
             --custom-widget-muted: #9ca3af;
             --custom-widget-shadow: rgba(0, 0, 0, 0.3);
@@ -24,8 +24,7 @@
             padding: 30px;
             gap: 24px;
             height: 92px;
-            box-shadow: 0 2px 7px var(--custom-widget-shadow), 0 1.5px 3px var(--custom-widget-shadow);
-            /* Responsive tweak */
+            box-shadow: 0 2px 7px var(--custom-widget-shadow), 0 1px 3px var(--custom-widget-shadow);
             flex-direction: row;
         }
         .custom-info-widget-title {
