@@ -432,15 +432,15 @@
                                     <div class="day-indicators">
                                         @if ($day['hasJasa'] && $day['hasProduksi'])
                                             <span class="dot dot-both" title="Jasa & Produksi">
-                                                Jasa & Produksi
+                                                Jasa & Stepnosing
                                             </span>
                                         @elseif ($day['hasJasa'])
                                             <span class="dot dot-jasa" title="Jasa">
-                                                Jasa
+                                                Jasa & layanan
                                             </span>
                                         @elseif ($day['hasProduksi'])
                                             <span class="dot dot-produksi" title="Produksi">
-                                                Produksi
+                                                Stepnosing
                                             </span>
                                         @endif
                                     </div>
@@ -452,11 +452,11 @@
                     <div class="calendar-legend">
                         <div class="calendar-legend-item">
                             <span class="dot dot-jasa"></span>
-                            <span>Jasa</span>
+                            <span>Jasa & Layanan</span>
                         </div>
                         <div class="calendar-legend-item">
                             <span class="dot dot-produksi"></span>
-                            <span>Produksi</span>
+                            <span>Stepnosing</span>
                         </div>
                         <div class="calendar-legend-item">
                             <span class="dot dot-both"></span>

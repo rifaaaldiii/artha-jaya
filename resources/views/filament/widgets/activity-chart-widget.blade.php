@@ -187,11 +187,11 @@
         <div class="activity-chart-legend">
             <span class="activity-chart-legend-item">
                 <span class="activity-chart-legend-dot produksi"></span>
-                Produksi
+                Stepnosing
             </span>
             <span class="activity-chart-legend-item">
                 <span class="activity-chart-legend-dot jasa"></span>
-                Jasa
+                Jasa & layanan
             </span>
         </div>
     </div>
@@ -351,7 +351,7 @@
                         labels: chartData.labels,
                         datasets: [
                             {
-                                label: 'Produksi',
+                                label: 'Stepnosing',
                                 data: chartData.produksi,
                                 borderColor: '#059669',
                                 backgroundColor: produksiGradient,
@@ -362,7 +362,7 @@
                                 borderWidth: 2,
                             },
                             {
-                                label: 'Jasa',
+                                label: 'Jasa & Layanan',
                                 data: chartData.jasa,
                                 borderColor: '#dc2626',
                                 backgroundColor: jasaGradient,
