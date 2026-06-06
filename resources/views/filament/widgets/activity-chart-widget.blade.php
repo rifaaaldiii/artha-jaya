@@ -143,6 +143,7 @@
 
     @php
         $chartId = 'activity-chart-' . $this->getId();
+        $initialChartData = $this->chartData;
     @endphp
 
     <div class="activity-chart-card">
@@ -193,31 +194,143 @@
         </div>
     </div>
 
-    @once
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    @endonce
-
     @script
     <script>
         let activityChart = null;
+
+        const LOG_PREFIX = '[ActivityChart]';
+        const chartId = @js($chartId);
+        const fallbackChartData = @js($initialChartData);
+
+        const log = (...args) => console.log(LOG_PREFIX, ...args);
+        const logWarn = (...args) => console.warn(LOG_PREFIX, ...args);
+        const logError = (...args) => console.error(LOG_PREFIX, ...args);
+
+        log('Script initialized', {
+            chartId,
+            fallbackChartData,
+            chartJsAvailable: typeof Chart !== 'undefined',
+            wireAvailable: typeof $wire !== 'undefined',
+        });
+
+        const loadChartJs = () => {
+            if (typeof Chart !== 'undefined') {
+                log('Chart.js already available');
+                return Promise.resolve();
+            }
+
+            const existingScript = document.querySelector('script[data-activity-chart-js]');
+
+            if (existingScript) {
+                log('Waiting for existing Chart.js script');
+
+                return new Promise((resolve, reject) => {
+                    existingScript.addEventListener('load', () => {
+                        log('Existing Chart.js script loaded');
+                        resolve();
+                    }, { once: true });
+
+                    existingScript.addEventListener('error', () => {
+                        logError('Existing Chart.js script failed to load');
+                        reject(new Error('Chart.js script error'));
+                    }, { once: true });
+
+                    setTimeout(() => {
+                        if (typeof Chart !== 'undefined') {
+                            resolve();
+                            return;
+                        }
+
+                        reject(new Error('Chart.js load timeout'));
+                    }, 8000);
+                });
+            }
+
+            log('Injecting Chart.js script');
+
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js';
+                script.dataset.activityChartJs = 'true';
+                script.onload = () => {
+                    log('Chart.js injected successfully');
+                    resolve();
+                };
+                script.onerror = () => {
+                    logError('Failed to inject Chart.js');
+                    reject(new Error('Chart.js injection failed'));
+                };
+                document.head.appendChild(script);
+            });
+        };
+
+        const getChartData = () => {
+            try {
+                const wireData = $wire.chartData;
+
+                if (wireData && Array.isArray(wireData.labels)) {
+                    log('Using chartData from $wire', wireData);
+                    return wireData;
+                }
+
+                logWarn('$wire.chartData invalid, using fallback', wireData);
+            } catch (error) {
+                logError('Failed to read $wire.chartData', error);
+            }
+
+            log('Using fallback chartData', fallbackChartData);
+            return fallbackChartData;
+        };
 
         const getActivityThemeColors = () => ({
             grid: getComputedStyle(document.documentElement).getPropertyValue('--ac-grid').trim() || 'rgba(107, 114, 128, 0.15)',
             muted: getComputedStyle(document.documentElement).getPropertyValue('--ac-muted').trim() || '#6b7280',
         });
 
-        const renderActivityChart = () => {
-            const canvas = document.getElementById(@js($chartId));
+        const renderActivityChart = async () => {
+            log('renderActivityChart() start');
 
-            if (!canvas || typeof Chart === 'undefined') {
+            try {
+                await loadChartJs();
+            } catch (error) {
+                logError('Chart.js unavailable', error.message);
                 return;
             }
 
-            const chartData = $wire.chartData;
+            const canvas = document.getElementById(chartId);
+
+            if (!canvas) {
+                logError('Canvas element not found', { chartId });
+                return;
+            }
+
+            log('Canvas found', {
+                chartId,
+                width: canvas.clientWidth,
+                height: canvas.clientHeight,
+            });
+
+            const chartData = getChartData();
+
+            if (!chartData || !Array.isArray(chartData.labels)) {
+                logError('chartData structure invalid', chartData);
+                return;
+            }
+
+            if (chartData.labels.length === 0) {
+                logWarn('chartData labels empty', chartData);
+            }
+
             const { grid, muted } = getActivityThemeColors();
             const ctx = canvas.getContext('2d');
 
+            if (!ctx) {
+                logError('Unable to get 2D canvas context');
+                return;
+            }
+
             if (activityChart) {
+                log('Destroying previous chart instance');
                 activityChart.destroy();
             }
 
@@ -229,89 +342,104 @@
             jasaGradient.addColorStop(0, 'rgba(220, 38, 38, 0.28)');
             jasaGradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
 
-            activityChart = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: 'Produksi',
-                            data: chartData.produksi,
-                            borderColor: '#059669',
-                            backgroundColor: produksiGradient,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0,
-                            pointHoverRadius: 4,
-                            borderWidth: 2,
-                        },
-                        {
-                            label: 'Jasa',
-                            data: chartData.jasa,
-                            borderColor: '#dc2626',
-                            backgroundColor: jasaGradient,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0,
-                            pointHoverRadius: 4,
-                            borderWidth: 2,
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
+            try {
+                activityChart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [
+                            {
+                                label: 'Produksi',
+                                data: chartData.produksi,
+                                borderColor: '#059669',
+                                backgroundColor: produksiGradient,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                pointHoverRadius: 4,
+                                borderWidth: 2,
+                            },
+                            {
+                                label: 'Jasa',
+                                data: chartData.jasa,
+                                borderColor: '#dc2626',
+                                backgroundColor: jasaGradient,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                pointHoverRadius: 4,
+                                borderWidth: 2,
+                            },
+                        ],
                     },
-                    plugins: {
-                        legend: {
-                            display: false,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(17, 24, 39, 0.92)',
-                            padding: 12,
-                            cornerRadius: 8,
-                        },
-                    },
-                    scales: {
-                        x: {
-                            grid: {
+                        plugins: {
+                            legend: {
                                 display: false,
                             },
-                            ticks: {
-                                color: muted,
-                                maxRotation: 0,
-                                autoSkip: true,
-                                maxTicksLimit: 8,
-                            },
-                            border: {
-                                display: false,
+                            tooltip: {
+                                backgroundColor: 'rgba(17, 24, 39, 0.92)',
+                                padding: 12,
+                                cornerRadius: 8,
                             },
                         },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: grid,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    color: muted,
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                    maxTicksLimit: 8,
+                                },
+                                border: {
+                                    display: false,
+                                },
                             },
-                            ticks: {
-                                color: muted,
-                                precision: 0,
-                            },
-                            border: {
-                                display: false,
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: grid,
+                                },
+                                ticks: {
+                                    color: muted,
+                                    precision: 0,
+                                },
+                                border: {
+                                    display: false,
+                                },
                             },
                         },
                     },
-                },
-            });
+                });
+
+                log('Chart rendered successfully', {
+                    labels: chartData.labels.length,
+                    produksiPoints: chartData.produksi?.length ?? 0,
+                    jasaPoints: chartData.jasa?.length ?? 0,
+                });
+            } catch (error) {
+                logError('Chart constructor failed', error);
+            }
         };
 
-        renderActivityChart();
+        renderActivityChart().catch((error) => {
+            logError('renderActivityChart() failed', error);
+        });
 
         $wire.watch('filter', () => {
-            renderActivityChart();
+            log('Filter changed, re-rendering chart', { filter: $wire.filter });
+            renderActivityChart().catch((error) => {
+                logError('Filter re-render failed', error);
+            });
         });
     </script>
     @endscript
