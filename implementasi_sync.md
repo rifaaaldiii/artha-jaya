@@ -230,7 +230,7 @@ Ini tahap **paling penting** agar sync berjalan sendiri tanpa intervensi manual.
 **Command:**
 
 ```bash
-cd /home/USERNAME/artha-jaya && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+cd /home/u381971818/artha-jaya && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
 > Ganti `USERNAME` dengan username cPanel Anda (contoh: `u381971818`).
