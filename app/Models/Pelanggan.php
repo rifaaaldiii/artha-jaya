@@ -10,7 +10,7 @@ class Pelanggan extends Model
     protected $table = 'pelanggans';
 
     protected $fillable = [
-        'erp_cus_code',
+        'customer_code',
         'nama',
         'kontak',
         'alamat',

@@ -16,23 +16,29 @@ class PelanggansTable
     {
         return $table
             ->columns([
-                TextColumn::make('nama')
-                    ->label('Nama Customer')
+                TextColumn::make('customer_code')
+                    ->label('Customer Code')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('-'),
+                    
+                    TextColumn::make('nama')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->kontak),
-
-                TextColumn::make('kontak')
+                    
+                    TextColumn::make('kontak')
                     ->label('Kontak')
                     ->searchable()
                     ->sortable()
                     ->copyable()
-                    ->icon('heroicon-m-phone'),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('alamat')
                     ->label('Alamat')
                     ->searchable()
-                    ->limit(50)
+                    ->limit(30)
                     ->tooltip(fn ($record) => $record->alamat),
 
                 TextColumn::make('jasas_count')
@@ -53,7 +59,7 @@ class PelanggansTable
                     ->label('Tanggal Dibuat')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             // ->filters([
             //     Filter::make('has_jasa')
