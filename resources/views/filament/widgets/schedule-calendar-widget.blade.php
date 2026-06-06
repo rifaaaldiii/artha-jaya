@@ -25,7 +25,7 @@
         [data-theme="dark"],
         .filament-theme-dark {
             --sc-bg: oklch(0.21 0.006 285.885);
-            --sc-bg-secondary: #1f2937;
+            --sc-bg-secondary: oklch(0.21 0.006 285.885);
             --sc-bg-hover: #374151;
             --sc-bg-selected: rgba(16, 185, 129, 0.12);
             --sc-bg-today: rgba(245, 158, 11, 0.08);

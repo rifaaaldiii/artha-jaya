@@ -18,24 +18,13 @@ class ProductOverview extends Widget
     public function getStatsProperty(): array
     {
         $totalProduksi = Produksi::count();
-        $activeProduksi = Produksi::where('status', '!=', 'selesai')->count();
-        $completedProduksi = Produksi::where('status', 'selesai')->count();
-
         $totalJasa = Jasa::count();
-        $scheduledJasa = Jasa::where('status', '!=', 'selesai')->count();
-        $completedJasa = Jasa::where('status', 'selesai')->count();
-
         $totalPelanggan = Pelanggan::count();
-        $activePelanggan = Pelanggan::query()
-            ->where(function ($query): void {
-                $query->whereHas('jasas', fn ($q) => $q->where('status', '!=', 'selesai'))
-                    ->orWhereHas('produksis', fn ($q) => $q->where('status', '!=', 'selesai'));
-            })
-            ->count();
+        $totalActivity = $totalProduksi + $totalJasa;
 
         return [
             [
-                'label' => 'Produksi',
+                'label' => 'Stepnosing',
                 'value' => number_format($totalProduksi, 0, ',', '.'),
                 'trend' => $this->calculateTrend(Produksi::class, 'createdAt'),
             ],
@@ -45,14 +34,14 @@ class ProductOverview extends Widget
                 'trend' => $this->calculateTrend(Jasa::class, 'createdAt'),
             ],
             [
-                'label' => 'Customers',
-                'value' => number_format($totalPelanggan, 0, ',', '.'),
-                'trend' => $this->calculateTrend(Pelanggan::class, 'createdAt'),
+                'label' => 'Activity',
+                'value' => number_format($totalActivity, 0, ',', '.'),
+                'trend' => $this->calculateActivityTrend(),
             ],
             [
-                'label' => 'Customer Aktif',
-                'value' => number_format($activePelanggan, 0, ',', '.'),
-                'trend' => $this->calculateActiveCustomerTrend(),
+                'label' => 'Customers',
+                'value' => number_format($totalPelanggan, 0, ',', '.'),
+                'trend' => $this->calculateCustomerTrend(),
             ],
         ];
     }
@@ -68,63 +57,85 @@ class ProductOverview extends Widget
      */
     protected function calculateTrend(string $model, string $column): array
     {
-        $currentMonthStart = Carbon::now()->startOfMonth();
-        $previousMonthStart = Carbon::now()->subMonth()->startOfMonth();
-        $previousMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+        $currentMonthCount = $this->countRecordsInMonth($model, $column, Carbon::now());
+        $previousMonthCount = $this->countRecordsInMonth($model, $column, Carbon::now()->subMonth());
 
-        $current = $model::query()
-            ->where($column, '>=', $currentMonthStart)
-            ->count();
-
-        $previous = $model::query()
-            ->whereBetween($column, [$previousMonthStart, $previousMonthEnd])
-            ->count();
-
-        return $this->formatTrend($current, $previous);
+        return $this->formatTrend($currentMonthCount, $previousMonthCount);
     }
 
-    protected function calculateActiveCustomerTrend(): array
+    protected function calculateCustomerTrend(): array
     {
-        $currentMonthStart = Carbon::now()->startOfMonth();
-        $previousMonthStart = Carbon::now()->subMonth()->startOfMonth();
-        $previousMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+        $currentMonthCount = $this->countRecordsInMonth(Pelanggan::class, 'createdAt', Carbon::now());
+        $previousMonthCount = $this->countRecordsInMonth(Pelanggan::class, 'createdAt', Carbon::now()->subMonth());
 
-        $activeQuery = fn () => Pelanggan::query()
-            ->where(function ($query): void {
-                $query->whereHas('jasas', fn ($q) => $q->where('status', '!=', 'selesai'))
-                    ->orWhereHas('produksis', fn ($q) => $q->where('status', '!=', 'selesai'));
-            });
-
-        $current = $activeQuery()
-            ->where(function ($query) use ($currentMonthStart): void {
-                $query->whereHas('jasas', fn ($q) => $q->where('createdAt', '>=', $currentMonthStart))
-                    ->orWhereHas('produksis', fn ($q) => $q->where('createdAt', '>=', $currentMonthStart));
-            })
-            ->count();
-
-        $previous = $activeQuery()
-            ->where(function ($query) use ($previousMonthStart, $previousMonthEnd): void {
-                $query->whereHas('jasas', fn ($q) => $q->whereBetween('createdAt', [$previousMonthStart, $previousMonthEnd]))
-                    ->orWhereHas('produksis', fn ($q) => $q->whereBetween('createdAt', [$previousMonthStart, $previousMonthEnd]));
-            })
-            ->count();
-
-        return $this->formatTrend($current, $previous);
+        return $this->formatTrend($currentMonthCount, $previousMonthCount);
     }
 
-    protected function formatTrend(int $current, int $previous): array
+    protected function calculateActivityTrend(): array
     {
-        if ($previous === 0) {
-            $percent = $current > 0 ? 100.0 : 0.0;
-        } else {
-            $percent = (($current - $previous) / $previous) * 100;
+        $currentMonthCount = $this->countActivityInMonth(Carbon::now());
+        $previousMonthCount = $this->countActivityInMonth(Carbon::now()->subMonth());
+
+        return $this->formatTrend($currentMonthCount, $previousMonthCount);
+    }
+
+    protected function countActivityInMonth(Carbon $month): int
+    {
+        return $this->countRecordsInMonth(Produksi::class, 'createdAt', $month)
+            + $this->countRecordsInMonth(Jasa::class, 'createdAt', $month);
+    }
+
+    /**
+     * @param class-string $model
+     */
+    protected function countRecordsInMonth(string $model, string $column, Carbon $month): int
+    {
+        $start = $month->copy()->startOfMonth();
+        $end = $month->isSameMonth(Carbon::now())
+            ? Carbon::now()->endOfDay()
+            : $month->copy()->endOfMonth();
+
+        return $model::query()
+            ->whereBetween($column, [$start, $end])
+            ->count();
+    }
+
+    protected function formatTrend(int $currentMonthCount, int $previousMonthCount): array
+    {
+        if ($previousMonthCount === 0) {
+            if ($currentMonthCount === 0) {
+                return [
+                    'direction' => 'up',
+                    'label' => '0%',
+                ];
+            }
+
+            return [
+                'direction' => 'up',
+                'label' => '+100%',
+            ];
         }
 
-        $isPositive = $percent >= 0;
+        $percent = abs((($currentMonthCount - $previousMonthCount) / $previousMonthCount) * 100);
+        $formattedPercent = number_format($percent, 2, ',', '.');
+
+        if ($currentMonthCount > $previousMonthCount) {
+            return [
+                'direction' => 'up',
+                'label' => '+' . $formattedPercent . '%',
+            ];
+        }
+
+        if ($currentMonthCount < $previousMonthCount) {
+            return [
+                'direction' => 'down',
+                'label' => '-' . $formattedPercent . '%',
+            ];
+        }
 
         return [
-            'direction' => $isPositive ? 'up' : 'down',
-            'label' => ($isPositive ? '+' : '') . number_format($percent, 2, ',', '.') . '%',
+            'direction' => 'up',
+            'label' => '0%',
         ];
     }
 }
