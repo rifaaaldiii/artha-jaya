@@ -16,7 +16,7 @@
         .dark,
         [data-theme="dark"],
         .filament-theme-dark {
-            --ac-bg: #181818;
+            --ac-bg: oklch(0.21 0.006 285.885);
             --ac-text: #f9fafb;
             --ac-muted: #9ca3af;
             --ac-border: #374151;
@@ -133,6 +133,8 @@
             .activity-chart-filters {
                 width: 100%;
                 overflow-x: auto;
+                display: flex;
+                justify-content: space-evenly;
             }
 
             .activity-chart-body {
