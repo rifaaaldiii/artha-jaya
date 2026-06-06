@@ -179,6 +179,7 @@ class JasaForm
                                     $searchTerm = '%' . trim($search) . '%';
                                     $query->where('nama', 'like', $searchTerm)
                                         ->orWhere('alamat', 'like', $searchTerm)
+                                        ->orWhere('customer_code', 'like', $searchTerm)
                                         ->orWhere('kontak', 'like', $searchTerm);
                                 })
                                 ->orderBy('nama')

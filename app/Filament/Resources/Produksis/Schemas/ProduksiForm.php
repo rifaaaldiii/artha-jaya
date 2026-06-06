@@ -133,6 +133,7 @@ class ProduksiForm
                                 ->where(function ($query) use ($search) {
                                     $searchTerm = '%' . trim($search) . '%';
                                     $query->where('nama', 'like', $searchTerm)
+                                        ->orWhere('customer_code', 'like', $searchTerm)
                                         ->orWhere('alamat', 'like', $searchTerm)
                                         ->orWhere('kontak', 'like', $searchTerm);
                                 })
