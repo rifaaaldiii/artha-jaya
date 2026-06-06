@@ -1717,9 +1717,9 @@
                                             </div>
                                         </div>
 
-                                        @include('components.whatsapp-backup-links', [
+                                        {{-- @include('components.whatsapp-backup-links', [
                                             'links' => $whatsappBackupLinks ?? [],
-                                        ])
+                                        ]) --}}
                                     </div>
                                     @endif
                                 </div>
