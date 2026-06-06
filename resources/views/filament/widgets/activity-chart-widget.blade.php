@@ -99,7 +99,7 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            padding: 0 24px 16px;
+            padding: 0 24px 24px;
         }
 
         .activity-chart-legend-item {
@@ -178,6 +178,10 @@
             </div>
         </div>
 
+        <div class="activity-chart-body">
+            <canvas id="{{ $chartId }}" wire:ignore></canvas>
+        </div>
+
         <div class="activity-chart-legend">
             <span class="activity-chart-legend-item">
                 <span class="activity-chart-legend-dot produksi"></span>
@@ -187,10 +191,6 @@
                 <span class="activity-chart-legend-dot jasa"></span>
                 Jasa
             </span>
-        </div>
-
-        <div class="activity-chart-body">
-            <canvas id="{{ $chartId }}" wire:ignore></canvas>
         </div>
     </div>
 
