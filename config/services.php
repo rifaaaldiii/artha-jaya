@@ -40,4 +40,8 @@ return [
         'api_url' => env('FONTE_API_URL', 'https://api.fonnte.com/send'),
     ],
 
+    'erp' => [
+        'skip_bad_customers' => env('ERP_SKIP_BAD_CUSTOMERS', true),
+    ],
+
 ];
