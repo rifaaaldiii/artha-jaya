@@ -6,6 +6,14 @@ import Pusher from 'pusher-js';
 
 const config = window.__messengerPusherConfig;
 
+// Expose updateSidebarBadge globally so Livewire components can trigger badge updates
+window.__updateMessengerSidebarBadge = updateSidebarBadge;
+
+// Listen for browser events dispatched by Livewire (e.g. when messages are read)
+window.addEventListener('messenger-badge-updated', (event) => {
+    updateSidebarBadge(event.detail?.total_unread);
+});
+
 if (config?.enabled && config?.notificationsEnabled !== false) {
     initMessengerNotifications(config);
 }
@@ -56,12 +64,76 @@ function handleIncomingMessage(cfg, payload) {
     }
 
     showBrowserNotification(cfg, payload);
-    refreshNavigationBadge();
+    refreshNavigationBadge(payload?.total_unread);
 }
 
-function refreshNavigationBadge() {
+function refreshNavigationBadge(totalUnread) {
+    // 1. Update the Filament sidebar badge directly in the DOM (works on any page)
+    updateSidebarBadge(totalUnread);
+
+    // 2. Also dispatch Livewire event for pages that have the Messenger component
     if (window.Livewire?.dispatch) {
         window.Livewire.dispatch('refresh-navigation-badge');
+    }
+}
+
+/**
+ * Directly update the Messenger navigation badge in the Filament sidebar.
+ * This works regardless of which page the user is on.
+ */
+function updateSidebarBadge(totalUnread) {
+    // Find the sidebar item whose link points to the messenger page
+    const messengerLink = document.querySelector(
+        '.fi-sidebar-item a[href*="/admin/messenger"]'
+    );
+
+    if (!messengerLink) {
+        return;
+    }
+
+    const sidebarItem = messengerLink.closest('.fi-sidebar-item');
+    if (!sidebarItem) {
+        return;
+    }
+
+    let badgeCtn = sidebarItem.querySelector('.fi-sidebar-item-badge-ctn');
+    let badge = badgeCtn?.querySelector('.fi-badge');
+    let badgeLabel = badge?.querySelector('.fi-badge-label');
+
+    const count = Number(totalUnread) || 0;
+
+    if (count <= 0) {
+        // Remove badge if count is 0
+        if (badgeCtn) {
+            badgeCtn.remove();
+        }
+        return;
+    }
+
+    const countStr = count > 99 ? '99+' : String(count);
+
+    if (badgeCtn && badge && badgeLabel) {
+        // Update existing badge
+        badgeLabel.textContent = countStr;
+    } else {
+        // Create badge elements matching Filament's structure
+        badgeCtn = document.createElement('span');
+        badgeCtn.className = 'fi-sidebar-item-badge-ctn';
+
+        badge = document.createElement('span');
+        badge.className = 'fi-badge fi-color-success';
+
+        const labelCtn = document.createElement('span');
+        labelCtn.className = 'fi-badge-label-ctn';
+
+        badgeLabel = document.createElement('span');
+        badgeLabel.className = 'fi-badge-label';
+        badgeLabel.textContent = countStr;
+
+        labelCtn.appendChild(badgeLabel);
+        badge.appendChild(labelCtn);
+        badgeCtn.appendChild(badge);
+        messengerLink.appendChild(badgeCtn);
     }
 }
 

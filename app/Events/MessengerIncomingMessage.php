@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Services\Messenger\MessengerService;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -36,11 +37,14 @@ class MessengerIncomingMessage implements ShouldBroadcastNow
 
     public function broadcastWith(): array
     {
+        $totalUnread = app(MessengerService::class)->totalUnreadForUser($this->recipient);
+
         return [
             'message' => MessageSent::formatMessage($this->message),
             'sender_name' => $this->message->sender?->name ?? 'Pengguna',
             'preview' => Str::limit($this->message->message, 120),
             'conversation_id' => $this->message->conversation_id,
+            'total_unread' => $totalUnread,
         ];
     }
 }

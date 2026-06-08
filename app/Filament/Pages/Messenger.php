@@ -116,7 +116,10 @@ class Messenger extends Page
 
     protected function refreshNavigationBadgeFromMessenger(): void
     {
+        $count = app(MessengerService::class)->totalUnreadForUser(Auth::user());
+
         $this->dispatch('refresh-navigation-badge');
+        $this->js("window.__updateMessengerSidebarBadge({$count})");
     }
 
     public function getView(): string
