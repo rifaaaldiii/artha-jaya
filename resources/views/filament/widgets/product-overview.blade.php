@@ -119,25 +119,14 @@
             .product-overview-stat:nth-child(4)::after {
                 display: none;
             }
-
+            
             .product-overview-stat:nth-child(1),
             .product-overview-stat:nth-child(2) {
                 border-bottom: 1px solid var(--po-border);
             }
         }
-
+        
         @media (max-width: 640px) {
-            .product-overview-card {
-                grid-template-columns: 1fr;
-            }
-
-            .product-overview-stat::after {
-                display: none;
-            }
-
-            .product-overview-stat:not(:last-child) {
-                border-bottom: 1px solid var(--po-border);
-            }
 
             .product-overview-value {
                 font-size: 1.75rem;
