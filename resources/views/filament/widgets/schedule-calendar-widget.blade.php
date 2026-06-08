@@ -65,7 +65,7 @@
             flex-direction: column;
             height: 100%;
         }
-
+        
         .calendar-header {
             display: flex;
             align-items: center;
@@ -388,6 +388,145 @@
         }
         .detail-item-row .status-selesai {
             color: var(--sc-success);
+        }
+
+        /* ===== Mobile Responsive ===== */
+        @media (max-width: 639px) {
+            .calendar-header {
+                padding: 10px 12px;
+            }
+            .calendar-header h3 {
+                font-size: 0.875rem;
+            }
+            .calendar-header-actions button {
+                padding: 4px;
+            }
+            .calendar-header-actions svg {
+                width: 16px;
+                height: 16px;
+            }
+            .calendar-header-actions button.btn-today {
+                padding: 3px 6px;
+                font-size: 0.7rem;
+            }
+
+            .calendar-day-names > div {
+                padding: 6px 0;
+                font-size: 0.65rem;
+            }
+
+            .calendar-day-empty {
+                min-height: 44px;
+            }
+            .calendar-day-btn {
+                min-height: 44px;
+                padding: 3px 2px;
+                text-align: center;
+            }
+            .calendar-day-btn .day-number {
+                font-size: 0.75rem;
+            }
+
+            /* On mobile, hide text in dot badges, show only small colored dots */
+            .calendar-day-btn .day-indicators {
+                gap: 2px;
+                margin-top: 2px;
+            }
+            .calendar-day-btn .day-indicators .dot {
+                font-size: 0;
+                padding: 0;
+                width: 6px;
+                height: 6px;
+                min-width: 6px;
+                min-height: 6px;
+                border-radius: 50%;
+                text-indent: -9999px;
+                overflow: hidden;
+            }
+
+            .calendar-legend {
+                gap: 10px;
+                padding: 8px 12px;
+                flex-wrap: wrap;
+            }
+            .calendar-legend-item {
+                font-size: 0.65rem;
+                gap: 4px;
+            }
+            .calendar-legend-item .dot {
+                width: 6px;
+                height: 6px;
+            }
+
+            .detail-header {
+                padding: 10px 12px;
+            }
+            .detail-header h3 {
+                font-size: 0.875rem;
+            }
+            .detail-body {
+                padding: 8px;
+                max-height: 20rem;
+            }
+            .detail-item {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+            .detail-item-badge {
+                font-size: 0.65rem;
+                padding: 2px 6px;
+            }
+            .detail-item-number {
+                font-size: 0.65rem;
+            }
+            .detail-item-row span {
+                font-size: 0.7rem;
+            }
+            .detail-empty {
+                padding: 24px 12px;
+            }
+            .detail-empty svg {
+                width: 32px;
+                height: 32px;
+            }
+            .detail-empty p {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Small phones (below 380px) */
+        @media (max-width: 379px) {
+            .calendar-day-btn {
+                min-height: 38px;
+                padding: 2px 1px;
+            }
+            .calendar-day-btn .day-number {
+                font-size: 0.7rem;
+            }
+            .calendar-day-empty {
+                min-height: 38px;
+            }
+            .calendar-day-btn .day-indicators .dot {
+                width: 5px;
+                height: 5px;
+                min-width: 5px;
+                min-height: 5px;
+            }
+        }
+
+        /* Tablet - medium screens */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .calendar-day-btn {
+                min-height: 60px;
+                padding: 4px;
+            }
+            .calendar-day-btn .day-indicators .dot {
+                font-size: 0.55rem;
+                padding: 1px 4px;
+            }
+            .calendar-day-empty {
+                min-height: 60px;
+            }
         }
     </style>
 
