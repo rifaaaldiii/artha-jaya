@@ -52,6 +52,10 @@ function handleIncomingMessage(cfg, payload) {
     const onMessengerPage = window.location.pathname.includes('/admin/messenger');
 
     if (onMessengerPage && Number(activeConversationId) === Number(message.conversation_id)) {
+        if (cfg.notificationSound !== false) {
+            playNotificationSound('inMessage');
+        }
+
         if (window.Livewire?.dispatch) {
             window.Livewire.dispatch('messenger-message-received', { message });
         }
@@ -60,7 +64,7 @@ function handleIncomingMessage(cfg, payload) {
     }
 
     if (cfg.notificationSound !== false) {
-        playNotificationSound();
+        playNotificationSound('notification');
     }
 
     showBrowserNotification(cfg, payload);
@@ -214,34 +218,17 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function playNotificationSound() {
+const NOTIFICATION_AUDIO = {
+    notification: '/audio/notification.mpeg',
+    inMessage: '/audio/inmessage notification.mpeg',
+};
+
+function playNotificationSound(type = 'notification') {
+    const src = NOTIFICATION_AUDIO[type] ?? NOTIFICATION_AUDIO.notification;
+
     try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-
-        if (!AudioContext) {
-            return;
-        }
-
-        const ctx = new AudioContext();
-        const playTone = (frequency, startTime, duration) => {
-            const oscillator = ctx.createOscillator();
-            const gain = ctx.createGain();
-            oscillator.type = 'sine';
-            oscillator.frequency.value = frequency;
-            gain.gain.setValueAtTime(0.0001, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.2, startTime + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-            oscillator.connect(gain);
-            gain.connect(ctx.destination);
-            oscillator.start(startTime);
-            oscillator.stop(startTime + duration);
-        };
-
-        const now = ctx.currentTime;
-        playTone(880, now, 0.12);
-        playTone(1174, now + 0.14, 0.18);
-
-        setTimeout(() => ctx.close().catch(() => {}), 500);
+        const audio = new Audio(src);
+        audio.play().catch(() => {});
     } catch {
         // Browser may block audio without user gesture.
     }
