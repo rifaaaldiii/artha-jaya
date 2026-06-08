@@ -25,7 +25,7 @@ class Messenger extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected static ?string $navigationLabel = 'Messenger 1.1 Beta';
+    protected static ?string $navigationLabel = 'Messenger';
 
     protected static ?int $navigationSort = 50;
 
