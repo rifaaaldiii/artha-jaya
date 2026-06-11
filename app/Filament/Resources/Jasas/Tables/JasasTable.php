@@ -12,6 +12,9 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use App\Filament\Resources\Jasas\JasaResource;
 use Filament\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class JasasTable
 {
@@ -66,7 +69,20 @@ class JasasTable
                     ->sortable()
             ])
             ->filters([
-                //
+                SelectFilter::make('kategori_jasa_item_id')
+                    ->label('Kategori Jasa')
+                    ->relationship('items.kategori', 'nama'),
+                Filter::make('ac_split_2pk')
+                    ->label('JASA PASANG AC SPLIT WALL KAPASITAS 1,5-2PK')
+                    ->query(fn (Builder $query): Builder => $query->whereHas('items', function (Builder $q) {
+                        $q->where('kategori_jasa_item_id', 4)
+                            ->whereIn('jenis_layanan', function ($subQuery) {
+                                $subQuery->select('nama')
+                                    ->from('jenis_jasas')
+                                    ->where('kategori_id', 4)
+                                    ->where('itemcode', '2');
+                            });
+                    })),
             ])
             ->actions([
                 ViewAction::make()
