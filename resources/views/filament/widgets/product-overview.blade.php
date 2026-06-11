@@ -31,7 +31,7 @@
             grid-template-columns: repeat(4, minmax(0, 1fr));
             background: var(--po-bg);
             border-radius: 16px;
-            box-shadow: 0 2px 8px var(--po-shadow), 0 1px 3px var(--po-shadow);
+            box-shadow: 0 1px 1px 1px var(--po-shadow);
             overflow: hidden;
         }
 

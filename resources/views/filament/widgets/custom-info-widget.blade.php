@@ -24,7 +24,7 @@
             padding: 30px;
             gap: 24px;
             height: 92px;
-            box-shadow: 0 2px 7px var(--custom-widget-shadow), 0 1px 3px var(--custom-widget-shadow);
+            box-shadow: 0 1px 1px 1px var(--custom-widget-shadow);
             flex-direction: row;
         }
         .custom-info-widget-title {

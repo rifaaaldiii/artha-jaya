@@ -32,7 +32,7 @@
             background: var(--ac-bg);
             border-radius: 16px;
             border: 1px solid var(--ac-border);
-            box-shadow: 0 2px 8px var(--ac-shadow), 0 1px 3px var(--ac-shadow);
+            box-shadow: 0 1px 1px var(--ac-shadow);
             overflow: hidden;
         }
 
