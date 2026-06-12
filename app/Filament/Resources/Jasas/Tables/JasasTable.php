@@ -15,6 +15,8 @@ use Filament\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+use Illuminate\Support\Carbon;
 
 class JasasTable
 {
@@ -69,6 +71,16 @@ class JasasTable
                     ->sortable()
             ])
             ->filters([
+                DateRangeFilter::make('createdAt')
+                    ->label('Rentang Waktu')
+                    ->format('d/m/Y')
+                    ->timezone('Asia/Jakarta')
+                    ->modifyQueryUsing(function (Builder $query, ?Carbon $startDate, ?Carbon $endDate, $dateString) {
+                        return $query->when(!empty($dateString), function (Builder $query) use ($startDate, $endDate) {
+                            $query->when($startDate, fn (Builder $query) => $query->whereDate('createdAt', '>=', $startDate))
+                                  ->when($endDate, fn (Builder $query) => $query->whereDate('createdAt', '<=', $endDate));
+                        });
+                    }),
                 SelectFilter::make('kategori_jasa_item_id')
                     ->label('Kategori Jasa')
                     ->relationship('items.kategori', 'nama'),
