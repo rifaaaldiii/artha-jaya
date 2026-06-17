@@ -20,6 +20,36 @@ class CreateProduksi extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Handle no_ref
+        if (empty($data['no_ref'])) {
+            // Jika kosong, generate otomatis: CSR.{branch}/{auto_number}
+            $branch = Auth::user()->branch ?? 'DEFAULT';
+            $prefix = 'CSR.' . $branch . '.';
+            $date = now()->format('dmy');
+            $fullPrefix = $prefix . $date . '.';
+            $padLength = 4;
+
+            $lastNo = Produksi::query()
+                ->where('no_ref', 'like', $fullPrefix . '%')
+                ->orderByDesc('id')
+                ->value('no_ref');
+
+            if ($lastNo) {
+                $parts = explode('/', $lastNo);
+                $num = intval(end($parts));
+                $nextNum = $num + 1;
+            } else {
+                $nextNum = 1;
+            }
+
+            $data['no_ref'] = $fullPrefix . str_pad($nextNum, $padLength, '0', STR_PAD_LEFT);
+        } elseif (!str_starts_with($data['no_ref'], 'CSR.')) {
+            // Jika hanya angka/text tanpa prefix CSR, tambahkan prefix
+            $branch = Auth::user()->branch ?? 'DEFAULT';
+            $data['no_ref'] = 'CSR.' . $branch . '.' . $data['no_ref'];
+        }
+        // Jika sudah diawali 'CSR.', biarkan apa adanya
+
         // Pastikan no_produksi terisi - Format baru: PRD/DDMMYYYY/0001
         if (empty($data['no_produksi'])) {
             // Format: PRD/DDMMYYYY/0001
