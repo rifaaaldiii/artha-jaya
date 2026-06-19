@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 use App\Filament\Resources\Produksis\Pages\EditProduksi;
 use App\Filament\Resources\Produksis\Pages\ListProduksis;
+use App\Filament\Resources\Produksis\Pages\ListCancelledProduksis;
 use App\Filament\Resources\Produksis\Pages\CreateProduksi;
 use App\Filament\Resources\Produksis\Schemas\ProduksiForm;
 use App\Filament\Resources\Produksis\Tables\ProduksisTable;
@@ -86,6 +87,9 @@ class ProduksiResource extends Resource
     {
         $query = parent::getEloquentQuery()->withCount('items');
         
+        // Exclude cancelled orders from main list
+        $query->where('status', '!=', 'batal');
+        
         // Apply branch filtering based on authenticated user
         $user = Auth::user();
         if ($user && $user->branch) {
@@ -99,6 +103,7 @@ class ProduksiResource extends Resource
     {
         return [
             'index' => ListProduksis::route('/'),
+            'cancelled' => ListCancelledProduksis::route('/cancelled'),
             'create' => CreateProduksi::route('/create'),
             'edit' => EditProduksi::route('/{record}/edit'),
         ];

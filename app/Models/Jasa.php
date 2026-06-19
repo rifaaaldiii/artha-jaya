@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,6 +27,9 @@ class Jasa extends Model
         'pelanggan_id',
         'alamat',
         'status',
+        'cancelled_reason',
+        'cancelled_at',
+        'cancelled_by',
         'createdAt',
         'updateAt',
     ];
@@ -37,6 +41,7 @@ class Jasa extends Model
         'jadwal_petugas' => 'datetime',
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
+        'cancelled_at' => 'datetime',
         'progress_images' => 'array',
         'completion_images' => 'array',
     ];
@@ -83,6 +88,14 @@ class Jasa extends Model
     public function items(): HasMany
     {
         return $this->hasMany(JasaItem::class, 'jasa_id');
+    }
+
+    /**
+     * Get the user who cancelled this jasa.
+     */
+    public function cancelledByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     protected static function booted(): void

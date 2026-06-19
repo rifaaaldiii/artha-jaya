@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 use App\Filament\Resources\Jasas\Pages\EditJasa;
 use App\Filament\Resources\Jasas\Pages\ListJasas;
+use App\Filament\Resources\Jasas\Pages\ListCancelledJasas;
 use App\Filament\Resources\Jasas\Pages\CreateJasa;
 use App\Filament\Resources\Jasas\Schemas\JasaForm;
 use App\Filament\Resources\Jasas\Tables\JasasTable;
@@ -95,6 +96,9 @@ class JasaResource extends Resource
     {
         $query = parent::getEloquentQuery()->withCount('items');
         
+        // Exclude cancelled orders from main list
+        $query->where('status', '!=', 'batal');
+        
         // Apply branch filtering based on authenticated user
         $user = Auth::user();
         if ($user && $user->branch) {
@@ -108,6 +112,7 @@ class JasaResource extends Resource
     {
         return [
             'index' => ListJasas::route('/'),
+            'cancelled' => ListCancelledJasas::route('/cancelled'),
             'create' => CreateJasa::route('/create'),
             'edit' => EditJasa::route('/{record}/edit'),
         ];

@@ -116,7 +116,8 @@ class Progress extends Page implements HasForms
 
                         $query = Produksi::query()
                             ->with('items')
-                            ->where('status', '!=', 'selesai');
+                            ->where('status', '!=', 'selesai')
+                            ->where('status', '!=', 'batal');
 
                         // Filter by branch: if user has branch, filter by it; otherwise fetch all
                         if ($user->branch) {
@@ -150,7 +151,8 @@ class Progress extends Page implements HasForms
 
                         $query = Produksi::query()
                             ->with('items')
-                            ->where('status', '!=', 'selesai');
+                            ->where('status', '!=', 'selesai')
+                            ->where('status', '!=', 'batal');
 
                         // Filter by branch: if user has branch, filter by it; otherwise fetch all
                         if ($user->branch) {
@@ -583,7 +585,8 @@ class Progress extends Page implements HasForms
 
         // Build query for counting produksis
         $query = Produksi::query()
-            ->where('status', '!=', 'selesai');
+            ->where('status', '!=', 'selesai')
+            ->where('status', '!=', 'batal');
 
         // Filter by branch for non-administrator users
         if (!in_array($user->role, ['administrator', 'superadmin'], true)) {

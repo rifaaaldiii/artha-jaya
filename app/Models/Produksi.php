@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -15,6 +16,9 @@ class Produksi extends Model
         'no_ref',
         'branch',
         'status',
+        'cancelled_reason',
+        'cancelled_at',
+        'cancelled_by',
         'catatan',
         'progress_images',
         'team_id',
@@ -31,6 +35,7 @@ class Produksi extends Model
         'createdAt' => 'datetime',
         'updateAt' => 'datetime',
         'jadwal' => 'datetime',
+        'cancelled_at' => 'datetime',
         'progress_images' => 'array',
     ];
 
@@ -60,6 +65,14 @@ class Produksi extends Model
     public function items(): HasMany
     {
         return $this->hasMany(ProduksiItem::class, 'produksi_id');
+    }
+
+    /**
+     * Get the user who cancelled this produksi.
+     */
+    public function cancelledByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     protected static function booted(): void

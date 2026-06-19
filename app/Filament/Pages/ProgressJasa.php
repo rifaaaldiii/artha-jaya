@@ -155,7 +155,8 @@ class ProgressJasa extends Page implements HasForms
 
                         $query = Jasa::query()
                             ->with(['pelanggan', 'items'])
-                            ->where('status', '!=', 'selesai');
+                            ->where('status', '!=', 'selesai')
+                            ->where('status', '!=', 'batal');
 
                         // Superadmin and admin_toko cannot update status for 'terjadwal' jasa
                         // So hide them from the list
@@ -197,7 +198,8 @@ class ProgressJasa extends Page implements HasForms
 
                         $query = Jasa::query()
                             ->with(['pelanggan', 'items'])
-                            ->where('status', '!=', 'selesai');
+                            ->where('status', '!=', 'selesai')
+                            ->where('status', '!=', 'batal');
 
                         // Superadmin and admin_toko cannot update status for 'terjadwal' jasa
                         // So hide them from the search results
@@ -564,6 +566,7 @@ class ProgressJasa extends Page implements HasForms
                             })
                             ->where('id', '!=', $this->record->id)
                             ->where('status', '!=', 'selesai')
+                            ->where('status', '!=', 'batal')
                             ->exists();
 
                         if (!$hasActiveJasa) {
@@ -666,7 +669,8 @@ class ProgressJasa extends Page implements HasForms
 
         // Build query for counting jasas
         $query = Jasa::query()
-            ->where('status', '!=', 'selesai');
+            ->where('status', '!=', 'selesai')
+            ->where('status', '!=', 'batal');
 
         // Superadmin and admin_toko cannot update 'terjadwal' status
         // So exclude them from the badge count

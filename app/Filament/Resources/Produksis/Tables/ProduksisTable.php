@@ -5,14 +5,13 @@ namespace App\Filament\Resources\Produksis\Tables;
 use App\Filament\Pages\Progress;
 use App\Filament\Pages\Report;
 use App\Filament\Resources\Produksis\ProduksiResource;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Actions\Action;
+use Illuminate\Support\Facades\Auth;
 
 class ProduksisTable
 {
@@ -59,6 +58,7 @@ class ProduksisTable
                     ->badge()
                     ->color(fn ($state) => match ($state) {
                         'baru', 'produksi baru'           => 'danger',
+                        'batal'                           => 'danger',
                         'proses', 'siap produksi', 'dalam pengerjaan'        => 'warning',
                         'siap diambil', 'produksi siap diambil'   => 'success',
                         'selesai', 'selesai dikerjakan'                 => 'success',
@@ -93,20 +93,30 @@ class ProduksisTable
                     // ->visible(fn ($record) => strtolower($record->status) === 'selesai'),
                 EditAction::make()
                     ->authorize(fn ($record) => ProduksiResource::canEdit($record) && strtolower($record->status) !== 'selesai'),
-                DeleteAction::make()
-                    ->authorize(fn ($record) => ProduksiResource::canDelete($record) && strtolower($record->status) === 'baru'),
+                Action::make('cancel')
+                    ->label('Batal')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn ($record) => strtolower($record->status) === 'baru')
+                    ->requiresConfirmation()
+                    ->form([
+                        Textarea::make('cancelled_reason')
+                            ->label('Alasan Pembatalan')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $record->update([
+                            'status' => 'batal',
+                            'cancelled_reason' => $data['cancelled_reason'],
+                            'cancelled_at' => now(),
+                            'cancelled_by' => Auth::id(),
+                        ]);
+                    })
+                    ->successNotificationTitle('Produksi berhasil dibatalkan'),
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->authorize(ProduksiResource::canDeleteAny())
-                        ->deselectRecordsAfterCompletion()
-                        ->requiresConfirmation()
-                        ->action(function ($records) {
-                            $records->filter(fn ($record) => strtolower($record->status) === 'baru')
-                                ->each(fn ($record) => $record->delete());
-                        }),
-                ]),
+                // Bulk delete removed - use cancel action instead
             ])
             ->defaultSort('createdAt', 'desc');
     }

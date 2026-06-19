@@ -5,16 +5,14 @@ namespace App\Filament\Resources\Jasas\Tables;
 use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Textarea;
 use App\Filament\Pages\ProgressJasa;
 use App\Filament\Pages\Report;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Resources\Jasas\JasaResource;
-use Filament\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Illuminate\Support\Carbon;
 
@@ -44,6 +42,21 @@ class JasasTable
                     ->label('Customer')
                     ->sortable()
                     ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('kategori_names')
+                    ->label('Kategori')
+                    ->badge()
+                    ->separator(',')
+                    ->color('info')
+                    ->placeholder('-')
+                    ->getStateUsing(function ($record) {
+                        return $record->items
+                            ->filter(fn ($item) => $item->kategori)
+                            ->pluck('kategori.nama')
+                            ->unique()
+                            ->values()
+                            ->toArray();
+                    })
+                    ->toggleable(),
                 \Filament\Tables\Columns\TextColumn::make('items_count')
                     ->label('Jumlah Item')
                     ->counts('items')
@@ -54,6 +67,7 @@ class JasasTable
                     ->badge()
                     ->color(fn ($state) => match (strtolower($state)) {
                         'jasa baru' => 'danger',
+                        'batal' => 'danger',
                         'terjadwal' => 'info',
                         'selesai dikerjakan' => 'warning',
                         'selesai' => 'success',
@@ -106,20 +120,30 @@ class JasasTable
                     ->url(fn ($record) => route('filament.admin.pages.report') . '/preview-invoice?number=' . urlencode($record->no_jasa) . '&type=jasa', true)
                     ->openUrlInNewTab(),
                     // ->visible(fn ($record) => strtolower($record->status) === 'jasa baru'),
-                DeleteAction::make()
-                    ->authorize(fn ($record) => JasaResource::canDelete($record) && strtolower($record->status) === 'jasa baru'),
+                Action::make('cancel')
+                    ->label('Batal')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn ($record) => strtolower($record->status) === 'jasa baru')
+                    ->requiresConfirmation()
+                    ->form([
+                        Textarea::make('cancelled_reason')
+                            ->label('Alasan Pembatalan')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $record->update([
+                            'status' => 'batal',
+                            'cancelled_reason' => $data['cancelled_reason'],
+                            'cancelled_at' => now(),
+                            'cancelled_by' => Auth::id(),
+                        ]);
+                    })
+                    ->successNotificationTitle('Jasa berhasil dibatalkan'),
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->authorize(JasaResource::canDeleteAny())
-                        ->deselectRecordsAfterCompletion()
-                        ->requiresConfirmation()
-                        ->action(function ($records) {
-                            $records->filter(fn ($record) => strtolower($record->status) === 'jasa baru')
-                                ->each(fn ($record) => $record->delete());
-                        }),
-                ]),
+                // Bulk delete removed - use cancel action instead
             ])
             ->defaultSort('createdAt', 'desc');
     }
