@@ -46,6 +46,7 @@ class ProgressJasa extends Page implements HasForms
     public array $imageData = [];
     public array $terjadwalData = [];
     public array $data = [];
+    public array $waMeLinks = [];
 
     #[Computed]
     public function disabledJadwalDates(): array
@@ -93,6 +94,13 @@ class ProgressJasa extends Page implements HasForms
                     'jadwalPetugas' => $this->jadwalPetugas,
                     'petugasIds' => $this->petugasIds,
                 ]);
+
+                // Auto-build wa.me links when status is terjadwal
+                if ($this->record->status === 'terjadwal') {
+                    $this->buildWaMeLinks();
+                } else {
+                    $this->waMeLinks = [];
+                }
             }
         } else {
             $this->record = null;
@@ -489,66 +497,8 @@ class ProgressJasa extends Page implements HasForms
                 // Refresh record
                 $this->record->refresh();
 
-                // Generate update token for kepala_lapangan
-                try {
-                    \Log::info('Generating update token in ProgressJasa', [
-                        'jasa_id' => $this->record->id,
-                    ]);
-                    
-                    $token = $this->record->generateUpdateToken();
-                    $updateLink = route('jasa.public.update', ['token' => $token]);
-                    
-                    \Log::info('Update token generated in ProgressJasa', [
-                        'jasa_id' => $this->record->id,
-                        'update_link' => $updateLink,
-                    ]);
-                    
-                    // Send WhatsApp notification to kepala_lapangan
-                    $recipients = \App\Services\WhatsAppNotificationHelper::getRecipientsByBranch(
-                        $this->record->branch,
-                        'jasa_status_updated',
-                        'terjadwal'
-                    );
-                    
-                    \Log::info('Recipients for terjadwal notification', [
-                        'count' => $recipients->count(),
-                        'recipients' => $recipients->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'role' => $u->role, 'kontak' => $u->kontak])->toArray(),
-                    ]);
-                    
-                    if ($recipients->isNotEmpty()) {
-                        $jasaData = [
-                            'jasa_id' => $this->record->id,
-                            'no_jasa' => $this->record->no_jasa,
-                            'no_ref' => $this->record->no_ref,
-                            'branch' => $this->record->branch,
-                            'pelanggan' => $this->record->pelanggan?->nama ?? '-',
-                            'kontak' => $this->record->pelanggan?->kontak ?? '-',
-                            'alamat' => $this->record->alamat ?? $this->record->pelanggan?->alamat ?? '-',
-                            'old_status' => 'jasa baru',
-                            'new_status' => 'terjadwal',
-                            'jadwal_petugas' => $jadwalParsed->format('d/m/Y H:i'),
-                            'update_link' => $updateLink,
-                        ];
-                        
-                        \App\Services\WhatsAppNotificationHelper::sendJasaStatusUpdate($recipients, $jasaData);
-                        
-                        \Log::info('WhatsApp notification sent to kepala_lapangan', [
-                            'jasa_id' => $this->record->id,
-                            'recipients_count' => $recipients->count(),
-                        ]);
-                    } else {
-                        \Log::warning('No kepala_lapangan found to notify', [
-                            'jasa_id' => $this->record->id,
-                            'branch' => $this->record->branch,
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    \Log::error('Failed to generate token or send notification in ProgressJasa', [
-                        'jasa_id' => $this->record->id,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
-                    ]);
-                }
+                // Generate wa.me links for kepala_lapangan instead of sending via API
+                $this->buildWaMeLinks();
 
                 $this->record->petugasMany()->sync($petugasIds);
 
@@ -741,5 +691,92 @@ class ProgressJasa extends Page implements HasForms
             ->where('status', 'ready')
             ->orderBy('nama')
             ->get();
+    }
+
+    /**
+     * Build wa.me links for kepala_lapangan users.
+     * Reuses existing valid token or generates a new one.
+     */
+    protected function buildWaMeLinks(): void
+    {
+        if (!$this->record) {
+            return;
+        }
+
+        try {
+            // Reuse existing valid (unused + not expired) token, or generate new one
+            $existingToken = \App\Models\JasaUpdateToken::where('jasa_id', $this->record->id)
+                ->where('is_used', false)
+                ->where('expires_at', '>', now())
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($existingToken) {
+                $updateLink = route('jasa.public.update', ['token' => $existingToken->token]);
+            } else {
+                $token = $this->record->generateUpdateToken();
+                $updateLink = route('jasa.public.update', ['token' => $token]);
+            }
+
+            // Get kepala_lapangan users
+            $kepalaLapanganUsers = \App\Models\User::whereNotNull('kontak')
+                ->where('role', 'kepala_lapangan')
+                ->get();
+
+            if ($kepalaLapanganUsers->isEmpty()) {
+                $this->waMeLinks = [];
+                return;
+            }
+
+            // Build message
+            $message = "Halo,\n\n";
+            $message .= "Terdapat pekerjaan jasa yang memerlukan pembaruan status.\n\n";
+
+            $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "No. Referensi : {$this->record->no_ref}\n";
+            $message .= "Customer      : " . ($this->record->pelanggan?->nama ?? '-') . "\n";
+            $message .= "Alamat        : " . ($this->record->alamat ?? $this->record->pelanggan?->alamat ?? '-') . "\n";
+
+            if ($this->record->jadwal_petugas) {
+                $jadwalFormatted = $this->record->jadwal_petugas->format('d/m/Y H:i');
+                $jadwalDateOnly = substr($jadwalFormatted, 0, 10);
+                $message .= "Jadwal        : {$jadwalDateOnly}\n";
+            }
+            $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+
+            $message .= "Silakan lakukan update status setelah pekerjaan selesai melalui tautan berikut:\n\n";
+            $message .= "{$updateLink}\n\n";
+
+            $message .= "Catatan:\n";
+            $message .= "• Link hanya dapat digunakan satu kali.\n";
+            $message .= "• Link akan kedaluwarsa dalam 7 hari.\n";
+            $message .= "• Mohon tidak membagikan link kepada pihak lain.\n\n";
+
+            $message .= "Terima kasih.\n";
+            $message .= "Tim Operasional";
+
+            $this->waMeLinks = [];
+            foreach ($kepalaLapanganUsers as $user) {
+                $phone = preg_replace('/[\s\-\(\)]/', '', $user->kontak);
+                $phone = str_replace('+', '', $phone);
+                if (str_starts_with($phone, '0')) {
+                    $phone = '62' . substr($phone, 1);
+                } elseif (!str_starts_with($phone, '62')) {
+                    $phone = '62' . $phone;
+                }
+
+                $this->waMeLinks[] = [
+                    'name' => $user->name,
+                    'phone' => $phone,
+                    'url' => 'https://wa.me/' . $phone . '?text=' . rawurlencode($message),
+                ];
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to build wa.me links in ProgressJasa', [
+                'jasa_id' => $this->record->id,
+                'error' => $e->getMessage(),
+            ]);
+            $this->waMeLinks = [];
+        }
     }
 }
