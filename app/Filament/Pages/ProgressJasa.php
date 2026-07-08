@@ -350,8 +350,9 @@ class ProgressJasa extends Page implements HasForms
             return;
         }
 
+        $normalizedRole = self::normalizeUserRole(Auth::user()?->role);
+
         // Prevent superadmin and admin_toko from updating status when jasa is 'terjadwal'
-        $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
         if (in_array($normalizedRole, ['superadmin', 'admin_toko'], true) && $this->record->status === 'terjadwal') {
             Notification::make()
                 ->title('Tidak dapat mengupdate status')
@@ -362,6 +363,16 @@ class ProgressJasa extends Page implements HasForms
         }
 
         $nextStatus = $this->getNextSequentialStatusProperty();
+
+        // Hanya superadmin yang boleh melakukan penjadwalan (status terjadwal)
+        if ($nextStatus === 'terjadwal' && $normalizedRole !== 'superadmin') {
+            Notification::make()
+                ->title('Tidak memiliki izin')
+                ->warning()
+                ->body('Hanya Superadmin yang dapat melakukan update status jasa dan penjadwalan.')
+                ->send();
+            return;
+        }
 
         if (!$nextStatus) {
             Notification::make()
@@ -419,20 +430,25 @@ class ProgressJasa extends Page implements HasForms
             return;
         }
 
-        // Handle terjadwal status
+        // Handle terjadwal status (superadmin only)
         if ($this->updateStatusValue === 'terjadwal') {
-            $normalizedRole = str_replace(' ', '_', strtolower(Auth::user()?->role ?? ''));
-            
+            if ($normalizedRole !== 'superadmin') {
+                Notification::make()
+                    ->title('Tidak memiliki izin')
+                    ->warning()
+                    ->body('Hanya Superadmin yang dapat melakukan update status penjadwalan.')
+                    ->send();
+                return;
+            }
+
             \Log::info('ProgressJasa updateStatus - terjadwal', [
                 'role' => $normalizedRole,
-                'is_superadmin' => in_array($normalizedRole, ['superadmin'], true),
                 'jadwalPetugas_property' => $this->jadwalPetugas,
                 'selectedPetugasIds' => $this->selectedPetugasIds,
             ]);
-            
-            if (in_array($normalizedRole, ['superadmin'], true)) {
-                // Coba ambil dari Filament form terlebih dahulu, fallback ke blade form
-                try {
+
+            // Coba ambil dari Filament form terlebih dahulu, fallback ke blade form
+            try {
                     $terjadwalData = $this->terjadwalForm->getState();
                     $jadwalPetugas = $terjadwalData['jadwalPetugas'] ?? null;
                     $petugasIds = $terjadwalData['petugasIds'] ?? [];
@@ -536,7 +552,15 @@ class ProgressJasa extends Page implements HasForms
                 $this->refresh();
                 $this->dispatch('$refresh');
                 return;
-            }
+        }
+
+        if (!self::userCanUpdateToStatus($normalizedRole, $this->updateStatusValue)) {
+            Notification::make()
+                ->title('Status tidak diizinkan')
+                ->danger()
+                ->body('Anda tidak memiliki izin untuk mengupdate ke status ini.')
+                ->send();
+            return;
         }
 
         $this->record->status = $this->updateStatusValue;
@@ -556,16 +580,45 @@ class ProgressJasa extends Page implements HasForms
         $this->dispatch('refresh-navigation-badge');
     }
 
+    protected static function getRoleStatusMap(): array
+    {
+        return [
+            'terjadwal' => ['superadmin'],
+            'selesai dikerjakan' => ['kepala_lapangan'],
+            'selesai' => ['superadmin', 'admin_toko'],
+        ];
+    }
+
+    protected static function normalizeUserRole(?string $role): string
+    {
+        return str_replace(' ', '_', strtolower($role ?? ''));
+    }
+
+    protected static function userCanUpdateToStatus(?string $role, string $status): bool
+    {
+        $allowedRoles = self::getRoleStatusMap()[$status] ?? [];
+
+        return in_array(self::normalizeUserRole($role), $allowedRoles, true);
+    }
+
     protected function getAllowedStatusesForRole(): array
     {
-        // Allow all statuses for all roles - removed strict role-based validation
-        return self::STATUS_FLOW;
+        $normalizedRole = self::normalizeUserRole(Auth::user()?->role);
+
+        return array_values(array_filter(
+            self::STATUS_FLOW,
+            fn (string $status) => self::userCanUpdateToStatus($normalizedRole, $status)
+        ));
     }
 
     protected static function getAllowedStatusesForRoleStatic(): array
     {
-        // Allow all statuses for all roles - removed strict role-based validation
-        return self::STATUS_FLOW;
+        $normalizedRole = self::normalizeUserRole(Auth::user()?->role);
+
+        return array_values(array_filter(
+            self::STATUS_FLOW,
+            fn (string $status) => self::userCanUpdateToStatus($normalizedRole, $status)
+        ));
     }
 
     public function getNextSequentialStatusProperty(): ?string
