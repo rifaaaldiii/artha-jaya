@@ -4,9 +4,33 @@
 
 @push('styles')
 <style>
+    body:has(.petugas-page) {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    body:has(.petugas-page) > .container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: none;
+        width: 100%;
+        padding: 24px 16px;
+    }
+
+    .petugas-page {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .petugas-container {
-        max-width: 480px;
-        margin: 0 auto;
+        max-width: 450px;
+        width: 100%;
     }
 
     .fi-section-header {
@@ -126,10 +150,11 @@
         $oldDigits = str_pad(substr($oldToken, 0, 6), 6, ' ', STR_PAD_RIGHT);
     @endphp
 
-    <div class="petugas-container">
+    <div class="petugas-page">
+        <div class="petugas-container">
         <div class="fi-section">
             <div class="fi-section-header">
-                <svg class="fi-section-header-icon" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="fi-section-header-icon" xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
@@ -187,6 +212,7 @@
                     </div>
                 </form>
             </div>
+        </div>
         </div>
     </div>
 @endsection
