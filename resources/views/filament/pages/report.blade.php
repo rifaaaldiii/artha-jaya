@@ -42,6 +42,15 @@
             grid-template-columns: var(--aj-report-sidebar-width) 1fr;
             gap: 24px;
             animation: fadeInUp 0.4s ease-out;
+            position: relative;
+            transition:
+                grid-template-columns 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                gap 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .aj-report-layout.aj-sidebar-closed {
+            grid-template-columns: 0fr 1fr;
+            gap: 0;
         }
         
         @keyframes fadeInUp {
@@ -60,20 +69,29 @@
             position: sticky;
             top: 24px;
             height: fit-content;
+            min-width: 0;
+            overflow-x: hidden;
             overflow-y: auto;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            transition:
+                opacity 0.32s ease,
+                transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.38s;
         }
 
-        .aj-sidebar-card {
-            background: var(--aj-report-card-bg);
-            border-radius: 12px;
-            box-shadow: var(--aj-report-shadow);
-            border: 1px solid var(--aj-report-card-border);
-            padding: 24px;
-            transition: all 0.2s ease;
+        .aj-report-layout.aj-sidebar-closed .aj-report-sidebar {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-16px);
+            pointer-events: none;
+            overflow: hidden;
         }
 
-        .aj-sidebar-card:hover {
-            box-shadow: var(--aj-report-shadow-lg);
+        .aj-report-sidebar .aj-sidebar-card {
+            width: var(--aj-report-sidebar-width);
+            min-width: var(--aj-report-sidebar-width);
         }
 
         .aj-sidebar-header {
@@ -83,6 +101,121 @@
             margin-bottom: 24px;
             padding-bottom: 16px;
             border-bottom: 2px solid var(--aj-report-divider);
+        }
+
+        .aj-sidebar-header-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .aj-sidebar-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            border: 1px solid var(--aj-report-card-border);
+            border-radius: 8px;
+            background: var(--aj-report-soft-bg);
+            color: var(--aj-report-muted);
+            cursor: pointer;
+            transition:
+                color 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease,
+                transform 0.15s ease;
+        }
+
+        .aj-sidebar-toggle-btn:hover {
+            color: var(--aj-report-primary);
+            border-color: var(--aj-report-primary);
+            background: var(--aj-report-primary-light);
+        }
+
+        .aj-sidebar-toggle-btn:active {
+            transform: scale(0.92);
+        }
+
+        .aj-sidebar-toggle-btn svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .aj-sidebar-toggle-btn.is-closed svg {
+            transform: rotate(180deg);
+        }
+
+        .aj-sidebar-reopen-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border: 1px solid var(--aj-report-card-border);
+            border-radius: 8px;
+            background: var(--aj-report-card-bg);
+            color: var(--aj-report-text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--aj-report-shadow);
+            transition:
+                color 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease,
+                transform 0.15s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .aj-sidebar-reopen-btn:hover {
+            color: var(--aj-report-primary);
+            border-color: var(--aj-report-primary);
+            background: var(--aj-report-primary-light);
+        }
+
+        .aj-sidebar-reopen-btn:active {
+            transform: scale(0.97);
+        }
+
+        .aj-sidebar-reopen-enter {
+            transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .aj-sidebar-reopen-enter-start {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+
+        .aj-sidebar-reopen-enter-end {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .aj-sidebar-reopen-leave {
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+
+        .aj-sidebar-reopen-leave-start {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .aj-sidebar-reopen-leave-end {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+
+        .aj-sidebar-reopen-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        [x-cloak] {
+            display: none !important;
         }
 
         .aj-sidebar-icon {
@@ -101,6 +234,19 @@
             font-weight: 700;
             color: var(--aj-report-text);
             margin: 0;
+        }
+
+        .aj-sidebar-card {
+            background: var(--aj-report-card-bg);
+            border-radius: 12px;
+            box-shadow: var(--aj-report-shadow);
+            border: 1px solid var(--aj-report-card-border);
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .aj-sidebar-card:hover {
+            box-shadow: var(--aj-report-shadow-lg);
         }
 
         .aj-sidebar-section {
@@ -133,6 +279,7 @@
         /* Main Content */
         .aj-report-main {
             min-width: 0;
+            transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .aj-main-card {
@@ -514,14 +661,51 @@
             white-space: nowrap;
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            .aj-report-layout,
+            .aj-report-sidebar,
+            .aj-report-main,
+            .aj-sidebar-toggle-btn,
+            .aj-sidebar-toggle-btn svg,
+            .aj-sidebar-reopen-btn,
+            .aj-sidebar-reopen-enter,
+            .aj-sidebar-reopen-leave {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .aj-report-layout {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
+            }
+
+            .aj-report-layout.aj-sidebar-closed {
+                gap: 0;
             }
 
             .aj-report-sidebar {
                 position: static;
+                max-height: 3000px;
+                overflow: hidden;
+                transition:
+                    max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.32s ease,
+                    transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    visibility 0.38s,
+                    margin 0.38s ease;
+            }
+
+            .aj-report-layout.aj-sidebar-closed .aj-report-sidebar {
+                max-height: 0;
+                transform: translateY(-10px);
+                margin-bottom: 0;
+            }
+
+            .aj-report-sidebar .aj-sidebar-card {
+                width: 100%;
+                min-width: 0;
             }
 
             .aj-sidebar-card {
@@ -590,17 +774,35 @@
         }
     </style>
 
-    <div class="aj-report-layout">
+    <div
+        class="aj-report-layout"
+        x-data="{ sidebarOpen: true }"
+        :class="{ 'aj-sidebar-closed': !sidebarOpen }"
+    >
         {{-- Left Sidebar --}}
-        <aside class="aj-report-sidebar">
+        <aside class="aj-report-sidebar" :aria-hidden="sidebarOpen ? 'false' : 'true'">
             <div class="aj-sidebar-card">
                 <div class="aj-sidebar-header">
-                    <div class="aj-sidebar-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                        </svg>
+                    <div class="aj-sidebar-header-main">
+                        <div class="aj-sidebar-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </div>
+                        <h2 class="aj-sidebar-title">Filter Laporan</h2>
                     </div>
-                    <h2 class="aj-sidebar-title">Filter Laporan</h2>
+                    <button
+                        type="button"
+                        class="aj-sidebar-toggle-btn"
+                        :class="{ 'is-closed': !sidebarOpen }"
+                        @click="sidebarOpen = false"
+                        title="Tutup filter"
+                        aria-label="Tutup filter sidebar"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 18l-6-6 6-6"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 {{-- Filter Form --}}
@@ -643,7 +845,28 @@
             <div class="aj-main-card">
                 <div class="aj-main-header">
                     <div class="aj-main-title-section">
-                        <h2 class="aj-main-title">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <button
+                                type="button"
+                                class="aj-sidebar-reopen-btn"
+                                x-show="!sidebarOpen"
+                                x-cloak
+                                x-transition:enter="aj-sidebar-reopen-enter"
+                                x-transition:enter-start="aj-sidebar-reopen-enter-start"
+                                x-transition:enter-end="aj-sidebar-reopen-enter-end"
+                                x-transition:leave="aj-sidebar-reopen-leave"
+                                x-transition:leave-start="aj-sidebar-reopen-leave-start"
+                                x-transition:leave-end="aj-sidebar-reopen-leave-end"
+                                @click="sidebarOpen = true"
+                                title="Buka filter"
+                                aria-label="Buka filter sidebar"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg>
+                                Filter Laporan
+                            </button>
+                            <h2 class="aj-main-title">
                             <svg class="aj-main-title-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 @if($filters['report_type'] === 'jasa')
                                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
@@ -658,6 +881,7 @@
                                 Data Produksi
                             @endif
                         </h2>
+                        </div>
                         
                         <div class="aj-badges-container">
                             <span class="aj-count-badge">
@@ -730,12 +954,12 @@
                                 <th>No</th>
                                 
                                 @if($filters['report_type'] === 'jasa')
-                                <th>No Jasa</th>
+                                <!-- <th>No Jasa</th> -->
                                 <th>No Ref</th>
                                 <th>Pelanggan</th>
                                 <th>Petugas</th>
                                 @else
-                                <th>No Produksi</th>
+                                <!-- <th>No Produksi</th> -->
                                 <th>No Ref</th>
                                 <th>Branch</th>
                                 <th>Team</th>
@@ -749,14 +973,14 @@
                         <tbody>
                             @foreach($previewRows as $index => $row)
                             <tr>
-                                <td class="whitespace-nowrap">
-                                    {{ (($currentPage - 1) * $perPage) + $index + 1 }}
+                                <td class="whitespace-nowrap text-center">
+                                    {{ (($currentPage - 1) * $perPage) + $index + 1 }}.
                                 </td>
                                 
                                 @if($filters['report_type'] === 'jasa')
-                                <td class="whitespace-nowrap aj-number-cell">
+                                <!-- <td class="whitespace-nowrap aj-number-cell">
                                     {{ $row['number'] }}
-                                </td>
+                                </td> -->
                                 <td class="whitespace-nowrap">
                                     {{ $row['no_ref'] }}
                                 </td>
@@ -767,9 +991,9 @@
                                     {{ $row['petugas'] ?? '-' }}
                                 </td>
                                 @else
-                                <td class="whitespace-nowrap aj-number-cell">
+                                <!-- <td class="whitespace-nowrap aj-number-cell">
                                     {{ $row['number'] }}
-                                </td>
+                                </td> -->
                                 <td class="whitespace-nowrap">
                                     {{ $row['no_ref'] }}
                                 </td>
@@ -787,7 +1011,20 @@
                                 </td>
                                 
                                 <td class="whitespace-nowrap">
-                                    {{ $row['created_at'] }}
+                                    @php
+                                        $createdAt = $row['created_at'] ?? null;
+
+                                        if (blank($createdAt) || $createdAt === '-') {
+                                            $formattedCreatedAt = '-';
+                                        } else {
+                                            try {
+                                                $formattedCreatedAt = \Carbon\Carbon::parse($createdAt)->format('d/m/Y');
+                                            } catch (\Exception $e) {
+                                                $formattedCreatedAt = $createdAt;
+                                            }
+                                        }
+                                    @endphp
+                                    {{ $formattedCreatedAt }}
                                 </td>
                                 
                                 <td class="whitespace-nowrap text-center">
