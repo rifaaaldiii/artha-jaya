@@ -231,7 +231,9 @@ class Jasa extends Model
             'no_jasa' => $this->no_jasa,
         ]);
         
-        $token = hash('sha256', $this->id . now()->timestamp . config('app.key'));
+        do {
+            $token = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (JasaUpdateToken::where('token', $token)->exists());
         
         try {
             JasaUpdateToken::create([

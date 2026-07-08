@@ -11,6 +11,56 @@ use Illuminate\Support\Facades\Storage;
 class PublicJasaUpdateController extends Controller
 {
     /**
+     * Show the petugas gate form.
+     */
+    public function petugasGate()
+    {
+        return view('public.petugas');
+    }
+
+    /**
+     * Verify token from petugas gate and redirect to update form.
+     */
+    public function verifyPetugas(Request $request)
+    {
+        $token = preg_replace('/\D/', '', trim($request->input('token', '')));
+        $request->merge(['token' => $token]);
+
+        $request->validate([
+            'token' => ['required', 'string', 'digits:6'],
+        ], [
+            'token.required' => 'Kode token wajib diisi.',
+            'token.digits' => 'Kode token harus 6 digit angka.',
+        ]);
+
+        $updateToken = JasaUpdateToken::where('token', $token)
+            ->with(['jasa'])
+            ->first();
+
+        if (!$updateToken) {
+            return back()
+                ->withInput()
+                ->withErrors(['token' => 'Kode token tidak ditemukan.']);
+        }
+
+        $errorMessage = $this->validateUpdateTokenAccess($updateToken);
+        if ($errorMessage) {
+            \Log::warning('Petugas gate verify failed', [
+                'ip' => $request->ip(),
+                'reason' => $errorMessage,
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['token' => $errorMessage]);
+        }
+
+        return redirect()->route('jasa.public.update', [
+            'token' => $updateToken->token,
+        ]);
+    }
+
+    /**
      * Show the update form.
      */
     public function show($token)
@@ -24,23 +74,11 @@ class PublicJasaUpdateController extends Controller
                 'message' => 'Link yang Anda akses tidak valid. Pastikan Anda menggunakan link yang benar dari sistem kami.'
             ], 404);
         }
-        
-        // Validate token
-        if ($updateToken->is_used) {
+
+        $errorMessage = $this->validateUpdateTokenAccess($updateToken);
+        if ($errorMessage) {
             return response()->view('errors.access-denied', [
-                'message' => 'Link ini sudah tidak dapat digunakan karena telah digunakan sebelumnya.'
-            ], 404);
-        }
-        
-        if ($updateToken->isExpired()) {
-            return response()->view('errors.access-denied', [
-                'message' => 'Link ini sudah tidak berlaku karena telah melewati batas waktu 7 hari.'
-            ], 404);
-        }
-        
-        if ($updateToken->jasa->status !== 'terjadwal') {
-            return response()->view('errors.access-denied', [
-                'message' => 'Jasa ini tidak dapat diupdate karena status saat ini adalah ' . ucwords($updateToken->jasa->status) . '. Update hanya dapat dilakukan pada jasa dengan status terjadwal.'
+                'message' => $errorMessage,
             ], 404);
         }
         
@@ -201,5 +239,28 @@ class PublicJasaUpdateController extends Controller
                 'message' => 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi atau hubungi administrator jika masalah berlanjut.'
             ], 500);
         }
+    }
+
+    /**
+     * Validate whether a token grants access to the update form.
+     * Returns null if valid, or an error message string.
+     */
+    private function validateUpdateTokenAccess(JasaUpdateToken $updateToken): ?string
+    {
+        if ($updateToken->is_used) {
+            return 'Kode token sudah pernah digunakan.';
+        }
+
+        if ($updateToken->isExpired()) {
+            return 'Kode token sudah kedaluwarsa (maks. 7 hari).';
+        }
+
+        if ($updateToken->jasa->status !== 'terjadwal') {
+            return 'Jasa tidak dapat diupdate. Status saat ini: '
+                . ucwords($updateToken->jasa->status)
+                . '. Update hanya dapat dilakukan pada jasa dengan status terjadwal.';
+        }
+
+        return null;
     }
 }

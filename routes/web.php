@@ -10,6 +10,15 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
+// Portal petugas — gate token (no auth required)
+Route::prefix('petugas')->name('petugas.')->group(function () {
+    Route::get('/', [PublicJasaUpdateController::class, 'petugasGate'])
+        ->name('gate');
+    Route::post('/verify', [PublicJasaUpdateController::class, 'verifyPetugas'])
+        ->name('verify')
+        ->middleware('throttle:10,1');
+});
+
 // Public jasa update routes (no auth required)
 Route::prefix('jasa-update')->name('jasa.public.')->group(function () {
     Route::get('/{token}', [PublicJasaUpdateController::class, 'show'])

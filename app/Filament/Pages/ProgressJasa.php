@@ -712,11 +712,12 @@ class ProgressJasa extends Page implements HasForms
                 ->first();
 
             if ($existingToken) {
-                $updateLink = route('jasa.public.update', ['token' => $existingToken->token]);
+                $updateToken = $existingToken->token;
             } else {
-                $token = $this->record->generateUpdateToken();
-                $updateLink = route('jasa.public.update', ['token' => $token]);
+                $updateToken = $this->record->generateUpdateToken();
             }
+
+            $petugasUrl = route('petugas.gate');
 
             // Get kepala_lapangan users
             $kepalaLapanganUsers = \App\Models\User::whereNotNull('kontak')
@@ -730,7 +731,7 @@ class ProgressJasa extends Page implements HasForms
 
             // Build message
             $message = "Halo,\n\n";
-            $message .= "Terdapat pekerjaan jasa yang memerlukan pembaruan status.\n\n";
+            $message .= "Ada job jasa nih yang butuh update status ya.\n\n";
 
             $message .= "━━━━━━━━━━━━━━━━━━━━\n";
             $message .= "No. Referensi : {$this->record->no_ref}\n";
@@ -744,13 +745,16 @@ class ProgressJasa extends Page implements HasForms
             }
             $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
 
-            $message .= "Silakan lakukan update status setelah pekerjaan selesai melalui tautan berikut:\n\n";
-            $message .= "{$updateLink}\n\n";
+            $message .= "Silakan lakukan update status setelah pekerjaan selesai.\n\n";
+            $displayToken = substr($updateToken, 0, 3) . '-' . substr($updateToken, 3, 3);
+
+            $message .= "*Kode Token:*\n";
+            $message .= "*{$displayToken}*\n\n";
 
             $message .= "Catatan:\n";
-            $message .= "• Link hanya dapat digunakan satu kali.\n";
-            $message .= "• Link akan kedaluwarsa dalam 7 hari.\n";
-            $message .= "• Mohon tidak membagikan link kepada pihak lain.\n\n";
+            $message .= "• Kode token hanya dapat digunakan satu kali.\n";
+            $message .= "• Kode token berlaku 7 hari sejak dikirim.\n";
+            $message .= "• Mohon tidak membagikan kode token kepada pihak lain.\n\n";
 
             $message .= "Terima kasih.\n";
             $message .= "Tim Operasional";
