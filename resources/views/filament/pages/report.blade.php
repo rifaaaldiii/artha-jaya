@@ -661,6 +661,106 @@
             white-space: nowrap;
         }
 
+        .aj-export-dialog-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.32);
+            backdrop-filter: blur(4px) saturate(110%);
+            -webkit-backdrop-filter: blur(4px) saturate(110%);
+            z-index: 40;
+        }
+
+        .aj-export-dialog {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .aj-export-dialog-card {
+            width: min(720px, 100%);
+            max-height: 80vh;
+            overflow: hidden;
+            background: var(--aj-report-card-bg);
+            border: 1px solid var(--aj-report-card-border);
+            border-radius: 14px;
+            box-shadow: var(--aj-report-shadow-lg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .aj-export-dialog-header {
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--aj-report-card-border);
+            background: var(--aj-report-card-bg);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .aj-export-dialog-body {
+            padding: 14px 20px;
+            overflow-y: auto;
+            max-height: calc(80vh - 150px);
+        }
+
+        .aj-export-dialog-footer {
+            padding: 14px 20px 18px;
+            border-top: 1px solid var(--aj-report-card-border);
+            background: var(--aj-report-card-bg);
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .aj-export-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .aj-export-item {
+            border: 1px solid var(--aj-report-card-border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .aj-export-toggle {
+            width: 44px;
+            height: 24px;
+            border-radius: 999px;
+            background: #cbd5e1;
+            position: relative;
+            transition: background .2s ease;
+        }
+
+        .aj-export-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: #fff;
+            transition: transform .2s ease;
+        }
+
+        input:checked + .aj-export-toggle {
+            background: var(--aj-report-primary);
+        }
+
+        input:checked + .aj-export-toggle::after {
+            transform: translateX(20px);
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .aj-report-layout,
             .aj-report-sidebar,
@@ -830,7 +930,7 @@
                     
                     <x-filament::button 
                         color="success" 
-                        wire:click="downloadFilteredExcel"
+                        wire:click="openExportDialog"
                         :disabled="$resultCount === 0"
                         full-width>
                         <x-filament::icon icon="heroicon-m-arrow-down-tray" class="w-4 h-4 mr-1" />
@@ -1090,4 +1190,54 @@
             </div>
         </main>
     </div>
+
+    @if($showExportDialog)
+        <div class="aj-export-dialog-overlay" wire:click="closeExportDialog"></div>
+        <div class="aj-export-dialog">
+            <div class="aj-export-dialog-card">
+                <div class="aj-export-dialog-header">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 700; color: var(--aj-report-text); margin: 0;">Pilih Kolom Export Excel</h3>
+                            <p style="font-size: 13px; color: var(--aj-report-muted); margin: 4px 0 0;">
+                                Aktifkan kolom yang ingin ditampilkan pada file {{ $filters['report_type'] === 'produksi' ? 'Produksi' : 'Jasa' }}.
+                            </p>
+                        </div>
+                        <x-filament::button color="gray" size="sm" wire:click="closeExportDialog" aria-label="Tutup dialog">
+                            <x-filament::icon icon="heroicon-m-x-mark" class="w-5 h-5" />
+                        </x-filament::button>
+                    </div>
+                </div>
+
+                <div class="aj-export-dialog-body">
+                    <div class="aj-export-grid">
+                        @foreach($this->activeExportColumnOptions as $key => $label)
+                            <label class="aj-export-item">
+                                <span style="font-size: 14px; font-weight: 600; color: var(--aj-report-text);">{{ $label }}</span>
+                                <span style="position: relative; display: inline-flex;">
+                                    <input
+                                        type="checkbox"
+                                        wire:model.live="selectedExportColumns.{{ $key }}"
+                                        style="position: absolute; opacity: 0; pointer-events: none;"
+                                    />
+                                    <span class="aj-export-toggle"></span>
+                                </span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="aj-export-dialog-footer">
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <x-filament::button color="gray" wire:click="closeExportDialog">
+                            Batal
+                        </x-filament::button>
+                        <x-filament::button color="success" wire:click="confirmExportExcel">
+                            Export Sekarang
+                        </x-filament::button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

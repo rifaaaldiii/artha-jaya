@@ -64,6 +64,8 @@ class Report extends Page implements HasForms
     public int $perPage = 10;
     public array $downloadingNumbers = [];
     public string $searchQuery = '';
+    public bool $showExportDialog = false;
+    public array $selectedExportColumns = [];
 
     public static function getNavigationGroup(): ?string
     {
@@ -107,7 +109,113 @@ class Report extends Page implements HasForms
             $this->loadPreviewData();
         }
 
+        $this->selectedExportColumns = $this->getDefaultExportColumns($this->filters['report_type'] ?? 'jasa');
         $this->filterForm->fill($this->filters);
+    }
+
+    protected function getExportColumnOptions(string $reportType): array
+    {
+        if ($reportType === 'produksi') {
+            return [
+                'no' => 'No.',
+                'no_ref' => 'No. Referensi',
+                'no_produksi' => 'No. Produksi',
+                'tanggal' => 'Tanggal',
+                'tanggal_selesai' => 'Tanggal Selesai',
+                'branch' => 'Branch',
+                'pelanggan' => 'Pelanggan',
+                'alamat' => 'Alamat Produksi',
+                'team' => 'Team',
+                'jenis_produksi' => 'Jenis Produksi',
+                'nama_bahan' => 'Nama Bahan',
+                'catatan' => 'Catatan',
+                'qty' => 'Qty',
+                'harga' => 'Harga',
+                'total_harga' => 'Total Harga',
+            ];
+        }
+
+        return [
+            'no' => 'No.',
+            'no_ref' => 'No. Referensi',
+            'no_jasa' => 'No. Jasa',
+            'tanggal' => 'Tanggal',
+            'tanggal_selesai' => 'Tanggal Selesai',
+            'branch' => 'Branch',
+            'pelanggan' => 'Pelanggan',
+            'alamat' => 'Alamat Instalasi',
+            'petugas' => 'Petugas',
+            'detail_item' => 'Detail Item',
+            'qty' => 'Qty',
+            'harga' => 'Harga',
+            'total_harga' => 'Total Harga',
+        ];
+    }
+
+    protected function getDefaultExportColumns(string $reportType): array
+    {
+        return array_fill_keys(array_keys($this->getExportColumnOptions($reportType)), true);
+    }
+
+    public function getActiveExportColumnOptionsProperty(): array
+    {
+        return $this->getExportColumnOptions($this->filters['report_type'] ?? 'jasa');
+    }
+
+    public function updatedFiltersReportType($value): void
+    {
+        $this->selectedExportColumns = $this->getDefaultExportColumns($value ?? 'jasa');
+    }
+
+    public function openExportDialog(): void
+    {
+        $reportType = $this->filters['report_type'] ?? 'jasa';
+        $available = array_keys($this->getExportColumnOptions($reportType));
+
+        if (empty($this->selectedExportColumns)) {
+            $this->selectedExportColumns = $this->getDefaultExportColumns($reportType);
+        }
+
+        foreach ($available as $key) {
+            if (!array_key_exists($key, $this->selectedExportColumns)) {
+                $this->selectedExportColumns[$key] = true;
+            }
+        }
+
+        foreach (array_keys($this->selectedExportColumns) as $key) {
+            if (!in_array($key, $available, true)) {
+                unset($this->selectedExportColumns[$key]);
+            }
+        }
+
+        $this->showExportDialog = true;
+    }
+
+    public function closeExportDialog(): void
+    {
+        $this->showExportDialog = false;
+    }
+
+    public function confirmExportExcel()
+    {
+        $selectedColumns = collect($this->selectedExportColumns)
+            ->filter(fn ($selected) => $selected)
+            ->keys()
+            ->values()
+            ->toArray();
+
+        if (empty($selectedColumns)) {
+            Notification::make()
+                ->title('Pilih minimal 1 kolom')
+                ->body('Aktifkan setidaknya satu switch sebelum export.')
+                ->warning()
+                ->send();
+            return null;
+        }
+
+        $this->showExportDialog = false;
+
+        return $this->downloadFilteredExcel($selectedColumns);
     }
 
     protected function loadReportData(): void
@@ -656,7 +764,7 @@ class Report extends Page implements HasForms
         ]);
     }
 
-    public function downloadFilteredExcel()
+    public function downloadFilteredExcel(?array $selectedColumns = null)
     {
         $user = Auth::user();
         
@@ -675,13 +783,26 @@ class Report extends Page implements HasForms
         $startDate = $this->filters['start_date'] ?? null;
         $endDate = $this->filters['end_date'] ?? null;
         $branch = $this->filters['branch'] ?? null;
+        $startLabel = $startDate ? Carbon::parse($startDate)->format('d-m-Y') : 'Awal';
+        $endLabel = $endDate ? Carbon::parse($endDate)->format('d-m-Y') : 'Akhir';
+        $rangeLabel = $startLabel . ' sd ' . $endLabel;
+
+        $selectedColumns = $selectedColumns ?: collect($this->selectedExportColumns)
+            ->filter(fn ($selected) => $selected)
+            ->keys()
+            ->values()
+            ->toArray();
+
+        if (empty($selectedColumns)) {
+            $selectedColumns = array_keys($this->getExportColumnOptions($this->filters['report_type'] ?? 'jasa'));
+        }
 
         if ($this->filters['report_type'] === 'produksi') {
-            $export = new ProduksiReportExport($startDate, $endDate, $branch);
-            $filename = "Laporan-Produksi-" . now()->format('Y-m-d') . ".xlsx";
+            $export = new ProduksiReportExport($startDate, $endDate, $branch, $selectedColumns);
+            $filename = "Laporan Produksi-{$rangeLabel}.xlsx";
         } else {
-            $export = new JasaReportExport($startDate, $endDate, $branch);
-            $filename = "Laporan-Jasa-" . now()->format('Y-m-d') . ".xlsx";
+            $export = new JasaReportExport($startDate, $endDate, $branch, $selectedColumns);
+            $filename = "Laporan Jasa-{$rangeLabel}.xlsx";
         }
 
         return Excel::download($export, $filename);
