@@ -71,31 +71,31 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
 
                 // Header Section - Company Info
                 $sheet->setCellValue('A1', 'PT. ARTHA JAYA MAS');
-                $sheet->mergeCells('A1:N1');
+                $sheet->mergeCells('A1:O1');
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->setCellValue('A2', 'Jl. Ciwaru Raya, No 24, Cipare, Serang, 42117');
-                $sheet->mergeCells('A2:N2');
+                $sheet->mergeCells('A2:O2');
                 $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->setCellValue('A3', 'Telp : (+62) 8777-4467-228 || Email : Info@arthajaya.com');
-                $sheet->mergeCells('A3:N3');
+                $sheet->mergeCells('A3:O3');
                 $sheet->getStyle('A3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 // Separator
-                $sheet->getStyle('A4:N4')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_MEDIUM);
+                $sheet->getStyle('A4:O4')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_MEDIUM);
                 
                 // Report Title
                 $sheet->setCellValue('A5', 'REKAP PRODUKSI');
-                $sheet->mergeCells('A5:N5');
+                $sheet->mergeCells('A5:O5');
                 $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(12);
                 $sheet->getStyle('A5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle('A5')->getFont();
 
                 // Metadata
                 $sheet->setCellValue('A6', 'Rentang Tanggal : ' . ($this->startDate ? \Carbon\Carbon::parse($this->startDate)->locale('id')->isoFormat('D MMMM YYYY') : 'Awal') . ' - ' . ($this->endDate ? \Carbon\Carbon::parse($this->endDate)->locale('id')->isoFormat('D MMMM YYYY') : 'Akhir'));
-                $sheet->mergeCells('A6:N6');
+                $sheet->mergeCells('A6:O6');
                 $sheet->getStyle('A6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->getStyle('A6:A8')->getFont()->setSize(10);
@@ -115,9 +115,10 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                     'I' => 'Team',
                     'J' => 'Jenis Produksi',
                     'K' => 'Nama Bahan',
-                    'L' => 'Qty',
-                    'M' => 'Harga',
-                    'N' => 'Total Harga',
+                    'L' => 'Catatan',
+                    'M' => 'Qty',
+                    'N' => 'Harga',
+                    'O' => 'Total Harga',
                 ];
 
                 foreach ($headers as $col => $header) {
@@ -125,14 +126,14 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                 }
 
                 // Style headers
-                $sheet->getStyle('A' . $headerRow . ':N' . $headerRow)->getFont()->setBold(true)->setSize(11);
-                $sheet->getStyle('A' . $headerRow . ':N' . $headerRow)->getAlignment()
+                $sheet->getStyle('A' . $headerRow . ':O' . $headerRow)->getFont()->setBold(true)->setSize(11);
+                $sheet->getStyle('A' . $headerRow . ':O' . $headerRow)->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
-                $sheet->getStyle('A' . $headerRow . ':N' . $headerRow)->getFill()
+                $sheet->getStyle('A' . $headerRow . ':O' . $headerRow)->getFill()
                     ->setFillType(Fill::FILL_SOLID)
                     ->getStartColor()->setRGB('F5F5F5');
-                $sheet->getStyle('A' . $headerRow . ':N' . $headerRow)->getBorders()->getAllBorders()
+                $sheet->getStyle('A' . $headerRow . ':O' . $headerRow)->getBorders()->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
 
                 // Data rows
@@ -178,15 +179,16 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                             $sheet->setCellValue('I' . $currentRow, $itemIndex === 0 ? $teamName : '');
                             $sheet->setCellValue('J' . $currentRow, $jenisProduksi);
                             $sheet->setCellValue('K' . $currentRow, $namaBahan);
-                            $sheet->setCellValue('L' . $currentRow, $qty);
-                            $sheet->setCellValueExplicit('M' . $currentRow, $harga, DataType::TYPE_NUMERIC);
-                            $sheet->setCellValueExplicit('N' . $currentRow, $totalHarga, DataType::TYPE_NUMERIC);
+                            $sheet->setCellValue('L' . $currentRow, $itemIndex === 0 ? ($produksi->catatan ?? '-') : '');
+                            $sheet->setCellValue('M' . $currentRow, $qty);
+                            $sheet->setCellValueExplicit('N' . $currentRow, $harga, DataType::TYPE_NUMERIC);
+                            $sheet->setCellValueExplicit('O' . $currentRow, $totalHarga, DataType::TYPE_NUMERIC);
 
                             $itemIndex++;
                             $currentRow++;
                         }
 
-                        // Merge common columns (A-I)
+                        // Merge common columns (A-I, L)
                         if ($itemIndex > 1) {
                             $sheet->mergeCells('A' . $itemStartRow . ':A' . ($currentRow - 1));
                             $sheet->mergeCells('B' . $itemStartRow . ':B' . ($currentRow - 1));
@@ -197,23 +199,25 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                             $sheet->mergeCells('G' . $itemStartRow . ':G' . ($currentRow - 1));
                             $sheet->mergeCells('H' . $itemStartRow . ':H' . ($currentRow - 1));
                             $sheet->mergeCells('I' . $itemStartRow . ':I' . ($currentRow - 1));
+                            $sheet->mergeCells('L' . $itemStartRow . ':L' . ($currentRow - 1));
                         }
                         for ($r = $itemStartRow; $r < $currentRow; $r++) {
-                            $sheet->getStyle('A' . $r . ':N' . $r)->getBorders()->getAllBorders()
+                            $sheet->getStyle('A' . $r . ':O' . $r)->getBorders()->getAllBorders()
                                 ->setBorderStyle(Border::BORDER_THIN);
-                            $sheet->getStyle('A' . $r . ':N' . $r)->getAlignment()
+                            $sheet->getStyle('A' . $r . ':O' . $r)->getAlignment()
                                 ->setVertical(Alignment::VERTICAL_TOP);
                             
                             // Format currency
-                            $sheet->getStyle('M' . $r)->getNumberFormat()
-                                ->setFormatCode('"Rp. "#,##0');
                             $sheet->getStyle('N' . $r)->getNumberFormat()
                                 ->setFormatCode('"Rp. "#,##0');
+                            $sheet->getStyle('O' . $r)->getNumberFormat()
+                                ->setFormatCode('"Rp. "#,##0');
                             
-                            // Set wrap text for jenis produksi, nama bahan, and alamat
+                            // Set wrap text for jenis produksi, nama bahan, alamat, and catatan
                             $sheet->getStyle('J' . $r)->getAlignment()->setWrapText(true);
                             $sheet->getStyle('K' . $r)->getAlignment()->setWrapText(true);
                             $sheet->getStyle('H' . $r)->getAlignment()->setWrapText(true);
+                            $sheet->getStyle('L' . $r)->getAlignment()->setWrapText(true);
                             
                             // Center alignment for No, No. Referensi, No. Produksi, and Qty
                             $sheet->getStyle('A' . $r)->getAlignment()
@@ -228,13 +232,13 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                             $sheet->getStyle('I' . $r)->getAlignment()
                                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                            $sheet->getStyle('L' . $r)->getAlignment()
+                            $sheet->getStyle('M' . $r)->getAlignment()
                                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                             $sheet->getStyle('F' . $r)->getAlignment()
                                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                            $sheet->getStyle('M' . $r)->getAlignment()
-                                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
                             $sheet->getStyle('N' . $r)->getAlignment()
+                                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                            $sheet->getStyle('O' . $r)->getAlignment()
                                 ->setHorizontal(Alignment::HORIZONTAL_LEFT);
                         }
 
@@ -252,26 +256,28 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                         $sheet->setCellValue('I' . $currentRow, $teamName);
                         $sheet->setCellValue('J' . $currentRow, '-');
                         $sheet->setCellValue('K' . $currentRow, '-');
-                        $sheet->setCellValue('L' . $currentRow, 0);
-                        $sheet->setCellValueExplicit('M' . $currentRow, 0, DataType::TYPE_NUMERIC);
+                        $sheet->setCellValue('L' . $currentRow, $produksi->catatan ?? '-');
+                        $sheet->setCellValue('M' . $currentRow, 0);
                         $sheet->setCellValueExplicit('N' . $currentRow, 0, DataType::TYPE_NUMERIC);
+                        $sheet->setCellValueExplicit('O' . $currentRow, 0, DataType::TYPE_NUMERIC);
 
                         // Style data row
-                        $sheet->getStyle('A' . $currentRow . ':N' . $currentRow)->getBorders()->getAllBorders()
+                        $sheet->getStyle('A' . $currentRow . ':O' . $currentRow)->getBorders()->getAllBorders()
                             ->setBorderStyle(Border::BORDER_THIN);
-                        $sheet->getStyle('A' . $currentRow . ':N' . $currentRow)->getAlignment()
+                        $sheet->getStyle('A' . $currentRow . ':O' . $currentRow)->getAlignment()
                             ->setVertical(Alignment::VERTICAL_TOP);
                         
                         // Format currency
-                        $sheet->getStyle('M' . $currentRow)->getNumberFormat()
-                            ->setFormatCode('"Rp. "#,##0');
                         $sheet->getStyle('N' . $currentRow)->getNumberFormat()
                             ->setFormatCode('"Rp. "#,##0');
+                        $sheet->getStyle('O' . $currentRow)->getNumberFormat()
+                            ->setFormatCode('"Rp. "#,##0');
                         
-                        // Set wrap text for jenis produksi, nama bahan, and alamat
+                        // Set wrap text for jenis produksi, nama bahan, alamat, and catatan
                         $sheet->getStyle('J' . $currentRow)->getAlignment()->setWrapText(true);
                         $sheet->getStyle('K' . $currentRow)->getAlignment()->setWrapText(true);
                         $sheet->getStyle('H' . $currentRow)->getAlignment()->setWrapText(true);
+                        $sheet->getStyle('L' . $currentRow)->getAlignment()->setWrapText(true);
                         
                         // Center alignment for No, No. Referensi, No. Produksi, and Qty
                         $sheet->getStyle('A' . $currentRow)->getAlignment()
@@ -280,7 +286,7 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle('C' . $currentRow)->getAlignment()
                             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                        $sheet->getStyle('L' . $currentRow)->getAlignment()
+                        $sheet->getStyle('M' . $currentRow)->getAlignment()
                             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle('F' . $currentRow)->getAlignment()
                             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -293,21 +299,21 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                 // Grand Total Row
                 $totalRow = $currentRow;
                 $sheet->setCellValue('A' . $totalRow, 'GRAND TOTAL');
-                $sheet->mergeCells('A' . $totalRow . ':M' . $totalRow);
-                $sheet->setCellValueExplicit('N' . $totalRow, $grandTotal, DataType::TYPE_NUMERIC);
+                $sheet->mergeCells('A' . $totalRow . ':N' . $totalRow);
+                $sheet->setCellValueExplicit('O' . $totalRow, $grandTotal, DataType::TYPE_NUMERIC);
 
                 // Style total row
-                $sheet->getStyle('A' . $totalRow . ':N' . $totalRow)->getFont()->setBold(true)->setSize(12);
-                $sheet->getStyle('A' . $totalRow . ':N' . $totalRow)->getFill()
+                $sheet->getStyle('A' . $totalRow . ':O' . $totalRow)->getFont()->setBold(true)->setSize(12);
+                $sheet->getStyle('A' . $totalRow . ':O' . $totalRow)->getFill()
                     ->setFillType(Fill::FILL_SOLID)
                     ->getStartColor()->setRGB('CCCCCC');
-                $sheet->getStyle('A' . $totalRow . ':N' . $totalRow)->getBorders()->getAllBorders()
+                $sheet->getStyle('A' . $totalRow . ':O' . $totalRow)->getBorders()->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
                 $sheet->getStyle('A' . $totalRow)->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('N' . $totalRow)->getNumberFormat()
+                $sheet->getStyle('O' . $totalRow)->getNumberFormat()
                     ->setFormatCode('"Rp. "#,##0');
-                $sheet->getStyle('N' . $totalRow)->getAlignment()
+                $sheet->getStyle('O' . $totalRow)->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
                 // Set column widths
@@ -322,9 +328,10 @@ class ProduksiReportExport implements WithStyles, WithTitle, WithEvents
                 $sheet->getColumnDimension('I')->setWidth(20);  // Team
                 $sheet->getColumnDimension('J')->setWidth(35);  // Jenis Produksi
                 $sheet->getColumnDimension('K')->setWidth(35);  // Nama Bahan
-                $sheet->getColumnDimension('L')->setWidth(10);  // Qty
-                $sheet->getColumnDimension('M')->setWidth(18);  // Harga
-                $sheet->getColumnDimension('N')->setWidth(22);  // Total Harga
+                $sheet->getColumnDimension('L')->setWidth(35);  // Catatan
+                $sheet->getColumnDimension('M')->setWidth(10);  // Qty
+                $sheet->getColumnDimension('N')->setWidth(18);  // Harga
+                $sheet->getColumnDimension('O')->setWidth(22);  // Total Harga
 
                 // Set row heights for headers
                 $sheet->getRowDimension($headerRow)->setRowHeight(25);
