@@ -495,7 +495,7 @@ class Report extends Page implements HasForms
                 'generatedAt' => now(),
             ];
 
-            $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
+            $pdf = $this->makeInvoicePdf('reports/pdf/produksi-invoice', $data);
             $safeNumber = str_replace('/', '-', $number);
             $filename = "invoice-produksi-{$safeNumber}.pdf";
         } else {
@@ -532,7 +532,7 @@ class Report extends Page implements HasForms
                 'generatedAt' => now(),
             ];
 
-            $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
+            $pdf = $this->makeInvoicePdf('reports/pdf/jasa-invoice', $data);
             $safeNumber = str_replace('/', '-', $number);
             $filename = "invoice-jasa-{$safeNumber}.pdf";
         }
@@ -584,7 +584,7 @@ class Report extends Page implements HasForms
                 'generatedAt' => now(),
             ];
 
-            $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
+            $pdf = $this->makeInvoicePdf('reports/pdf/produksi-invoice', $data);
             $safeNumber = str_replace('/', '-', $number);
             $filename = "invoice-produksi-{$safeNumber}.pdf";
         } else {
@@ -621,7 +621,7 @@ class Report extends Page implements HasForms
                 'generatedAt' => now(),
             ];
 
-            $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
+            $pdf = $this->makeInvoicePdf('reports/pdf/jasa-invoice', $data);
             $safeNumber = str_replace('/', '-', $number);
             $filename = "invoice-jasa-{$safeNumber}.pdf";
         }
@@ -1023,7 +1023,7 @@ class Report extends Page implements HasForms
             'generatedAt' => now(),
         ];
 
-        $pdf = Pdf::loadView($viewPath, $data);
+        $pdf = $this->makeInvoicePdf($viewPath, $data);
 
         $filename = "invoice-{$this->filters['report_type']}-" . now()->format('Y-m-d') . ".pdf";
 
@@ -1130,7 +1130,7 @@ class Report extends Page implements HasForms
                 'generatedAt' => now(),
             ];
 
-            $pdf = Pdf::loadView('reports/pdf/produksi-invoice', $data);
+            $pdf = $this->makeInvoicePdf('reports/pdf/produksi-invoice', $data);
             $safeNumber = str_replace('/', '-', $number);
             $filename = "invoice-produksi-{$safeNumber}.pdf";
         } else {
@@ -1156,7 +1156,7 @@ class Report extends Page implements HasForms
                 'generatedAt' => now(),
             ];
 
-            $pdf = Pdf::loadView('reports/pdf/jasa-invoice', $data);
+            $pdf = $this->makeInvoicePdf('reports/pdf/jasa-invoice', $data);
             $safeNumber = str_replace('/', '-', $number);
             $filename = "invoice-jasa-{$safeNumber}.pdf";
         }
@@ -1166,6 +1166,15 @@ class Report extends Page implements HasForms
         }, $filename, [
             'Content-Type' => 'application/pdf',
         ]);
+    }
+
+    /**
+     * Invoice SPK: A4 portrait, konten hanya di setengah atas kertas.
+     * Setengah bawah dibiarkan kosong agar cocok dengan setting printer user (A4 potret).
+     */
+    protected function makeInvoicePdf(string $view, array $data)
+    {
+        return Pdf::loadView($view, $data)->setPaper('a4', 'portrait');
     }
 
     public function generatePdf()
@@ -1189,7 +1198,9 @@ class Report extends Page implements HasForms
             'rows' => [$this->reportData],
         ];
 
-        $pdf = Pdf::loadView($viewPath, $data);
+        $pdf = $this->format === 'invoice'
+            ? $this->makeInvoicePdf($viewPath, $data)
+            : Pdf::loadView($viewPath, $data);
 
         $filename = $this->format === 'invoice'
             ? "{$this->reportType}-invoice-{$this->singleNumber}.pdf"
@@ -1223,7 +1234,9 @@ class Report extends Page implements HasForms
             'rows' => [$this->reportData],
         ];
 
-        $pdf = Pdf::loadView($viewPath, $data);
+        $pdf = $this->format === 'invoice'
+            ? $this->makeInvoicePdf($viewPath, $data)
+            : Pdf::loadView($viewPath, $data);
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();

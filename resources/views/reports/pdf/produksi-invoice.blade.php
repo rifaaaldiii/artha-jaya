@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surat Perintah Produksi</title>
     <style>
+        /* A4 portrait: konten hanya di setengah atas (~148mm), bawah kosong.
+           PDF di-force lewat DomPDF setPaper('a4','portrait'). */
         @page {
-            size: A5 landscape;
-            margin: 10mm 15mm;
+            size: A4 portrait;
+            margin: 8mm 12mm;
         }
         
         * {
@@ -24,6 +26,10 @@
         }
         
         .container {
+            width: 100%;
+            height: 135mm;
+            max-height: 135mm;
+            overflow: hidden;
             padding: 2mm 5mm 0;
             margin: 0 auto;
             background: #fff;
@@ -44,6 +50,7 @@
             border-bottom: 2px double #000;
             padding-bottom: 6px;
             position: relative;
+            width: 95%;
         }
         
         .header-top {
@@ -95,11 +102,13 @@
             font-size: 7pt;
             margin-bottom: 6px;
             font-weight: bold;
+            width: 95%;
         }
         
         .info-section {
             margin-bottom: 8px;
             padding: 5px;
+            width: 95%;
         }
         
         .section-header {
@@ -123,7 +132,7 @@
         }
         
         .info-grid-right {
-            float: right;
+            float: left;
             width: 50%;
             padding-left: 4px;
         }
@@ -184,7 +193,7 @@
         }
         
         table {
-            width: 100%;
+            width: 95%;
             border-collapse: collapse;
             margin-bottom: 8px;
             font-size: 7pt;
@@ -211,9 +220,10 @@
         
         .amount-words {
             margin-top: 5px;
-            padding: 4px;
+            padding: 4px 3.5px;
             border: 1px solid #000;
             font-size: 7pt;
+            width: 94%;
         }
         
         .amount-label {
@@ -231,24 +241,24 @@
         
         .signature-section {
             margin-top: 15px;
-            width: 95%;
+            width: 90%;
             position: absolute;
             bottom: 40px;
         }
         
         .signature-box {
-            width: 30%;
+            width: 27%;
             text-align: center;
             font-size: 7pt;
             float: left;
         }
         
         .signature-box:first-child {
-            margin-right: 5%;
+            margin-right: 9.5%;
         }
         
         .signature-box:nth-child(2) {
-            margin-right: 5%;
+            margin-right: 9.5%;
         }
         
         .signature-section:after {
