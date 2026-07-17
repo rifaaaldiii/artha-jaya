@@ -1,2480 +1,1755 @@
-<div class="public-schedule-page">
-    {{-- Set Page Title --}}
-    <script>
-        document.title = 'Jadwal Produksi & Jasa - Artha Jaya';
-    </script>
-
-    <script>
-        const viewportMeta = document.createElement('meta');
-        viewportMeta.name = 'viewport';
-        viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-        document.head.appendChild(viewportMeta);
-    </script>
-
-    
-    <div class="schedule-container">
-        {{-- Sidebar Section --}}
-        <div class="schedule-sidebar">
-            {{-- Mini Calendar --}}
-            <div class="mini-calendar">
-                <div class="mini-calendar-header">
-                    <h3>{{ $monthName }}</h3>
-                    <div class="mini-calendar-nav">
-                        <a href="{{ route('public.schedule', ['month' => $prevMonth]) }}" class="nav-btn">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                        </a>
-                        <a href="{{ route('public.schedule', ['month' => $nextMonth]) }}" class="nav-btn">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="mini-calendar-day-names">
-                    @foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $day)
-                        <div>{{ $day }}</div>
-                    @endforeach
-                </div>
-                
-                <div class="mini-calendar-days">
-                    @foreach ($calendarDays as $day)
-                        @if ($day === null)
-                            <div class="mini-day-empty"></div>
-                        @else
-                            <a href="{{ route('public.schedule', ['date' => $day['date']]) }}" 
-                               class="mini-day-btn {{ $day['isSelected'] ? 'selected' : '' }} {{ $day['isToday'] ? 'today' : '' }}"
-                               data-date="{{ $day['date'] }}"
-                               data-has-jasa="{{ $day['hasJasa'] ? '1' : '0' }}"
-                               data-has-produksi="{{ $day['hasProduksi'] ? '1' : '0' }}">
-                                {{ $day['day'] }}
-                                @if ($day['hasJasa'] || $day['hasProduksi'])
-                                    <div class="mini-day-dots">
-                                        @if ($day['hasJasa'])<span class="dot jasa"></span>@endif
-                                        @if ($day['hasProduksi'])<span class="dot produksi"></span>@endif
-                                    </div>
-                                @endif
-                            </a>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-            
-            {{-- Filters Section --}}
-            <div class="sidebar-filters">
-                <div class="filter-section">
-                    <div class="filter-section-header">
-                        <h4 class="filter-title">Jenis</h4>
-                        <button class="filter-toggle-btn" data-target="jenis-filter">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="filter-options" id="jenis-filter">
-                        <label class="filter-checkbox">
-                            <input type="checkbox" id="filter-produksi" checked value="produksi">
-                            <span class="checkmark produksi"></span>
-                            <span>Produksi</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" id="filter-jasa" checked value="jasa">
-                            <span class="checkmark jasa"></span>
-                            <span>Jasa</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-header">
-                        <h4 class="filter-title">Status Produksi</h4>
-                        <button class="filter-toggle-btn" data-target="status-produksi-filter">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="filter-options" id="status-produksi-filter">
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="baru">
-                            <span class="checkmark"></span>
-                            <span>Produksi Baru</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="proses">
-                            <span class="checkmark"></span>
-                            <span>Proses</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="siap diambil">
-                            <span class="checkmark"></span>
-                            <span>Siap Diambil</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="selesai">
-                            <span class="checkmark"></span>
-                            <span>Selesai</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="filter-section">
-                    <div class="filter-section-header">
-                        <h4 class="filter-title">Status Jasa</h4>
-                        <button class="filter-toggle-btn" data-target="status-jasa-filter">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="filter-options" id="status-jasa-filter">
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="jasa baru">
-                            <span class="checkmark"></span>
-                            <span>Jasa Baru</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="terjadwal">
-                            <span class="checkmark"></span>
-                            <span>Terjadwal</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="selesai dikerjakan">
-                            <span class="checkmark"></span>
-                            <span>Selesai Dikerjakan</span>
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" class="status-filter" checked value="selesai">
-                            <span class="checkmark"></span>
-                            <span>Selesai</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            
-            {{-- Summary Stats --}}
-            <div class="sidebar-stats">
-                <h4 class="stats-title">Keterangan</h4>
-                <div class="stat-container">
-                    <div class="stat-row">
-                        <div class="stat-dot jasa"></div>
-                        <span>Jasa</span>
-                    </div>
-                    <div class="stat-row">
-                        <div class="stat-dot selesai"></div>
-                        <span>Selesai</span>
-                    </div>
-                </div>
-                <div class="stat-container">
-                    <div class="stat-row">
-                        <div class="stat-dot produksi"></div>
-                        <span>Produksi</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        {{-- Main Calendar Section --}}
-        <div class="schedule-main">
-            <div class="main-header">
-                <div class="main-header-left">
-                    <h1>{{ $monthName }}</h1>
-                </div>
-
-                <div class="main-header-actions">
-                    <button type="button" class="btn-fullscreen" id="toggleFullscreen">
-                        <span class="fullscreen-enter">Fullscreen</span>
-                        <span class="fullscreen-exit">Close Fullscreen</span>
-                    </button>
-
-                    <a href="{{ route('public.schedule', ['date' => now()->toDateString()]) }}" class="btn-today">
-                        Today
-                    </a>
-                </div>
-            </div>
-            
-            <div class="main-calendar">
-                {{-- Day Names Header --}}
-                <div class="main-day-names">
-                    @foreach (['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as $day)
-                        <div class="day-name">{{ $day }}</div>
-                    @endforeach
-                </div>
-                
-                {{-- Calendar Grid --}}
-                <div class="main-calendar-grid">
-                    @foreach ($calendarDays as $day)
-                        @if ($day === null)
-                            <div class="main-day-empty"></div>
-                        @else
-                            <div class="main-day-cell 
-                                {{ $day['isSelected'] ? 'selected' : '' }} 
-                                {{ $day['isToday'] ? 'today' : '' }}"
-                                data-date="{{ $day['date'] }}">
-                                <div class="day-header">
-                                    <span class="day-number">{{ $day['day'] }}</span>
-                                    @if (isset($eventsByDate[$day['date']]))
-                                        @php
-                                            $dayEvents = $eventsByDate[$day['date']];
-                                            $hiddenCount = count($dayEvents) - 2;
-                                        @endphp
-                                        @if ($hiddenCount > 0)
-                                            <span class="event-more-badge" data-date="{{ $day['date'] }}">+{{ $hiddenCount }} More</span>
-                                        @endif
-                                    @endif
-                                </div>
-                                
-                                {{-- Display events for this day --}}
-                                @if (isset($eventsByDate[$day['date']]))
-                                    @php
-                                        $dayEvents = $eventsByDate[$day['date']];
-                                        $visibleEvents = array_slice($dayEvents, 0, 2);
-                                        $hiddenCount = count($dayEvents) - 2;
-                                    @endphp
-                                    
-                                    @foreach ($visibleEvents as $event)
-                                        @php
-                                            $statusClass = str_replace(' ', '-', $event['status'] ?? '');
-                                        @endphp
-                                        <div class="event-item {{ $event['type'] }} {{ $statusClass }}"
-                                             data-type="{{ $event['type'] }}" 
-                                             data-status="{{ $event['status'] ?? 'baru' }}">
-                                            <div class="event-content">
-                                                <div class="event-header">
-                                                    <span class="event-time">{{ $event['title'] }}</span>
-                                                    <span class="event-type-badge {{ $event['type'] }}">
-                                                        {{ $event['type'] === 'jasa' ? 'Jasa' : 'Produksi' }}
-                                                    </span>
-                                                </div>
-                                                @if ($event['location'])
-                                                    <div class="event-location">
-                                                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                        </svg>
-                                                        <span>{{ Str::limit($event['location'], 25) }}</span>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @endif
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    {{-- Events Modal --}}
-    <div class="events-modal" id="eventsModal">
-        <div class="modal-overlay" id="modalOverlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title"><span id="modalDate"></span></h3>
-                <button class="modal-close" id="modalClose">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                {{-- Events will be loaded here --}}
-            </div>
-        </div>
-    </div>
-    
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Jadwal Jasa - Artha Jaya</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #ffffff;
-            color: #3c4043;
-            zoom: 100%;
-            font-size: 16px;
+        :root {
+            --primary: #000000;
+            --ink: #000000;
+            --on-primary: #ffffff;
+            --canvas-night: #000000;
+            --canvas-light: #ffffff;
+            --canvas-cream: #fbfbf5;
+            --hairline: #e4e4e7;
+            --shade-30: #d4d4d8;
+            --shade-40: #a1a1aa;
+            --shade-50: #71717a;
+            --shade-60: #52525b;
+            --shade-70: #3f3f46;
+            --aloe: #c1fbd4;
+            --pistachio: #d4f9e0;
+            --rounded-xs: 4px;
+            --rounded-md: 8px;
+            --rounded-lg: 12px;
+            --rounded-xl: 20px;
+            --rounded-pill: 9999px;
+            --shadow-card: 0 8px 8px rgba(0,0,0,0.04), 0 4px 4px rgba(0,0,0,0.04), 0 2px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.06);
+            --shadow-modal: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --font-display: "Inter", Helvetica, Arial, sans-serif;
+            --font-body: "Inter", Helvetica, Arial, sans-serif;
+            --sidebar: 300px;
         }
 
-        ::-webkit-scrollbar {
-            display: none;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        .public-schedule-page {
-            height: 100%;
-            background: #ffffff;
+
+        body {
+            font-family: var(--font-body);
+            font-feature-settings: "ss03";
+            background: var(--canvas-cream);
+            color: var(--ink);
+            font-size: 16px;
+            font-weight: 420;
+            line-height: 1.5;
         }
-        
-        .schedule-container {
+
+        a { color: inherit; text-decoration: none; }
+        button { font: inherit; border: none; background: none; cursor: pointer; }
+
+        .page {
+            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
-            height: 100%;
-            overflow: hidden;
+            flex-direction: column;
         }
-        
-        /* Sidebar Styles */
-        .schedule-sidebar {
-            width: 280px;
-            border-right: 1px solid #dadce0;
-            padding: 16px;
-            background: #ffffff;
-            overflow-y: auto;
-        }
-        
-        .mini-calendar {
-            margin-bottom: 24px;
-        }
-        
-        .mini-calendar-header {
+
+        /* ── Nav ── */
+        .nav-bar {
+            background: var(--canvas-night);
+            color: var(--on-primary);
+            height: 56px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 60;
         }
-        
-        .mini-calendar-header h3 {
-            font-size: 14px;
-            font-weight: 500;
-            color: #3c4043;
-        }
-        
-        .mini-calendar-nav {
-            display: flex;
-            gap: 4px;
-        }
-        
-        .nav-btn {
-            width: 32px;
-            height: 32px;
+
+        .brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            color: #5f6368;
-            text-decoration: none;
-            transition: background 0.2s;
+            gap: 10px;
+            min-width: 0;
         }
-        
-        .nav-btn:hover {
-            background: #f1f3f4;
+
+        .brand-logo {
+            height: 32px;
+            width: auto;
+            display: block;
+            object-fit: contain;
         }
-        
-        .mini-calendar-day-names {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            margin-bottom: 8px;
-        }
-        
-        .mini-calendar-day-names > div {
-            text-align: center;
-            font-size: 10px;
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 16px;
             font-weight: 500;
-            color: #70757a;
-            padding: 4px 0;
+            letter-spacing: 0.3px;
+            line-height: 1;
+            white-space: nowrap;
         }
-        
-        .mini-calendar-days {
+
+        .week-nav {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .week-nav-row {
+            display: contents;
+        }
+
+        .week-label-mobile { display: none; }
+
+        .nav-actions-mobile {
+            display: none;
+        }
+
+        .btn-icon-label {
+            display: none;
+        }
+
+        .week-label {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            color: var(--shade-30);
+            min-width: 148px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--rounded-pill);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            color: var(--on-primary);
+            flex-shrink: 0;
+            transition: background .15s ease, border-color .15s ease;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-icon:active { opacity: 0.75; }
+
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 36px;
+            padding: 8px 18px;
+            border-radius: var(--rounded-pill);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1;
+            white-space: nowrap;
+            transition: background .15s ease, opacity .15s ease;
+        }
+
+        .btn-pill:active { opacity: 0.85; }
+
+        .btn-pill-solid {
+            background: var(--on-primary);
+            color: var(--ink);
+        }
+
+        .btn-pill-solid:active { background: var(--shade-30); }
+
+        .btn-pill-ghost {
+            background: transparent;
+            color: var(--on-primary);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 7px 16px;
+        }
+
+        .btn-pill-ghost:hover {
+            border-color: rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .btn-pill-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .btn-pill-primary:active { background: var(--shade-70); }
+
+        .btn-pill-outline-light {
+            background: var(--canvas-light);
+            color: var(--ink);
+            border: 1px solid var(--ink);
+            padding: 7px 16px;
+        }
+
+        .mobile-filter-btn { display: none; }
+
+        body.is-schedule-fullscreen { overflow: hidden; }
+
+        .fullscreen-bar {
+            display: none;
+            position: sticky;
+            top: -20px;
+            z-index: 10;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: -30px -24px 14px;
+            padding: 12px 16px;
+            background: var(--canvas-night);
+            color: var(--on-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .schedule-main.fullscreen-mode .fullscreen-bar {
+            display: flex;
+        }
+
+        .fullscreen-bar-title {
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-exit-fullscreen {
+            background: var(--on-primary);
+            color: var(--ink);
+            min-height: 36px;
+            padding: 8px 16px;
+            border-radius: var(--rounded-pill);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-exit-fullscreen:active { background: var(--shade-30); }
+
+        .fullscreen-enter { display: inline; }
+        .fullscreen-exit { display: none; }
+        body.is-schedule-fullscreen .fullscreen-enter { display: none; }
+        body.is-schedule-fullscreen .fullscreen-exit { display: inline; }
+
+        /* ── Layout ── */
+        .layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr);
+            gap: 20px;
+            padding: 20px 24px 32px;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ── Sidebar (single panel) ── */
+        .sidebar {
+            min-width: 0;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.44);
+            z-index: 79;
+        }
+
+        .sidebar-close-btn {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--hairline);
+            border-radius: var(--rounded-pill);
+            color: var(--shade-60);
+            background: var(--canvas-light);
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-panel {
+            background: var(--canvas-light);
+            border: 1px solid var(--hairline);
+            border-radius: var(--rounded-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .sidebar-section {
+            padding: 18px;
+        }
+
+        .sidebar-section + .sidebar-section {
+            border-top: 1px solid var(--hairline);
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.72px;
+            text-transform: uppercase;
+            color: var(--shade-50);
+            margin-bottom: 12px;
+        }
+
+        .mini-cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .mini-cal-header h3 {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            line-height: 1.3;
+        }
+
+        .mini-cal-nav { display: flex; gap: 2px; }
+
+        .mini-nav-btn {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: var(--rounded-pill);
+            color: var(--shade-60);
+            transition: background .15s ease;
+        }
+
+        .mini-nav-btn:hover { background: var(--shade-30); color: var(--ink); }
+
+        .mini-day-names,
+        .mini-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 2px;
         }
-        
-        .mini-day-empty {
-            height: 32px;
+
+        .mini-day-names > div {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--shade-50);
+            padding: 2px 0 6px;
         }
-        
+
+        .mini-day-empty { height: 32px; }
+
         .mini-day-btn {
-            height: 30px;
+            height: 32px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
-            color: #3c4043;
+            border-radius: var(--rounded-md);
             font-size: 12px;
-            /* border-radius: 50%; */
+            font-weight: 500;
+            color: var(--ink);
             position: relative;
-            transition: background 0.2s;
+            transition: background .15s ease;
         }
-        
-        .mini-day-btn:hover {
-            background: #f1f3f4;
-        }
-        
+
+        .mini-day-btn:hover { background: var(--pistachio); }
+
         .mini-day-btn.today {
-            color: #1a73e8;
-            font-weight: 600;
+            font-weight: 550;
+            box-shadow: inset 0 0 0 1px var(--ink);
         }
-        
+
         .mini-day-btn.selected {
-            background: #1a73e8;
-            color: #ffffff;
+            background: var(--primary);
+            color: var(--on-primary);
+            box-shadow: none;
         }
-        
-        .mini-day-btn.selected:hover {
-            background: #1557b0;
-        }
-        
+
         .mini-day-dots {
             display: flex;
             gap: 2px;
             position: absolute;
             bottom: 2px;
         }
-        
+
         .mini-day-dots .dot {
-            width: 4px;
-            height: 4px;
+            width: 3px;
+            height: 3px;
             border-radius: 50%;
-        }
-        
-        .mini-day-dots .dot.jasa {
-            background: #f59e0b;
-        }
-        
-        .mini-day-dots .dot.produksi {
-            background: #3b82f6;
-        }
-        
-        /* Sidebar Stats */
-        .sidebar-stats {
-            padding-top: 16px;
+            background: var(--ink);
         }
 
-        .stat-container {
-            display: flex;
-            /* border: 1px solid red; */
-            justify-content: space-between;
-        }
-        
-        .stat-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-            font-size: 13px;
-            color: #3c4043;
-        }
-        
-        .stat-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-        
-        .stat-dot.jasa {
-            background: #f59e0b;
-        }
-        
-        .stat-dot.produksi {
-            background: #3b82f6;
-        }
-        
-        .stat-dot.selesai {
-            background: #10b981;
-        }
-        
-        /* Filters Styles */
-        .sidebar-filters {
-            margin: 16px 0 7px 0;
-            padding: 16px 0;
-            border-top: 1px solid #dadce0;
-            border-bottom: 1px solid #dadce0;
-        }
-        
-        .filter-section {
-            margin-bottom: 16px;
-        }
-        
-        .filter-section:last-child {
-            margin-bottom: 0;
-        }
-        
-        .filter-section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .filter-toggle-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            color: #5f6368;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-        
-        .filter-toggle-btn:hover {
-            color: #3c4043;
-            background: rgba(0, 0, 0, 0.04);
-        }
-        
-        .filter-toggle-btn svg {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .filter-toggle-btn.collapsed svg {
-            transform: rotate(-90deg);
-        }
-        
-        .filter-toggle-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .filter-options {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 500px;
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .filter-options.collapsed {
-            max-height: 0;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-10px);
-        }
-        
-        .filter-options.disabled {
-            opacity: 0.4;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .filter-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #5f6368;
-            text-transform: uppercase;
-            margin: 0 0 8px 0;
-            letter-spacing: 0.5px;
-        }
-        
-        .filter-options {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        
-        .filter-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #3c4043;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        
-        .filter-checkbox:hover {
-            background: #f1f3f4;
-        }
-        
-        .filter-checkbox input[type="checkbox"] {
-            display: none;
-        }
-        
-        .checkmark {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #dadce0;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        
-        .checkmark.produksi {
-            border-color: #3b82f6;
-        }
-        
-        .checkmark.jasa {
-            border-color: #3b82f6;
-        }
-        
-        .filter-checkbox input[type="checkbox"]:checked + .checkmark {
-            background: #1a73e8;
-            border-color: #1a73e8;
-        }
-        
-        .filter-checkbox input[type="checkbox"]:checked + .checkmark.produksi {
-            background: #3b82f6;
-            border-color: #3b82f6;
-        }
-        
-        .filter-checkbox input[type="checkbox"]:checked + .checkmark.jasa {
-            background: #3b82f6;
-            border-color: #3b82f6;
-        }
-        
-        .checkmark::after {
-            content: '';
-            display: none;
-            width: 5px;
-            height: 9px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-            margin-top: -2px;
-        }
-        
-        .filter-checkbox input[type="checkbox"]:checked + .checkmark::after {
-            display: block;
-        }
-        
-        .stats-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #5f6368;
-            text-transform: uppercase;
-            margin: 0 0 8px 0;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Main Calendar Styles */
-        .schedule-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .main-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            border-bottom: 1px solid #dadce0;
-        }
-        
-        .main-header h1 {
-            font-size: 22px;
-            font-weight: 400;
-            color: #3c4043;
-        }
-        
-        .btn-today {
-            background: #1a73e8;
-            color: #ffffff;
-            border-color: #1a73e8;
-            padding: 7px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-        .main-calendar {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .main-day-names {
+        .mini-day-btn.selected .dot { background: var(--aloe); }
+
+        .stats-inline {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            border-bottom: 1px solid #dadce0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
-        
-        .main-day-names .day-name {
-            padding: 12px 8px;
+
+        .stat-cell {
             text-align: center;
+            padding: 10px 6px;
+            border-radius: var(--rounded-md);
+            background: var(--canvas-cream);
+            border: 1px solid var(--hairline);
+        }
+
+        .stat-cell.featured {
+            background: var(--aloe);
+            border-color: transparent;
+        }
+
+        .stat-cell strong {
+            display: block;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-cell span {
+            display: block;
+            margin-top: 2px;
             font-size: 11px;
             font-weight: 500;
-            color: #70757a;
-            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--shade-50);
         }
-        
-        .main-calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            grid-template-rows: repeat(auto-fill, minmax(125px, 1fr));
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .main-day-empty {
-            min-height: 125px;
-            border-bottom: 1px solid #dadce0;
-            border-right: 1px solid #dadce0;
-            background: #f8f9fa;
-        }
-        
-        .main-day-cell {
-            min-height: 125px;
-            border-bottom: 1px solid #dadce0;
-            border-right: 1px solid #dadce0;
-            padding: 8px;
-            background: #ffffff;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .main-day-cell:nth-child(7n) {
-            border-right: none;
-        }
-        
-        .main-day-cell:hover {
-            background: #f8f9fa;
-        }
-        
-        .main-day-cell.today {
-            /* background: #e8f0fe; */
-        }
-        
-        .main-day-cell.selected {
-            /* background: #e8f0fe; */
-            box-shadow: inset 0 0 0 2px #1a73e8;
-        }
-        
-        .day-header {
+
+        .stat-cell.featured span { color: var(--shade-70); }
+
+        .filter-list {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 4px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        
-        .event-more-badge {
-            background: #1a73e8;
-            color: #ffffff;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: badgePulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes badgePulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.20);
-            }
-        }
-        
-        .event-more-badge:hover {
-            background: #1557b0;
-            transform: scale(1.15);
-            animation: none;
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
-        }
-        
-        .day-number {
+
+        .filter-chip {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            font-size: 12px;
-            color: #3c4043;
-        }
-        
-        .main-day-cell.today .day-number {
-            background: #1a73e8;
-            color: #ffffff;
-            border-radius: 50%;
-            font-weight: 600;
-        }
-        
-        /* Event Items */
-        .event-item {
-            margin-bottom: 4px;
-            border-radius: 4px;
-            border-left: 3px solid;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .event-item:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .event-item.jasa {
-            border-left-color: #f59e0b;
-        }
-        
-        .event-item.produksi {
-            border-left-color: #3b82f6;
-        }
-        
-        .event-item.jasa.selesai,
-        .event-item.produksi.selesai {
-            border-left-color: #10b981 !important;
-        }
-        
-        .event-content {
-            padding: 4px 6px;
-        }
-        
-        .event-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 4px;
-            margin-bottom: 2px;
-        }
-        
-        .event-time {
-            font-size: 10px;
-            font-weight: 500;
-            color: #5f6368;
-            flex-shrink: 0;
-        }
-        
-        .event-type-badge {
-            font-size: 8px;
-            font-weight: 600;
-            padding: 1px 4px;
-            border-radius: 2px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        .event-type-badge.jasa {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .event-type-badge.produksi {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .event-title {
-            font-size: 11px;
-            font-weight: 500;
-            color: #3c4043;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-bottom: 2px;
-        }
-        
-        .event-location {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            font-size: 9px;
-            color: #70757a;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .event-location svg {
-            flex-shrink: 0;
-            opacity: 0.7;
-        }
-        
-        /* Events Modal */
-        .events-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .events-modal.active {
-            display: flex;
-        }
-        
-        .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-        }
-        
-        .modal-content {
-            position: relative;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 24px;
-            border-bottom: 1px solid #dadce0;
-        }
-        
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #202124;
-            margin: 0;
-        }
-        
-        /* .modal-title span {
-            color: #1a73e8;
-        } */
-        
-        .modal-close {
-            background: none;
-            border: none;
+            gap: 8px;
+            min-height: 36px;
+            padding: 6px 14px;
+            border-radius: var(--rounded-pill);
+            border: 1px solid var(--hairline);
+            background: var(--canvas-light);
             cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            color: #5f6368;
-            transition: background 0.2s, color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-close:hover {
-            background: #f1f3f4;
-            color: #202124;
-        }
-        
-        .modal-body {
-            padding: 20px 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
-        
-        .modal-event-item {
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid;
-            margin-bottom: 12px;
-            background: #f8f9fa;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .modal-event-item.jasa {
-            border-left-color: #f59e0b;
-        }
-        
-        .modal-event-item.produksi {
-            border-left-color: #3b82f6;
-        }
-        
-        .modal-event-item.selesai {
-            border-left-color: #10b981 !important;
-        }
-        
-        .modal-event-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .modal-event-type {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .modal-event-type.jasa {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .modal-event-type.produksi {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .modal-event-status {
-            font-size: 11px;
+            user-select: none;
+            font-size: 13px;
             font-weight: 500;
-            color: #5f6368;
-            text-transform: capitalize;
+            letter-spacing: 0.2px;
+            transition: background .15s ease, border-color .15s ease;
         }
-        
-        .modal-event-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #202124;
-            margin-bottom: 4px;
+
+        .filter-chip input { display: none; }
+
+        .filter-chip.active {
+            background: var(--aloe);
+            border-color: transparent;
         }
-        
-        .modal-event-location {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #5f6368;
-        }
-        
-        .modal-event-location svg {
+
+        .filter-chip:active { transform: scale(0.98); }
+
+        .filter-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
             flex-shrink: 0;
-        }
-        
-        /* Responsive */
-        /* Large Desktop */
-        @media (min-width: 1400px) {
-            .schedule-sidebar {
-                width: 320px;
-            }
-        }
-        
-        /* Desktop */
-        @media (max-width: 1200px) {
-            .schedule-sidebar {
-                width: 260px;
-            }
-            
-            .main-header h1 {
-                font-size: 20px;
-            }
-        }
-        
-        /* Tablet Landscape */
-        @media (max-width: 1024px) {
-            .schedule-sidebar {
-                width: 220px;
-            }
-            
-            body {
-                zoom: 100%;
-            }
-            
-            .mini-calendar-header h3 {
-                font-size: 13px;
-            }
-            
-            .main-header {
-                padding: 12px 20px;
-            }
-            
-            .main-header h1 {
-                font-size: 18px;
-            }
-            
-            .main-day-cell {
-                min-height: 110px;
-            }
-        }
-        
-        /* Tablet Portrait */
-        @media (max-width: 768px) {
-            body {
-                zoom: 100%;
-            }
-            
-            .schedule-container {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-            }
-            
-            /* Sidebar becomes horizontal scrollable section */
-            .schedule-sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 2px solid #dadce0;
-                padding: 12px;
-                background: #f8f9fa;
-            }
-            
-            .mini-calendar {
-                margin-bottom: 12px;
-            }
-            
-            .mini-calendar-header {
-                margin-bottom: 12px;
-            }
-            
-            .mini-calendar-header h3 {
-                font-size: 14px;
-                font-weight: 600;
-            }
-            
-            .nav-btn {
-                width: 30px;
-                height: 30px;
-            }
-            
-            .mini-day-btn {
-                height: 32px;
-                font-size: 12px;
-            }
-            
-            /* Filters in horizontal scroll */
-            .sidebar-filters {
-                margin: 8px 0;
-                padding: 12px 0;
-                border-top: 1px solid #e0e0e0;
-                border-bottom: 1px solid #e0e0e0;
-            }
-            
-            .filter-section {
-                margin-bottom: 12px;
-            }
-            
-            .filter-title {
-                font-size: 11px;
-            }
-            
-            .filter-checkbox {
-                font-size: 13px;
-                padding: 6px 8px;
-            }
-            
-            .checkmark {
-                width: 18px;
-                height: 18px;
-            }
-            
-            .sidebar-stats {
-                padding-top: 8px;
-            }
-            
-            .stat-row {
-                font-size: 12px;
-                padding: 4px 0;
-            }
-            
-            .stats-title {
-                font-size: 11px;
-                margin-bottom: 6px;
-            }
-            
-            /* Main calendar takes full height */
-            .schedule-main {
-                flex: 1;
-                min-height: calc(100vh - 350px);
-            }
-            
-            .main-header {
-                padding: 12px 16px;
-                background: #ffffff;
-                position: sticky;
-                top: 0;
-                z-index: 10;
-            }
-            
-            .main-header h1 {
-                font-size: 18px;
-                font-weight: 500;
-            }
-            
-            .btn-today {
-                padding: 6px 14px;
-                font-size: 13px;
-                background: #1a73e8;
-                color: #ffffff;
-                border-color: #1a73e8;
-            }
-            
-            .btn-today:hover {
-                background: #1557b0;
-            }
-            
-            .main-day-names {
-                position: sticky;
-                top: 0;
-                background: #ffffff;
-                z-index: 5;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            }
-            
-            .main-day-names .day-name {
-                padding: 10px 4px;
-                font-size: 10px;
-            }
-            
-            .main-calendar-grid {
-                grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
-            }
-            
-            .main-day-cell {
-                min-height: 100px;
-                padding: 6px;
-            }
-            
-            .day-number {
-                width: 24px;
-                height: 24px;
-                font-size: 11px;
-            }
-            
-            .event-more-badge {
-                font-size: 9px;
-                padding: 2px 5px;
-            }
-            
-            .event-item {
-                margin-bottom: 3px;
-            }
-            
-            .event-content {
-                padding: 4px 5px;
-            }
-            
-            .event-time {
-                font-size: 9px;
-                font-weight: 600;
-            }
-            
-            .event-type-badge {
-                font-size: 7px;
-                padding: 1px 3px;
-            }
-            
-            .event-location {
-                font-size: 8px;
-            }
-            
-            .event-location svg {
-                width: 8px;
-                height: 8px;
-            }
-            
-            /* Modal improvements */
-            .modal-content {
-                width: 95%;
-                max-width: 500px;
-                max-height: 85vh;
-            }
-            
-            .modal-header {
-                padding: 16px 20px;
-                background: #f8f9fa;
-            }
-            
-            .modal-title {
-                font-size: 16px;
-            }
-            
-            .modal-body {
-                padding: 16px 20px;
-            }
-            
-            .modal-event-item {
-                padding: 12px;
-                margin-bottom: 10px;
-            }
-        }
-        
-        /* Mobile Large */
-        @media (max-width: 640px) {
-            .public-schedule-page {
-                padding-bottom: 20px;
-            }
-            
-            .schedule-sidebar {
-                padding: 10px;
-            }
-            
-            .mini-calendar-day-names > div {
-                font-size: 9px;
-                padding: 3px 0;
-            }
-            
-            .mini-day-btn {
-                height: 30px;
-                font-size: 11px;
-            }
-            
-            .mini-day-dots .dot {
-                width: 3px;
-                height: 3px;
-            }
-            
-            .filter-section-header {
-                margin-bottom: 6px;
-            }
-            
-            .filter-title {
-                font-size: 10px;
-            }
-            
-            .filter-checkbox {
-                font-size: 12px;
-                padding: 5px 6px;
-            }
-            
-            .checkmark {
-                width: 16px;
-                height: 16px;
-            }
-            
-            .stat-row {
-                font-size: 11px;
-                padding: 4px 0;
-                gap: 6px;
-            }
-            
-            .stat-dot {
-                width: 6px;
-                height: 6px;
-            }
-            
-            .main-header {
-                padding: 10px 12px;
-            }
-            
-            .main-header h1 {
-                font-size: 16px;
-            }
-            
-            .btn-today {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-            
-            .main-day-names .day-name {
-                padding: 8px 2px;
-                font-size: 9px;
-                font-weight: 600;
-            }
-            
-            .main-calendar-grid {
-                grid-template-rows: repeat(auto-fill, minmax(90px, 1fr));
-            }
-            
-            .main-day-cell {
-                min-height: 90px;
-                padding: 4px;
-            }
-            
-            .day-header {
-                margin-bottom: 3px;
-            }
-            
-            .day-number {
-                width: 22px;
-                height: 22px;
-                font-size: 10px;
-            }
-            
-            .event-more-badge {
-                font-size: 7px;
-                padding: 1px 4px;
-                border-radius: 3px;
-            }
-            
-            .event-item {
-                margin-bottom: 2px;
-                border-left-width: 2px;
-            }
-            
-            .event-content {
-                padding: 3px 4px;
-            }
-            
-            .event-header {
-                gap: 2px;
-                margin-bottom: 1px;
-            }
-            
-            .event-time {
-                font-size: 8px;
-                font-weight: 600;
-            }
-            
-            .event-type-badge {
-                font-size: 6px;
-                padding: 1px 2px;
-                border-radius: 2px;
-            }
-            
-            .event-location {
-                font-size: 7px;
-                margin-top: 1px;
-            }
-            
-            .event-location svg {
-                width: 7px;
-                height: 7px;
-            }
-            
-            /* Modal for mobile */
-            .modal-content {
-                width: 98%;
-                max-width: none;
-                max-height: 90vh;
-                border-radius: 12px 12px 0 0;
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            
-            @keyframes modalSlideUp {
-                from {
-                    transform: translateY(100%);
-                }
-                to {
-                    transform: translateY(0);
-                }
-            }
-            
-            .modal-header {
-                padding: 14px 16px;
-                background: #f8f9fa;
-            }
-            
-            .modal-title {
-                font-size: 15px;
-            }
-            
-            .modal-close {
-                padding: 6px;
-            }
-            
-            .modal-close svg {
-                width: 18px;
-                height: 18px;
-            }
-            
-            .modal-body {
-                padding: 12px 16px;
-            }
-            
-            .modal-event-item {
-                padding: 10px;
-                margin-bottom: 8px;
-                border-left-width: 3px;
-            }
-            
-            .modal-event-header {
-                margin-bottom: 6px;
-            }
-            
-            .modal-event-type {
-                font-size: 9px;
-                padding: 2px 6px;
-            }
-            
-            .modal-event-status {
-                font-size: 9px;
-            }
-            
-            .modal-event-title {
-                font-size: 12px;
-                margin-bottom: 3px;
-            }
-            
-            .modal-event-location {
-                font-size: 10px;
-                gap: 4px;
-            }
-            
-            .modal-event-location svg {
-                width: 12px;
-                height: 12px;
-            }
-        }
-        
-        /* Mobile Small */
-        @media (max-width: 480px) {
-            .schedule-sidebar {
-                padding: 8px;
-            }
-            
-            .mini-calendar {
-                margin-bottom: 8px;
-            }
-            
-            .mini-calendar-header {
-                margin-bottom: 8px;
-            }
-            
-            .mini-calendar-header h3 {
-                font-size: 13px;
-            }
-            
-            .nav-btn {
-                width: 26px;
-                height: 26px;
-            }
-            
-            .nav-btn svg {
-                width: 12px;
-                height: 12px;
-            }
-            
-            .mini-calendar-day-names {
-                margin-bottom: 4px;
-            }
-            
-            .mini-calendar-day-names > div {
-                font-size: 8px;
-            }
-            
-            .mini-day-btn {
-                height: 26px;
-                font-size: 10px;
-            }
-            
-            .mini-day-dots .dot {
-                width: 2px;
-                height: 2px;
-            }
-            
-            .filter-options {
-                gap: 3px;
-            }
-            
-            .filter-section {
-                margin-bottom: 8px;
-            }
-            
-            .filter-title {
-                font-size: 9px;
-                margin-bottom: 4px;
-            }
-            
-            .filter-checkbox {
-                font-size: 11px;
-                padding: 4px 5px;
-                gap: 5px;
-            }
-            
-            .checkmark {
-                width: 15px;
-                height: 15px;
-            }
-            
-            .checkmark::after {
-                width: 3px;
-                height: 7px;
-            }
-            
-            .stat-row {
-                font-size: 10px;
-                gap: 5px;
-                padding: 3px 0;
-            }
-            
-            .stat-dot {
-                width: 5px;
-                height: 5px;
-            }
-            
-            .stats-title {
-                font-size: 9px;
-            }
-            
-            .main-header {
-                padding: 8px 10px;
-            }
-            
-            .main-header h1 {
-                font-size: 14px;
-            }
-            
-            .btn-today {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
-            
-            .main-day-names .day-name {
-                padding: 6px 2px;
-                font-size: 8px;
-            }
-            
-            .main-calendar-grid {
-                grid-template-rows: repeat(auto-fill, minmax(80px, 1fr));
-            }
-            
-            .main-day-cell {
-                min-height: 80px;
-                padding: 3px;
-            }
-            
-            .day-header {
-                margin-bottom: 2px;
-            }
-            
-            .day-number {
-                width: 20px;
-                height: 20px;
-                font-size: 9px;
-            }
-            
-            .event-more-badge {
-                font-size: 6px;
-                padding: 1px 3px;
-            }
-            
-            .event-item {
-                margin-bottom: 2px;
-            }
-            
-            .event-content {
-                padding: 2px 3px;
-            }
-            
-            .event-header {
-                margin-bottom: 0;
-                gap: 2px;
-            }
-            
-            .event-time {
-                font-size: 7px;
-            }
-            
-            .event-type-badge {
-                font-size: 5px;
-                padding: 0px 2px;
-            }
-            
-            .event-location {
-                display: none;
-            }
-            
-            .modal-content {
-                width: 100%;
-                max-height: 95vh;
-            }
-            
-            .modal-header {
-                padding: 12px 14px;
-            }
-            
-            .modal-title {
-                font-size: 14px;
-            }
-            
-            .modal-close {
-                padding: 5px;
-            }
-            
-            .modal-close svg {
-                width: 16px;
-                height: 16px;
-            }
-            
-            .modal-body {
-                padding: 10px 14px;
-            }
-            
-            .modal-event-item {
-                padding: 8px;
-                margin-bottom: 6px;
-            }
-            
-            .modal-event-header {
-                margin-bottom: 4px;
-            }
-            
-            .modal-event-type {
-                font-size: 8px;
-                padding: 1px 4px;
-            }
-            
-            .modal-event-status {
-                font-size: 8px;
-            }
-            
-            .modal-event-title {
-                font-size: 11px;
-                margin-bottom: 2px;
-            }
-            
-            .modal-event-location {
-                font-size: 9px;
-                gap: 3px;
-            }
-            
-            .modal-event-location svg {
-                width: 10px;
-                height: 10px;
-            }
-        }
-        
-        /* Extra Small Mobile */
-        @media (max-width: 360px) {
-            body {
-                zoom: 100%;
-            }
-            
-            .mini-day-btn {
-                height: 24px;
-                font-size: 9px;
-            }
-            
-            .main-day-cell {
-                min-height: 70px;
-            }
-            
-            .day-number {
-                width: 18px;
-                height: 18px;
-                font-size: 8px;
-            }
-            
-            .event-time {
-                font-size: 6px;
-            }
-            
-            .event-type-badge {
-                font-size: 4px;
-            }
-        }
-    
-        
-        /* ===== Enhanced Responsive Layout ===== */
-        html, body {
-            width: 100%;
-            overflow-x: hidden;
+            background: var(--shade-40);
         }
 
-        .public-schedule-page {
-            width: 100%;
-            min-height: 100vh;
-        }
+        .filter-dot.terjadwal { background: var(--ink); }
+        .filter-dot.selesai { background: #15803d; }
 
-        .schedule-container {
-            width: 100%;
-            min-height: 100vh;
-        }
-
+        /* ── Main ── */
         .schedule-main {
             min-width: 0;
-        }
-
-        .main-calendar {
-            width: 100%;
-            overflow-x: auto;
-            overflow-y: auto;
-        }
-
-        .main-calendar-grid {
-            width: 100%;
-        }
-
-        .event-item,
-        .modal-event-item,
-        .filter-checkbox,
-        .btn-today,
-        .nav-btn {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .event-header,
-        .modal-event-header,
-        .day-header,
-        .main-header {
-            gap: 8px;
-        }
-
-        .event-time,
-        .event-location span,
-        .modal-event-title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 991px) {
-            .schedule-container {
-                flex-direction: column;
-            }
-
-            .schedule-sidebar {
-                width: 100%;
-                max-width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #dadce0;
-            }
-
-            .schedule-main {
-                width: 100%;
-            }
-
-            .main-calendar-grid {
-                min-width: 700px;
-            }
-
-            .main-calendar {
-                overflow-x: auto;
-                overflow-y: auto;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-
-            .schedule-sidebar {
-                padding: 12px;
-            }
-
-            .main-header {
-                flex-wrap: wrap;
-                align-items: flex-start;
-            }
-
-            .main-header h1 {
-                width: 100%;
-            }
-
-            .btn-today {
-                width: 100%;
-                text-align: center;
-            }
-
-            .sidebar-filters {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .stat-container {
-                flex-direction: column;
-                gap: 2px;
-            }
-
-            .modal-content {
-                width: calc(100% - 16px);
-                margin: 8px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .main-calendar-grid {
-                min-width: 640px;
-            }
-
-            .main-day-cell,
-            .main-day-empty {
-                min-height: 82px;
-            }
-
-            .event-content {
-                padding: 2px 4px;
-            }
-
-            .event-type-badge {
-                line-height: 1.2;
-            }
-
-            .modal-content {
-                border-radius: 16px 16px 0 0;
-            }
-        }
-
-        @media (max-width: 420px) {
-            .schedule-sidebar {
-                padding: 8px;
-            }
-
-            .main-header {
-                padding: 10px;
-            }
-
-            .main-header h1 {
-                font-size: 15px;
-            }
-
-            .btn-today {
-                font-size: 11px;
-                padding: 6px 10px;
-            }
-
-            .filter-checkbox {
-                font-size: 11px;
-            }
-
-            .main-calendar-grid {
-                min-width: 600px;
-            }
-        }
-
-    
-        
-        /* ===== Modern Responsive Layout ===== */
-
-        .schedule-container {
-            background: #f3f4f6;
-        }
-
-        .schedule-sidebar {
-            background: #ffffff;
-            box-shadow: 0 0 20px rgba(0,0,0,0.03);
-            z-index: 5;
-        }
-
-        .schedule-main {
-            background: #f8fafc;
-            position: relative;
-        }
-
-        .main-header {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .main-header-left {
             display: flex;
-            align-items: center;
-        }
-
-        .main-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-fullscreen {
-            border: none;
-            background: #111827;
-            color: #ffffff;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .fullscreen-exit {
-            display: none;
+            flex-direction: column;
+            gap: 14px;
         }
 
         .schedule-main.fullscreen-mode {
             position: fixed;
             inset: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 99999;
-            background: #ffffff;
+            z-index: 100;
+            background: var(--canvas-cream);
+            padding: 20px 24px;
+            overflow: auto;
         }
 
-        .schedule-main.fullscreen-mode .fullscreen-enter {
-            display: none;
+        .main-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .schedule-main.fullscreen-mode .fullscreen-exit {
+        .main-header h2 {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+        }
+
+        .main-header p {
+            margin-top: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--shade-50);
+            letter-spacing: 0.2px;
+        }
+
+        .main-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-header-actions .btn-pill-outline-light {
+            min-height: 36px;
+            font-size: 13px;
+        }
+
+        .main-header-actions .btn-pill-primary {
+            min-height: 36px;
+            padding: 8px 18px;
+            font-size: 13px;
+        }
+
+        /* ── Table card ── */
+        .table-card {
+            background: var(--canvas-light);
+            border: 1px solid var(--hairline);
+            border-radius: var(--rounded-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            flex: 1;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-scroll {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
+        }
+
+        .week-table {
+            width: 100%;
+            min-width: 920px;
+            border-collapse: collapse;
+        }
+
+        .week-table thead {
+            background: var(--canvas-cream);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .week-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.72px;
+            text-transform: uppercase;
+            color: var(--shade-50);
+            border-bottom: 1px solid var(--hairline);
+            white-space: nowrap;
+        }
+
+        .week-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--hairline);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.28px;
+            color: var(--ink);
+            vertical-align: top;
+            line-height: 1.49;
+            word-break: break-word;
+        }
+
+        .week-table tbody tr:last-child td { border-bottom: none; }
+
+        .week-table tbody tr.is-today td {
+            background: rgba(193, 251, 212, 0.35);
+        }
+
+        .week-table tbody tr.is-today .col-hari {
+            box-shadow: inset 3px 0 0 var(--ink);
+        }
+
+        .col-hari {
+            min-width: 120px;
+            background: var(--canvas-cream);
+        }
+
+        .day-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 550;
+            color: var(--ink);
+        }
+
+        .day-date {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--shade-50);
+            margin-top: 2px;
+        }
+
+        .col-branch { min-width: 72px; white-space: nowrap; }
+        .col-lokasi { min-width: 140px; }
+        .col-keterangan { min-width: 130px; }
+        .col-catatan { min-width: 130px; }
+        .col-pic { min-width: 100px; }
+        .col-petugas { min-width: 120px; }
+        .col-status { min-width: 110px; white-space: nowrap; }
+
+        .pill-tag {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.72px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: var(--rounded-pill);
+            background: var(--aloe);
+            color: var(--ink);
+        }
+
+        .pill-tag-shade {
+            background: var(--shade-30);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.72px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: var(--rounded-pill);
+        }
+
+        .status-badge.status-terjadwal {
+            background: var(--shade-30);
+            color: var(--ink);
+        }
+
+        .status-badge.status-selesai {
+            background: var(--aloe);
+            color: var(--ink);
+        }
+
+        .cell-empty {
+            color: var(--shade-50);
+            font-style: italic;
+            text-align: center;
+            font-weight: 420;
+        }
+
+        .cell-value {
             display: inline;
+            word-break: break-word;
         }
 
-        .schedule-main.fullscreen-mode .main-calendar {
-            height: calc(100vh - 80px);
+        .schedule-row.hidden-by-filter { display: none !important; }
+        .schedule-row--placeholder { display: none; }
+        .schedule-row--placeholder.visible { display: table-row; }
+
+        .live-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--shade-50);
+            padding: 0 4px;
         }
 
-        .main-calendar {
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--ink);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0,0,0,0.25); }
+            70% { box-shadow: 0 0 0 6px rgba(0,0,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+        }
+
+        /* ── Modal ── */
+        .events-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
             padding: 16px;
         }
 
-        .main-day-names {
-            background: #ffffff;
-            border-radius: 14px 14px 0 0;
+        .events-modal.active { display: flex; }
+
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--canvas-light);
+            border-radius: var(--rounded-xl);
+            box-shadow: var(--shadow-modal);
+            width: 100%;
+            max-width: 560px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        .main-calendar-grid {
-            background: #ffffff;
-            border-radius: 0 0 14px 14px;
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: var(--rounded-pill);
+            color: var(--shade-60);
+        }
+
+        .modal-close:hover { background: var(--shade-30); color: var(--ink); }
+
+        .modal-body {
+            padding: 20px 24px;
             overflow-y: auto;
-            overflow-x: auto;
         }
 
-        .event-item {
-            border-radius: 8px;
-            background: #ffffff;
+        .modal-event-item {
+            border: 1px solid var(--hairline);
+            border-radius: var(--rounded-lg);
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--canvas-cream);
         }
 
-        .event-type-badge {
-            border-radius: 999px;
+        .modal-event-item.selesai { background: var(--pistachio); border-color: transparent; }
+
+        .modal-event-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        .mini-calendar,
-        .sidebar-filters,
-        .sidebar-stats {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 14px;
-            border: 1px solid #ececec;
+        .modal-event-type {
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.72px;
+            text-transform: uppercase;
+            color: var(--shade-50);
         }
 
-        .sidebar-filters,
-        .sidebar-stats {
-            margin-top: 18px;
+        .modal-event-title {
+            font-size: 16px;
+            font-weight: 550;
+            margin-bottom: 8px;
         }
 
-        @media (max-width: 1024px) {
-            .schedule-container {
+        .modal-event-meta {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--shade-60);
+            margin-top: 4px;
+            word-break: break-word;
+        }
+
+        /* ── Desktop wide ── */
+        @media (min-width: 1440px) {
+            .layout { padding: 24px 32px 40px; gap: 24px; }
+            .main-header h2 { font-size: 32px; }
+        }
+
+        /* ── Tablet ── */
+        @media (max-width: 1023px) {
+            .layout {
+                grid-template-columns: 1fr;
+                padding: 16px 20px 28px;
+                gap: 16px;
+            }
+
+            .sidebar-panel {
+                display: grid;
+                grid-template-columns: 1.2fr 1fr;
+            }
+
+            .sidebar-section:first-child {
+                grid-row: 1 / span 2;
+                border-top: none;
+                border-right: 1px solid var(--hairline);
+            }
+
+            .sidebar-section + .sidebar-section {
+                border-top: 1px solid var(--hairline);
+            }
+
+            .sidebar-section:first-child + .sidebar-section {
+                border-top: none;
+            }
+
+            .main-header h2 { font-size: 24px; }
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 767px) {
+            .nav-bar {
+                height: auto;
+                min-height: auto;
+                padding: 12px 14px;
                 flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
             }
 
-            .schedule-sidebar {
+            .nav-bar-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                min-width: 0;
+            }
+
+            .nav-actions-mobile {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+
+            .week-nav {
                 width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
             }
 
-            .main-calendar-grid {
-                min-width: 820px;
+            .week-nav-row--dates {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 8px 10px;
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: var(--rounded-pill);
+                background: rgba(255, 255, 255, 0.04);
             }
-        }
 
-        @media (max-width: 768px) {
+            .week-nav-row--tools { display: none; }
+
+            .nav-fs-btn--mobile {
+                margin-left: auto;
+                flex-shrink: 0;
+            }
+
+            .nav-fs-btn--desktop { display: none; }
+
+            .week-label { display: none; }
+
+            .week-label-mobile {
+                display: block;
+                flex: 1;
+                min-width: 0;
+                font-size: 12px;
+                font-weight: 500;
+                letter-spacing: 0.2px;
+                color: var(--shade-30);
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .mobile-filter-btn {
+                display: inline-flex;
+                width: 36px;
+                min-height: 36px;
+                padding: 0;
+                justify-content: center;
+            }
+
+            .mobile-filter-btn .btn-icon-label { display: none; }
+
+            .nav-fs-btn {
+                min-height: 36px;
+                padding: 0 12px;
+            }
+
+            .nav-fs-btn .btn-icon-label { display: none; }
+
+            .btn-pill-today {
+                min-height: 36px;
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+
+            .schedule-main.fullscreen-mode {
+                padding: 0;
+            }
+
+            .fullscreen-bar {
+                margin: 0 0 12px;
+                padding: 12px 14px;
+                border-radius: 0;
+            }
+
+            .btn-exit-fullscreen {
+                min-height: 34px;
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+
+            .week-nav-today { display: none; }
+
+            .schedule-main.fullscreen-mode .main-header,
+            .schedule-main.fullscreen-mode .table-card,
+            .schedule-main.fullscreen-mode .live-hint {
+                margin-left: 14px;
+                margin-right: 14px;
+            }
+
+            .schedule-main.fullscreen-mode .live-hint {
+                margin-bottom: 14px;
+            }
+
+            .layout {
+                padding: 14px 14px 24px;
+                gap: 14px;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: min(88vw, 340px);
+                z-index: 80;
+                transform: translateX(100%);
+                transition: transform .2s ease;
+                padding: 12px;
+                overflow-y: auto;
+            }
+
+            .sidebar.is-open {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop.is-visible {
+                display: block;
+            }
+
+            .sidebar-panel {
+                display: block;
+                border-radius: var(--rounded-xl);
+            }
+
+            .sidebar-section:first-child {
+                grid-row: auto;
+                border-right: none;
+            }
+
+            .sidebar-section:first-child + .sidebar-section {
+                border-top: 1px solid var(--hairline);
+            }
+
+            .sidebar-section--filter {
+                padding-top: 14px;
+            }
+
+            .sidebar-section--filter .sidebar-section-title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+
+            .sidebar-close-btn {
+                display: inline-flex;
+            }
+
             .main-header {
                 flex-direction: column;
                 align-items: stretch;
             }
 
+            .main-header h2 { font-size: 22px; }
+
             .main-header-actions {
                 width: 100%;
             }
 
-            .btn-fullscreen,
-            .btn-today {
+            .main-header-actions .btn-pill {
                 flex: 1;
+            }
+
+            .table-card {
+                border: none;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            .table-scroll { overflow: visible; }
+
+            .week-table { min-width: 0; }
+            .week-table thead { display: none; }
+
+            .week-table tbody tr {
+                display: block;
+                margin-bottom: 12px;
+                border: 1px solid var(--hairline);
+                border-radius: var(--rounded-lg);
+                background: var(--canvas-light);
+                box-shadow: var(--shadow-card);
+                overflow: hidden;
+            }
+
+            .week-table tbody tr.is-today {
+                background: var(--pistachio);
+                border-color: transparent;
+            }
+
+            .week-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px 16px;
+                border-bottom: 1px solid var(--hairline);
+                text-align: right;
+                font-size: 14px;
+            }
+
+            .week-table td:not(.col-hari) {
+                text-align: right;
+            }
+
+            .week-table .cell-value {
+                flex: 1;
+                min-width: 0;
+                max-width: 62%;
+                text-align: right;
+                line-height: 1.45;
+            }
+
+            .week-table .cell-value--multiline {
+                line-height: 1.5;
+                max-width: 65%;
+            }
+
+            .week-table .cell-value:has(.pill-tag),
+            .week-table .cell-value:has(.status-badge) {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .week-table td:last-child { border-bottom: none; }
+
+            .week-table td::before {
+                content: attr(data-label);
+                font-size: 12px;
+                font-weight: 400;
+                letter-spacing: 0.72px;
+                text-transform: uppercase;
+                color: var(--shade-50);
+                text-align: left;
+                flex-shrink: 0;
+            }
+
+            .week-table td.col-hari {
+                background: transparent;
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+                box-shadow: none;
+            }
+
+            .week-table tbody tr.is-continuation-day-item td.col-hari {
+                display: none;
+            }
+
+            .week-table tbody tr.is-first-day-item:has(+ tr.is-continuation-day-item) {
+                margin-bottom: 0;
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+            .week-table tbody tr.is-continuation-day-item {
+                margin-top: 0;
+                margin-bottom: 12px;
+                border-top: none;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+                box-shadow: none;
+            }
+
+            .week-table tbody tr.is-continuation-day-item:has(+ tr.is-continuation-day-item) {
+                margin-bottom: 0;
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+            .week-table tbody tr.is-continuation-day-item td.col-keterangan {
+                border-top: 1px dashed var(--hairline);
+            }
+
+            .week-table tbody tr.is-today td.col-hari {
+                box-shadow: none;
+            }
+
+            .week-table td.col-hari::before { display: none; }
+
+            .week-table .cell-empty {
+                display: block;
                 text-align: center;
+                padding: 24px 16px;
             }
 
-            .main-calendar {
-                padding: 10px;
+            .week-table .cell-empty::before { display: none; }
+
+            .week-table tbody tr.schedule-row--placeholder { display: none; }
+            .week-table tbody tr.schedule-row--placeholder.visible { display: block; }
+
+            .events-modal.active {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                max-height: 90dvh;
+                border-radius: var(--rounded-xl) var(--rounded-xl) 0 0;
             }
         }
 
-        @media (max-width: 480px) {
-            .main-calendar-grid {
-                min-width: 700px;
+        @media (min-width: 768px) {
+            .nav-bar {
+                flex-direction: row;
+                align-items: center;
+                height: 56px;
+                padding: 0 24px;
+                gap: 16px;
             }
 
-            .btn-fullscreen,
-            .btn-today {
-                font-size: 11px;
+            .nav-bar-top { display: contents; }
+
+            .nav-actions-mobile { display: none !important; }
+
+            .week-nav {
+                flex-direction: row;
+                width: auto;
+                gap: 6px;
             }
+
+            .week-nav-row { display: contents; }
+
+            .week-label-mobile { display: none; }
+
+            .week-label { display: block; }
+
+            .nav-fs-btn .btn-icon-label { display: inline; }
+
+            .week-nav-today { display: inline-flex; }
+
+            .nav-fs-btn--mobile { display: none; }
+
+            .nav-fs-btn--desktop { display: inline-flex; }
+
+            .week-nav-row--tools { display: contents; }
         }
 
+        @media (max-width: 419px) {
+            .brand-logo { height: 28px; }
+            .main-header h2 { font-size: 20px; }
+            .week-label-mobile { font-size: 11px; }
+            .btn-pill-today { padding: 8px 12px; }
+        }
     </style>
+</head>
+<body>
+<div class="page">
+    <header class="nav-bar">
+        <div class="nav-bar-top">
+            <div class="brand">
+                <img src="{{ asset('logo.png') }}" alt="Artha Jaya" class="brand-logo">
+            </div>
 
-    {{-- Real-time Update Script --}}
-    <script>
-        // Make eventsByDate available globally for modal
-        window.eventsByDate = @json($eventsByDate ?? []);
-        
-        (function() {
-            const POLL_INTERVAL = 20000;
-            let pollTimer = null;
-            let isUpdating = false;
-                
-            // Filter state
-            let activeFilters = {
-                jenis: ['produksi', 'jasa'],
-                statusProduksi: ['baru', 'proses', 'siap diambil', 'selesai'],
-                statusJasa: ['jasa baru', 'terjadwal', 'selesai dikerjakan', 'selesai']
-            };
-                        
-            // Initialize filters
-            function initFilters() {
-                const jenisCheckboxes = document.querySelectorAll('#filter-produksi, #filter-jasa');
-                const statusCheckboxes = document.querySelectorAll('.status-filter');
-                const toggleButtons = document.querySelectorAll('.filter-toggle-btn');
-                
-                // Toggle button functionality
-                toggleButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const targetId = this.dataset.target;
-                        const targetElement = document.getElementById(targetId);
-                        
-                        if (targetElement) {
-                            targetElement.classList.toggle('collapsed');
-                            this.classList.toggle('collapsed');
-                        }
-                    });
-                });
-                
-                jenisCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            if (!activeFilters.jenis.includes(this.value)) {
-                                activeFilters.jenis.push(this.value);
-                            }
-                        } else {
-                            activeFilters.jenis = activeFilters.jenis.filter(j => j !== this.value);
-                        }
-                        
-                        // Disable/enable status filters based on jenis selection
-                        updateStatusFiltersState();
-                        applyFilters();
-                    });
-                });
-                
-                statusCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const value = this.value;
-                        const parentFilter = this.closest('.filter-options');
-                        const isProduksiFilter = parentFilter && parentFilter.id === 'status-produksi-filter';
-                        const isJasaFilter = parentFilter && parentFilter.id === 'status-jasa-filter';
-                        
-                        if (this.checked) {
-                            // Add to the appropriate status array based on parent filter section
-                            if (isProduksiFilter) {
-                                if (!activeFilters.statusProduksi.includes(value)) {
-                                    activeFilters.statusProduksi.push(value);
-                                }
-                            } else if (isJasaFilter) {
-                                if (!activeFilters.statusJasa.includes(value)) {
-                                    activeFilters.statusJasa.push(value);
-                                }
-                            }
-                        } else {
-                            // Remove from the appropriate status array based on parent filter section
-                            if (isProduksiFilter) {
-                                activeFilters.statusProduksi = activeFilters.statusProduksi.filter(s => s !== value);
-                            } else if (isJasaFilter) {
-                                activeFilters.statusJasa = activeFilters.statusJasa.filter(s => s !== value);
-                            }
-                        }
-                        applyFilters();
-                    });
-                });
-                
-                // Initial state
-                updateStatusFiltersState();
-            }
-            
-            // Update status filters state based on jenis selection
-            function updateStatusFiltersState() {
-                const produksiCheckbox = document.getElementById('filter-produksi');
-                const jasaCheckbox = document.getElementById('filter-jasa');
-                const statusProduksiFilter = document.getElementById('status-produksi-filter');
-                const statusJasaFilter = document.getElementById('status-jasa-filter');
-                
-                // Disable Produksi status filters if Produksi is unchecked
-                if (statusProduksiFilter) {
-                    if (produksiCheckbox && !produksiCheckbox.checked) {
-                        statusProduksiFilter.classList.add('disabled');
-                    } else {
-                        statusProduksiFilter.classList.remove('disabled');
-                    }
+            <div class="nav-actions-mobile">
+                <button type="button" class="btn-icon mobile-filter-btn" id="openMobileSidebar" aria-label="Buka filter" title="Filter">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M7 12h10M10 18h4"/></svg>
+                </button>
+                <a class="btn-pill btn-pill-solid btn-pill-today" href="{{ route('public.schedule', ['date' => now()->toDateString()]) }}">Hari Ini</a>
+            </div>
+        </div>
+
+        <div class="week-nav">
+            <div class="week-nav-row week-nav-row--dates">
+                <a class="btn-icon" href="{{ route('public.schedule', ['date' => $prevWeek]) }}" aria-label="Minggu sebelumnya" title="Minggu sebelumnya">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <div class="week-label">{{ $weekLabel }}</div>
+                <div class="week-label-mobile">{{ $weekLabel }}</div>
+                <a class="btn-icon" href="{{ route('public.schedule', ['date' => $nextWeek]) }}" aria-label="Minggu berikutnya" title="Minggu berikutnya">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <button type="button" class="btn-icon nav-fs-btn nav-fs-btn--mobile" id="toggleFullscreenMobile" aria-label="Mode fullscreen">
+                    <span class="fullscreen-enter" aria-hidden="true">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/></svg>
+                    </span>
+                    <span class="fullscreen-exit" aria-hidden="true">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4H4v5M4 4l5 5m11-5h-5v5m5-5l-5 5M9 20H4v-5m0 5l5-5m5 5h5v-5m-5 5l5-5"/></svg>
+                    </span>
+                </button>
+            </div>
+
+            <div class="week-nav-row week-nav-row--tools">
+                <button type="button" class="btn-pill btn-pill-ghost nav-fs-btn nav-fs-btn--desktop" id="toggleFullscreen" aria-label="Mode fullscreen">
+                    <span class="fullscreen-enter" aria-hidden="true">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/></svg>
+                    </span>
+                    <span class="fullscreen-exit" aria-hidden="true">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4H4v5M4 4l5 5m11-5h-5v5m5-5l-5 5M9 20H4v-5m0 5l5-5m5 5h5v-5m-5 5l5-5"/></svg>
+                    </span>
+                </button>
+                <a class="btn-pill btn-pill-solid btn-pill-today week-nav-today" href="{{ route('public.schedule', ['date' => now()->toDateString()]) }}">Hari Ini</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar" id="filterSidebar">
+            <div class="sidebar-panel">
+                <div class="sidebar-section">
+                    <div class="mini-cal-header">
+                        <h3>{{ $monthName }}</h3>
+                        <div class="mini-cal-nav">
+                            <a href="{{ route('public.schedule', ['month' => $prevMonth]) }}" class="mini-nav-btn" aria-label="Bulan sebelumnya">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            </a>
+                            <a href="{{ route('public.schedule', ['month' => $nextMonth]) }}" class="mini-nav-btn" aria-label="Bulan berikutnya">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mini-day-names">
+                        @foreach (['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'] as $day)
+                            <div>{{ $day }}</div>
+                        @endforeach
+                    </div>
+
+                    <div class="mini-days" id="miniCalendarDays">
+                        @foreach ($calendarDays as $day)
+                            @if ($day === null)
+                                <div class="mini-day-empty"></div>
+                            @else
+                                <a
+                                    href="{{ route('public.schedule', ['date' => $day['date']]) }}"
+                                    class="mini-day-btn {{ $day['isSelected'] ? 'selected' : '' }} {{ $day['isToday'] ? 'today' : '' }}"
+                                    data-date="{{ $day['date'] }}"
+                                    data-has-schedule="{{ ($day['hasSchedule'] ?? false) ? '1' : '0' }}"
+                                >
+                                    {{ $day['day'] }}
+                                    @if ($day['hasSchedule'] ?? false)
+                                        <div class="mini-day-dots"><span class="dot"></span></div>
+                                    @endif
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Ringkasan</div>
+                    <div class="stats-inline" id="statsBar">
+                        <div class="stat-cell">
+                            <strong>{{ $stats['total'] }}</strong>
+                            <span>Total</span>
+                        </div>
+                        <div class="stat-cell featured">
+                            <strong>{{ $stats['terjadwal'] }}</strong>
+                            <span>Terjadwal</span>
+                        </div>
+                        <div class="stat-cell">
+                            <strong>{{ $stats['selesai'] }}</strong>
+                            <span>Selesai</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section sidebar-section--filter">
+                    <div class="sidebar-section-title">
+                        <span>Filter</span>
+                        <button type="button" class="sidebar-close-btn" id="closeMobileSidebar" aria-label="Tutup panel filter">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6l-12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="filter-list">
+                        <label class="filter-chip active">
+                            <input type="checkbox" class="status-filter" value="terjadwal" checked>
+                            <span class="filter-dot terjadwal"></span>
+                            <span>Terjadwal</span>
+                        </label>
+                        <label class="filter-chip active">
+                            <input type="checkbox" class="status-filter" value="selesai" checked>
+                            <span class="filter-dot selesai"></span>
+                            <span>Selesai</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="sidebar-backdrop" id="mobileSidebarBackdrop" aria-hidden="true"></div>
+
+        <main class="schedule-main" id="scheduleMain">
+            <div class="fullscreen-bar" id="fullscreenBar">
+                <span class="fullscreen-bar-title">Jadwal Mingguan · {{ $weekLabel }}</span>
+                <button type="button" class="btn-exit-fullscreen" id="exitFullscreen" aria-label="Keluar fullscreen">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="main-header">
+                <div>
+                    <h2>Jadwal Mingguan</h2>
+                    <p>{{ $weekLabel }} · {{ $monthName }}</p>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-scroll">
+                    <table class="week-table">
+                        <thead>
+                            <tr>
+                                <th class="col-hari">Hari / Tanggal</th>
+                                <th class="col-keterangan">Keterangan</th>
+                                <th class="col-branch">Branch</th>
+                                <th class="col-lokasi">Lokasi</th>
+                                <th class="col-catatan">Catatan</th>
+                                <th class="col-pic">PIC</th>
+                                <th class="col-petugas">Petugas</th>
+                                <th class="col-status">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weekScheduleBody">
+                            @foreach ($weekDays as $day)
+                                @if (count($day['items']) === 0)
+                                    <tr class="schedule-row schedule-row--empty {{ $day['isToday'] ? 'is-today' : '' }}" data-date="{{ $day['date'] }}">
+                                        <td class="col-hari" data-label="Hari">
+                                            <span class="day-label">{{ $day['dayName'] }}</span>
+                                            <span class="day-date">{{ $day['dayNumber'] }} {{ $day['monthShort'] }}</span>
+                                        </td>
+                                        <td colspan="7" class="cell-empty">Tidak ada jadwal</td>
+                                    </tr>
+                                @else
+                                    @foreach ($day['items'] as $item)
+                                        <tr
+                                            class="schedule-row {{ $day['isToday'] ? 'is-today' : '' }} {{ $loop->first ? 'is-first-day-item' : 'is-continuation-day-item' }}"
+                                            data-date="{{ $day['date'] }}"
+                                            data-status="{{ $item['status'] ?? 'terjadwal' }}"
+                                        >
+                                            <td class="col-hari" data-label="Hari">
+                                                <span class="day-label">{{ $day['dayName'] }}</span>
+                                                @if ($loop->first)
+                                                    <span class="day-date">{{ $day['dayNumber'] }} {{ $day['monthShort'] }}</span>
+                                                @endif
+                                            </td>
+                                            <td class="col-keterangan" data-label="Keterangan">
+                                                <span class="cell-value cell-value--multiline">{{ $item['keterangan'] ?: '—' }}</span>
+                                            </td>
+                                            <td class="col-branch" data-label="Branch">
+                                                <span class="cell-value">
+                                                    @if ($item['branch'])
+                                                        <span class="pill-tag">{{ $item['branch'] }}</span>
+                                                    @else
+                                                        —
+                                                    @endif
+                                                </span>
+                                            </td>
+                                            <td class="col-lokasi" data-label="Lokasi">
+                                                <span class="cell-value cell-value--multiline">{{ $item['location'] ?: '—' }}</span>
+                                            </td>
+                                            <td class="col-catatan" data-label="Catatan">
+                                                <span class="cell-value cell-value--multiline">{{ $item['catatan'] ?: '—' }}</span>
+                                            </td>
+                                            <td class="col-pic" data-label="PIC">
+                                                <span class="cell-value">{{ $item['pic'] ?: '—' }}</span>
+                                            </td>
+                                            <td class="col-petugas" data-label="Petugas">
+                                                <span class="cell-value">{{ $item['pekerja'] ?: '—' }}</span>
+                                            </td>
+                                            <td class="col-status" data-label="Status">
+                                                <span class="cell-value">
+                                                    <span class="status-badge status-{{ $item['status'] ?? 'terjadwal' }}">
+                                                        {{ $item['status_label'] ?? 'Terjadwal' }}
+                                                    </span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    <tr class="schedule-row schedule-row--placeholder" data-date="{{ $day['date'] }}">
+                                        <td class="col-hari" data-label="Hari">
+                                            <span class="day-label">{{ $day['dayName'] }}</span>
+                                            <span class="day-date">{{ $day['dayNumber'] }} {{ $day['monthShort'] }}</span>
+                                        </td>
+                                        <td colspan="7" class="cell-empty">Tidak ada jadwal (filter aktif)</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="live-hint">
+                <span class="pulse-dot" aria-hidden="true"></span>
+                <span>Data diperbarui otomatis setiap 20 detik</span>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="events-modal" id="eventsModal" aria-hidden="true">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalDate">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalDate"></h3>
+            <button type="button" class="modal-close" id="modalClose" aria-label="Tutup">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script type="application/json" id="eventsData">@json($eventsByDate ?? [])</script>
+<script>
+(() => {
+    function loadEventsByDate() {
+        const el = document.getElementById('eventsData');
+        if (!el) return {};
+        try { return JSON.parse(el.textContent || '{}'); }
+        catch (_) { return {}; }
+    }
+
+    window.eventsByDate = loadEventsByDate();
+
+    const POLL_INTERVAL = 20000;
+    let pollTimer = null;
+    let isUpdating = false;
+    let activeStatuses = ['terjadwal', 'selesai'];
+
+    function initFilters() {
+        document.querySelectorAll('.filter-chip').forEach((chip) => {
+            chip.addEventListener('click', (e) => {
+                e.preventDefault();
+                const input = chip.querySelector('input');
+                input.checked = !input.checked;
+                activeStatuses = Array.from(document.querySelectorAll('.status-filter:checked')).map((el) => el.value);
+                if (activeStatuses.length === 0) {
+                    input.checked = true;
+                    activeStatuses = [input.value];
                 }
-                
-                // Disable Jasa status filters if Jasa is unchecked
-                if (statusJasaFilter) {
-                    if (jasaCheckbox && !jasaCheckbox.checked) {
-                        statusJasaFilter.classList.add('disabled');
-                    } else {
-                        statusJasaFilter.classList.remove('disabled');
-                    }
-                }
+                applyFilters();
+            });
+        });
+    }
+
+    function applyFilters() {
+        document.querySelectorAll('.filter-chip').forEach((chip) => {
+            const input = chip.querySelector('input');
+            chip.classList.toggle('active', input.checked);
+        });
+
+        const dates = new Set();
+        document.querySelectorAll('.schedule-row[data-status]').forEach((row) => dates.add(row.dataset.date));
+
+        dates.forEach((date) => {
+            const rows = document.querySelectorAll(`.schedule-row[data-date="${date}"][data-status]`);
+            let visibleCount = 0;
+
+            rows.forEach((row) => {
+                const show = activeStatuses.includes(row.dataset.status);
+                row.classList.toggle('hidden-by-filter', !show);
+                if (show) visibleCount += 1;
+            });
+
+            const placeholder = document.querySelector(`.schedule-row--placeholder[data-date="${date}"]`);
+            if (placeholder) {
+                placeholder.classList.toggle('visible', rows.length > 0 && visibleCount === 0);
             }
-                
-            // Apply filters to calendar
-            function applyFilters() {
-                const eventItems = document.querySelectorAll('.event-item');
-                    
-                eventItems.forEach(item => {
-                    const eventType = item.dataset.type;
-                    const eventStatus = item.dataset.status;
-                        
-                    const jenisMatch = activeFilters.jenis.includes(eventType);
-                    
-                    // Check status based on event type
-                    let statusMatch = false;
-                    if (eventType === 'produksi') {
-                        statusMatch = activeFilters.statusProduksi.includes(eventStatus);
-                    } else if (eventType === 'jasa') {
-                        statusMatch = activeFilters.statusJasa.includes(eventStatus);
-                    }
-                        
-                    if (jenisMatch && statusMatch) {
-                        item.style.display = '';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-                    
-                // Update mini calendar visibility
+        });
+
+        updateMiniCalendar();
+    }
+
+    function updateMiniCalendar() {
+        document.querySelectorAll('.mini-day-btn').forEach((btn) => {
+            const hasSchedule = btn.dataset.hasSchedule === '1';
+            const isSpecial = btn.classList.contains('selected') || btn.classList.contains('today');
+            btn.style.opacity = (hasSchedule || isSpecial) ? '1' : '0.4';
+        });
+    }
+
+    async function fetchScheduleData() {
+        if (isUpdating || document.hidden) return;
+        isUpdating = true;
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const response = await fetch(window.location.pathname + '?' + urlParams.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' },
+            });
+            if (!response.ok) return;
+
+            const html = await response.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+
+            const newBody = doc.querySelector('#weekScheduleBody');
+            const oldBody = document.querySelector('#weekScheduleBody');
+            if (newBody && oldBody) {
+                oldBody.innerHTML = newBody.innerHTML;
+                applyFilters();
+            }
+
+            const newStats = doc.querySelector('#statsBar');
+            const oldStats = document.querySelector('#statsBar');
+            if (newStats && oldStats) oldStats.innerHTML = newStats.innerHTML;
+
+            const newMini = doc.querySelector('#miniCalendarDays');
+            const oldMini = document.querySelector('#miniCalendarDays');
+            if (newMini && oldMini) {
+                oldMini.innerHTML = newMini.innerHTML;
                 updateMiniCalendar();
             }
-                
-            // Update mini calendar based on filters
-            function updateMiniCalendar() {
-                const dayButtons = document.querySelectorAll('.mini-day-btn');
-                    
-                dayButtons.forEach(btn => {
-                    const hasJasa = btn.dataset.hasJasa === '1';
-                    const hasProduksi = btn.dataset.hasProduksi === '1';
-                        
-                    const showJasa = activeFilters.jenis.includes('jasa');
-                    const showProduksi = activeFilters.jenis.includes('produksi');
-                        
-                    const shouldShow = (hasJasa && showJasa) || (hasProduksi && showProduksi);
-                        
-                    if (shouldShow || btn.classList.contains('selected') || btn.classList.contains('today')) {
-                        btn.style.opacity = '1';
-                    } else {
-                        btn.style.opacity = '0.3';
-                    }
-                });
+
+            const newEvents = doc.getElementById('eventsData');
+            const oldEvents = document.getElementById('eventsData');
+            if (newEvents && oldEvents) {
+                oldEvents.textContent = newEvents.textContent;
+                window.eventsByDate = loadEventsByDate();
             }
-    
-            async function fetchScheduleData() {
-                if (isUpdating) return;
-                isUpdating = true;
-    
-                try {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const response = await fetch(window.location.pathname + '?' + urlParams.toString(), {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'text/html'
-                        }
-                    });
-    
-                    if (!response.ok) {
-                        isUpdating = false;
-                        return;
-                    }
-    
-                    const html = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-    
-                    // Update calendar grid
-                    const newGrid = doc.querySelector('.main-calendar-grid');
-                    const oldGrid = document.querySelector('.main-calendar-grid');
-                    if (newGrid && oldGrid) {
-                        oldGrid.style.opacity = '0.5';
-                        oldGrid.style.transition = 'opacity 0.3s ease';
-                        setTimeout(() => {
-                            oldGrid.innerHTML = newGrid.innerHTML;
-                            oldGrid.style.opacity = '1';
-                            // Wait a bit for DOM to update, then re-apply filters
-                            setTimeout(() => {
-                                applyFilters();
-                                updateStatusFiltersState();
-                            }, 50);
-                        }, 300);
-                    }
-    
-                    // Update mini calendar
-                    const newMiniDays = doc.querySelector('.mini-calendar-days');
-                    const oldMiniDays = document.querySelector('.mini-calendar-days');
-                    if (newMiniDays && oldMiniDays) {
-                        oldMiniDays.innerHTML = newMiniDays.innerHTML;
-                        updateMiniCalendar();
-                    }
-    
-                    // Update stats
-                    const newStats = doc.querySelector('.sidebar-stats');
-                    const oldStats = document.querySelector('.sidebar-stats');
-                    if (newStats && oldStats) {
-                        oldStats.innerHTML = newStats.innerHTML;
-                    }
-    
-                    // Update month name
-                    const newMonthName = doc.querySelector('.main-header h1');
-                    const oldMonthName = document.querySelector('.main-header h1');
-                    if (newMonthName && oldMonthName) {
-                        oldMonthName.textContent = newMonthName.textContent;
-                    }
-    
-                    console.log('✓ Schedule updated at', new Date().toLocaleTimeString());
-                } catch (error) {
-                    console.error(' Failed to fetch schedule updates:', error);
-                } finally {
-                    isUpdating = false;
-                }
+        } catch (_) {
+            // ignore
+        } finally {
+            isUpdating = false;
+        }
+    }
+
+    function openModal(date) {
+        const modal = document.getElementById('eventsModal');
+        const modalDate = document.getElementById('modalDate');
+        const modalBody = document.getElementById('modalBody');
+        const dateObj = new Date(date + 'T00:00:00');
+
+        modalDate.textContent = dateObj.toLocaleDateString('id-ID', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        });
+
+        const events = window.eventsByDate?.[date];
+        if (!events || events.length === 0) {
+            modalBody.innerHTML = '<p style="text-align:center;color:var(--shade-50);padding:20px;">Tidak ada jadwal pada tanggal ini</p>';
+        } else {
+            modalBody.innerHTML = events.map((event) => {
+                const statusClass = (event.status || 'terjadwal').replace(/ /g, '-');
+                const statusLabel = event.status_label || ((event.status || 'terjadwal').charAt(0).toUpperCase() + (event.status || 'terjadwal').slice(1));
+                return `
+                    <div class="modal-event-item ${statusClass}">
+                        <div class="modal-event-header">
+                            <span class="status-badge status-${statusClass}">${statusLabel}</span>
+                        </div>
+                        <div class="modal-event-title">${event.time || '—'} · ${event.keterangan || 'Tanpa keterangan'}</div>
+                        ${event.branch ? `<div class="modal-event-meta">Branch: ${event.branch}</div>` : ''}
+                        ${event.location ? `<div class="modal-event-meta">${event.location}</div>` : ''}
+                        ${event.catatan ? `<div class="modal-event-meta">Catatan: ${event.catatan}</div>` : ''}
+                        ${event.pekerja ? `<div class="modal-event-meta">Petugas: ${event.pekerja}</div>` : ''}
+                        ${event.pic ? `<div class="modal-event-meta">PIC: ${event.pic}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('eventsModal');
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        const main = document.getElementById('scheduleMain');
+        const sidebar = document.getElementById('filterSidebar');
+        if (!main?.classList.contains('fullscreen-mode') && !sidebar?.classList.contains('is-open')) {
+            document.body.style.overflow = '';
+        }
+    }
+
+    function initModal() {
+        document.getElementById('modalClose')?.addEventListener('click', closeModal);
+        document.getElementById('modalOverlay')?.addEventListener('click', closeModal);
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const main = document.getElementById('scheduleMain');
+            if (main?.classList.contains('fullscreen-mode')) {
+                setFullscreen(false);
+                return;
             }
-    
-            // Start polling
-            function startPolling() {
-                pollTimer = setInterval(fetchScheduleData, POLL_INTERVAL);
-            }
-    
-            // Stop polling
-            function stopPolling() {
-                if (pollTimer) {
-                    clearInterval(pollTimer);
-                    pollTimer = null;
-                }
-            }
-            
-            // Initialize modal
-            function initModal() {
-                const modal = document.getElementById('eventsModal');
-                const overlay = document.getElementById('modalOverlay');
-                const closeBtn = document.getElementById('modalClose');
-                
-                // Close modal functions
-                function closeModal() {
-                    modal.classList.remove('active');
+            closeModal();
+        });
+    }
+
+    function setFullscreen(enabled) {
+        const main = document.getElementById('scheduleMain');
+        if (!main) return;
+
+        main.classList.toggle('fullscreen-mode', enabled);
+        document.body.classList.toggle('is-schedule-fullscreen', enabled);
+
+        if (enabled) {
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
+        const sidebar = document.getElementById('filterSidebar');
+        const sidebarOpen = sidebar?.classList.contains('is-open');
+        document.body.style.overflow = sidebarOpen ? 'hidden' : '';
+    }
+
+    function initFullscreen() {
+        const enterBtns = [
+            document.getElementById('toggleFullscreen'),
+            document.getElementById('toggleFullscreenMobile'),
+        ].filter(Boolean);
+        const exitBtn = document.getElementById('exitFullscreen');
+        const main = document.getElementById('scheduleMain');
+        if (!main) return;
+
+        const toggle = () => setFullscreen(!main.classList.contains('fullscreen-mode'));
+
+        enterBtns.forEach((btn) => btn.addEventListener('click', toggle));
+        exitBtn?.addEventListener('click', () => setFullscreen(false));
+    }
+
+    function initMobileSidebar() {
+        const sidebar = document.getElementById('filterSidebar');
+        const openBtn = document.getElementById('openMobileSidebar');
+        const closeBtn = document.getElementById('closeMobileSidebar');
+        const backdrop = document.getElementById('mobileSidebarBackdrop');
+        if (!sidebar || !openBtn || !closeBtn || !backdrop) return;
+
+        const setOpen = (open) => {
+            if (window.innerWidth > 767) {
+                sidebar.classList.remove('is-open');
+                backdrop.classList.remove('is-visible');
+                backdrop.setAttribute('aria-hidden', 'true');
+                const main = document.getElementById('scheduleMain');
+                if (!main?.classList.contains('fullscreen-mode')) {
                     document.body.style.overflow = '';
                 }
-                
-                // Event listeners
-                closeBtn.addEventListener('click', closeModal);
-                overlay.addEventListener('click', closeModal);
-                
-                // Close on ESC
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape' && modal.classList.contains('active')) {
-                        closeModal();
-                    }
-                });
-                
-                // Click on "+X more" badge
-                document.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('event-more-badge')) {
-                        const date = e.target.dataset.date;
-                        openModal(date);
-                    }
-                });
-                
-                // Click on day cell (but not on event items)
-                document.addEventListener('click', function(e) {
-                    const dayCell = e.target.closest('.main-day-cell');
-                    if (dayCell && !e.target.closest('.event-item') && !e.target.closest('.event-more-badge')) {
-                        const date = dayCell.dataset.date;
-                        const dayEvents = window.eventsByDate && window.eventsByDate[date];
-                        // Open modal for any date cell click, even if no events
-                        openModal(date);
-                    }
-                });
+                return;
             }
-            
-            // Open modal with events
-            function openModal(date) {
-                const modal = document.getElementById('eventsModal');
-                const modalDate = document.getElementById('modalDate');
-                const modalBody = document.getElementById('modalBody');
-                
-                // Format date
-                const dateObj = new Date(date);
-                const formattedDate = dateObj.toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                
-                modalDate.textContent = formattedDate;
-                
-                // Get events for this date
-                const events = window.eventsByDate && window.eventsByDate[date];
-                
-                if (!events || events.length === 0) {
-                    modalBody.innerHTML = '<p style="text-align: center; color: #5f6368; padding: 20px;">No events for this date</p>';
-                } else {
-                    modalBody.innerHTML = events.map(event => {
-                        const statusClass = event.status.replace(/ /g, '-');
-                        return `
-                            <div class="modal-event-item ${event.type} ${statusClass}">
-                                <div class="modal-event-header">
-                                    <span class="modal-event-type ${event.type}">
-                                        ${event.type === 'jasa' ? 'Jasa' : 'Produksi'}
-                                    </span>
-                                    <span class="modal-event-status">${event.status}</span>
-                                </div>
-                                <div class="modal-event-title">${event.title}</div>
-                                ${event.location ? `
-                                    <div class="modal-event-location">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        </svg>
-                                        <span>${event.location}</span>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `;
-                    }).join('');
-                }
-                
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-    
-            
-            
-            // Fullscreen Toggle
-            const fullscreenBtn = document.getElementById('toggleFullscreen');
-            const scheduleMain = document.querySelector('.schedule-main');
+            sidebar.classList.toggle('is-open', open);
+            backdrop.classList.toggle('is-visible', open);
+            backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+            const main = document.getElementById('scheduleMain');
+            if (main?.classList.contains('fullscreen-mode')) return;
+            document.body.style.overflow = open ? 'hidden' : '';
+        };
 
-            if (fullscreenBtn && scheduleMain) {
-                fullscreenBtn.addEventListener('click', function () {
-                    scheduleMain.classList.toggle('fullscreen-mode');
+        openBtn.addEventListener('click', () => setOpen(true));
+        closeBtn.addEventListener('click', () => setOpen(false));
+        backdrop.addEventListener('click', () => setOpen(false));
 
-                    if (scheduleMain.classList.contains('fullscreen-mode')) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
-                });
-            }
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 767) setOpen(false);
+        });
+    }
 
+    initFilters();
+    applyFilters();
+    initModal();
+    initFullscreen();
+    initMobileSidebar();
+    pollTimer = setInterval(fetchScheduleData, POLL_INTERVAL);
 
-            // Initialize when page loads
-            initFilters();
-            initModal();
-            startPolling();
-    
-            // Stop when page is hidden
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    stopPolling();
-                } else {
-                    startPolling();
-                    fetchScheduleData();
-                }
-            });
-    
-            // Cleanup on page unload
-            window.addEventListener('beforeunload', stopPolling);
-        })();
-    </script>
-</div>
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        } else {
+            pollTimer = setInterval(fetchScheduleData, POLL_INTERVAL);
+            fetchScheduleData();
+        }
+    });
+})();
+</script>
+</body>
+</html>

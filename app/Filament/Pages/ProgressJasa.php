@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Jasa;
 use App\Models\Petugas;
+use App\Models\Schedule;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -517,6 +518,11 @@ class ProgressJasa extends Page implements HasForms
                 $this->buildWaMeLinks();
 
                 $this->record->petugasMany()->sync($petugasIds);
+
+                // Refresh relations then sync/create schedule record
+                $this->record->refresh();
+                $this->record->load(['pelanggan', 'petugasMany', 'petugas', 'items']);
+                Schedule::syncFromJasa($this->record);
 
                 // REMOVED: Auto-update petugas status to 'busy' is no longer needed
                 // if (!empty($petugasIds)) {
