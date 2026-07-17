@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasColumn('schedules', 'jasa_id')) {
+            return;
+        }
+
         Schema::table('schedules', function (Blueprint $table) {
             $table->dropConstrainedForeignId('jasa_id');
         });
@@ -21,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::hasColumn('schedules', 'jasa_id')) {
+            return;
+        }
+
         Schema::table('schedules', function (Blueprint $table) {
             $table->foreignId('jasa_id')->nullable()->constrained('jasas')->nullOnDelete();
         });
