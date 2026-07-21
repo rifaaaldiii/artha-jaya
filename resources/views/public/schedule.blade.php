@@ -697,6 +697,33 @@
         .schedule-row--placeholder { display: none; }
         .schedule-row--placeholder.visible { display: table-row; }
 
+        /* Same-day multi-item grouping (desktop / tablet table) */
+        @media (min-width: 768px) {
+            .week-table tbody tr.is-continuation-day-item td.col-hari .day-label,
+            .week-table tbody tr.is-continuation-day-item td.col-hari .day-date {
+                visibility: hidden;
+            }
+
+            .week-table tbody tr.is-first-day-item:not(.is-last-day-item) td,
+            .week-table tbody tr.is-continuation-day-item:not(.is-last-day-item) td {
+                border-bottom-style: dashed;
+                border-bottom-color: var(--shade-30);
+            }
+
+            .week-table tbody tr.is-first-day-item:not(.is-last-day-item) td.col-hari,
+            .week-table tbody tr.is-continuation-day-item:not(.is-last-day-item) td.col-hari {
+                border-bottom-color: transparent;
+            }
+
+            .week-table tbody tr.is-continuation-day-item td {
+                padding-top: 10px;
+            }
+
+            .week-table tbody tr.is-first-day-item:not(.is-last-day-item) td {
+                padding-bottom: 10px;
+            }
+        }
+
         .live-hint {
             display: flex;
             align-items: center;
@@ -1137,7 +1164,7 @@
                 display: none;
             }
 
-            .week-table tbody tr.is-first-day-item:has(+ tr.is-continuation-day-item) {
+            .week-table tbody tr.is-first-day-item:not(.is-last-day-item) {
                 margin-bottom: 0;
                 border-bottom-left-radius: 0;
                 border-bottom-right-radius: 0;
@@ -1152,7 +1179,7 @@
                 box-shadow: none;
             }
 
-            .week-table tbody tr.is-continuation-day-item:has(+ tr.is-continuation-day-item) {
+            .week-table tbody tr.is-continuation-day-item:not(.is-last-day-item) {
                 margin-bottom: 0;
                 border-bottom-left-radius: 0;
                 border-bottom-right-radius: 0;
@@ -1160,6 +1187,11 @@
 
             .week-table tbody tr.is-continuation-day-item td.col-keterangan {
                 border-top: 1px dashed var(--hairline);
+            }
+
+            .week-table tbody tr.is-first-day-item:not(.is-last-day-item) td:last-child,
+            .week-table tbody tr.is-continuation-day-item:not(.is-last-day-item) td:last-child {
+                border-bottom: 1px dashed var(--hairline);
             }
 
             .week-table tbody tr.is-today td.col-hari {
@@ -1413,15 +1445,13 @@
                                 @else
                                     @foreach ($day['items'] as $item)
                                         <tr
-                                            class="schedule-row {{ $day['isToday'] ? 'is-today' : '' }} {{ $loop->first ? 'is-first-day-item' : 'is-continuation-day-item' }}"
+                                            class="schedule-row {{ $day['isToday'] ? 'is-today' : '' }} {{ $loop->first ? 'is-first-day-item' : 'is-continuation-day-item' }} {{ $loop->last ? 'is-last-day-item' : '' }}"
                                             data-date="{{ $day['date'] }}"
                                             data-status="{{ $item['status'] ?? 'terjadwal' }}"
                                         >
                                             <td class="col-hari" data-label="Hari">
                                                 <span class="day-label">{{ $day['dayName'] }}</span>
-                                                @if ($loop->first)
-                                                    <span class="day-date">{{ $day['dayNumber'] }} {{ $day['monthShort'] }}</span>
-                                                @endif
+                                                <span class="day-date">{{ $day['dayNumber'] }} {{ $day['monthShort'] }}</span>
                                             </td>
                                             <td class="col-keterangan" data-label="Keterangan">
                                                 <span class="cell-value cell-value--multiline">{{ $item['keterangan'] ?: '—' }}</span>
@@ -1534,13 +1564,23 @@
         document.querySelectorAll('.schedule-row[data-status]').forEach((row) => dates.add(row.dataset.date));
 
         dates.forEach((date) => {
-            const rows = document.querySelectorAll(`.schedule-row[data-date="${date}"][data-status]`);
+            const rows = Array.from(document.querySelectorAll(`.schedule-row[data-date="${date}"][data-status]`));
             let visibleCount = 0;
 
             rows.forEach((row) => {
                 const show = activeStatuses.includes(row.dataset.status);
                 row.classList.toggle('hidden-by-filter', !show);
                 if (show) visibleCount += 1;
+            });
+
+            const visibleRows = rows.filter((row) => !row.classList.contains('hidden-by-filter'));
+            rows.forEach((row) => {
+                row.classList.remove('is-first-day-item', 'is-continuation-day-item', 'is-last-day-item');
+            });
+            visibleRows.forEach((row, index) => {
+                if (index === 0) row.classList.add('is-first-day-item');
+                else row.classList.add('is-continuation-day-item');
+                if (index === visibleRows.length - 1) row.classList.add('is-last-day-item');
             });
 
             const placeholder = document.querySelector(`.schedule-row--placeholder[data-date="${date}"]`);
