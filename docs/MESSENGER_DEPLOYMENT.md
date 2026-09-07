@@ -62,7 +62,15 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-## 2. Queue worker (`php artisan queue:work`)
+## 2. Auto-update status produksi (via polling admin)
+
+Status produksi `baru` → `proses` diubah otomatis jika tanggal `jadwal` sudah lewat. Logic dijalankan dari endpoint polling admin (`GET /polling/triggers`) saat ada user yang login di panel, maksimal sekali per 60 detik (throttle + cache lock).
+
+- Tidak membutuhkan cron `schedule:run` khusus untuk fitur ini.
+- Jika tidak ada admin yang membuka panel, update menunggu sampai ada yang login.
+- Uji manual: `php artisan produksi:auto-update-status`
+
+## 3. Queue worker (`php artisan queue:work`)
 
 Broadcast event chat memakai `ShouldBroadcastNow` (langsung). **Notifikasi Filament** memakai queue (`ShouldQueue`).
 
@@ -88,7 +96,7 @@ autorestart=true
 user=<user>
 ```
 
-## 3. Laravel Reverb (`php artisan reverb:start`)
+## 4. Laravel Reverb (`php artisan reverb:start`)
 
 Reverb adalah **server WebSocket** yang harus berjalan terus. Kebanyakan paket **shared hosting Niagahoster tidak mengizinkan** proses WebSocket/custom port yang listen 24/7.
 
@@ -159,7 +167,7 @@ autorestart=true
 - Tanyakan apakah **port custom** / WebSocket diizinkan (sering **tidak** pada shared).
 - Jika tidak ada WebSocket: tetap pakai `BROADCAST_CONNECTION=log` + polling.
 
-## 4. Checklist setelah upload
+## 5. Checklist setelah upload
 
 1. `composer install --no-dev --optimize-autoloader`
 2. `php artisan migrate --force`
@@ -168,7 +176,7 @@ autorestart=true
 5. Reverb + supervisor **hanya jika** infrastruktur mendukung
 6. Buka `/admin/messenger` — uji kirim pesan antar 2 user
 
-## 5. Upload via PuTTY / FTP (penting)
+## 6. Upload via PuTTY / FTP (penting)
 
 Messenger memakai **Vite build** (`public/build/`). Hanya meng-upload file PHP (`app/`, `resources/views/`) **tidak cukup**.
 
@@ -226,7 +234,7 @@ php artisan config:clear
 
 Hard refresh browser (Ctrl+F5).
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 | Gejala | Penyebab umum | Solusi |
 |--------|----------------|--------|
@@ -238,7 +246,7 @@ Hard refresh browser (Ctrl+F5).
 | 403 pada WebSocket | Auth channel | Pastikan user login; cek `routes/channels.php` |
 | CSRF broadcasting | Session | Pastikan `APP_URL` benar & HTTPS konsisten |
 
-## 7. Ringkasan rekomendasi
+## 8. Ringkasan rekomendasi
 
 | Lingkungan | Broadcast | Queue |
 |------------|-----------|-------|
